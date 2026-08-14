@@ -15,6 +15,8 @@ We're **starting with a complete .NET track (126 questions)**, and growing into 
 **every language and engineering path** — Java, Python, JavaScript/React, DSA, System
 Design, DevOps and more — **added over time, with the community.**
 
+### ▶️ [**Try InterviewVerse live →**](https://interview-verse-kappa.vercel.app/)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-22C55E.svg?style=flat-square)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-4F8EF7.svg?style=flat-square)](CONTRIBUTING.md)
 [![Stars](https://img.shields.io/github/stars/Kamilmakwana/InterviewVerse?style=flat-square&color=F59E0B)](https://github.com/Kamilmakwana/InterviewVerse/stargazers)
@@ -27,7 +29,7 @@ Design, DevOps and more — **added over time, with the community.**
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![Framer Motion](https://img.shields.io/badge/Framer_Motion-11-0055FF?style=flat-square&logo=framer&logoColor=white)](https://www.framer.com/motion/)
 
-[**✨ Live Demo**](https://your-demo-link.example) · [**🐛 Report Bug**](https://github.com/Kamilmakwana/InterviewVerse/issues) · [**💡 Suggest a Question / Track / Language**](https://github.com/Kamilmakwana/InterviewVerse/issues/new)
+[**✨ Live Demo**](https://interview-verse-kappa.vercel.app/) · [**🐛 Report Bug**](https://github.com/Kamilmakwana/InterviewVerse/issues) · [**💡 Suggest a Question / Track / Language**](https://github.com/Kamilmakwana/InterviewVerse/issues/new)
 
 </div>
 
