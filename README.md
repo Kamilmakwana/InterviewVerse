@@ -184,7 +184,7 @@ Released under the **[MIT License](LICENSE)** — free to use, learn from, and b
 ## 🙋 Author
 
 Built by **[Kamil Makwana](https://github.com/Kamilmakwana)** as a personal open-source project.
-Connect on [LinkedIn](https://www.linkedin.com/in/your-handle) · [GitHub](https://github.com/Kamilmakwana).
+Connect on [LinkedIn](https://www.linkedin.com/in/kamilmakwana/) · [GitHub](https://github.com/Kamilmakwana).
 
 ---
 
