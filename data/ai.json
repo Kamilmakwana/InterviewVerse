@@ -1,0 +1,807 @@
+[
+ {
+  "id": "ai-01",
+  "title": "Integrating Azure OpenAI into a .NET Core App",
+  "slug": "azure-openai-dotnet-integration",
+  "category": "ai",
+  "difficulty": "Intermediate",
+  "estimatedTime": 8,
+  "emoji": "🤖",
+  "icon": "Cpu",
+  "tags": [
+   "azure-openai",
+   "llm",
+   "dependency-injection",
+   "resilience",
+   "security"
+  ],
+  "keywords": [
+   "AzureOpenAIClient",
+   "DefaultAzureCredential",
+   "managed identity",
+   "Polly",
+   "ChatClient",
+   "streaming",
+   "rate limiting",
+   "gpt-4o"
+  ],
+  "companies": [
+   "Microsoft",
+   "Accenture",
+   "Infosys",
+   "TCS",
+   "Cognizant"
+  ],
+  "interviewQuestion": "How do you integrate Azure OpenAI with a .NET Core application?",
+  "story": {
+   "setup": "A warehouse manager wants a smart assistant that reads messy incident reports and hands back three clean bullet points — but the manager insists the assistant is hired properly, not bolted onto the floor as a shortcut.",
+   "scenes": [
+    "HR (DI container) hires the assistant once as a permanent employee (Singleton AzureOpenAIClient), not a new temp agency worker for every single report — hiring a new one per request would exhaust the building's front-desk badges (sockets).",
+    "Instead of handing the assistant a physical key that could be photocopied and stolen (an API key in appsettings.json), the building gives it a biometric badge tied to its identity (DefaultAzureCredential + Managed Identity) — nothing to leak, nothing to rotate.",
+    "The assistant is introduced to the rest of the team only through a job description (IAiService interface), never by name — so on review day it's trivial to swap in a stand-in actor for testing, or replace the assistant with a different vendor entirely.",
+    "When the assistant is having a bad day and answers slowly or not at all, a supervisor (Polly) waits patiently with backoff, retries a couple of times, and eventually stops sending it work for a while (circuit breaker) instead of letting the whole warehouse queue jam up.",
+    "For a live customer chat, the assistant doesn't disappear for ten seconds and dump a wall of text — it talks as it thinks (streaming), so the floor manager sees words appear immediately."
+   ],
+   "moral": "Calling an LLM API is the easy one-liner; the interview-worthy engineering is lifecycle, identity, resilience, and streaming around that call."
+  },
+  "analogy": "The AzureOpenAIClient is a permanent, badge-carrying employee registered once with the company (Singleton in DI) — not a disposable contractor rehired on every request.",
+  "animation": "network",
+  "explanation": "Integrating Azure OpenAI means registering an AzureOpenAIClient (or the plain OpenAI SDK client pointed at your Azure endpoint) and wrapping it behind your own service interface so callers never touch the SDK directly. The client is thread-safe and holds connections, so it must be registered as a Singleton in DI — creating a new instance per request exhausts sockets under load. Authentication should use DefaultAzureCredential with a Managed Identity rather than an API key baked into configuration, because there is then no secret to leak or rotate. Around the raw call you need production concerns: Polly for retry-with-backoff on HTTP 429 (rate limit) and transient 5xx, a circuit breaker so an outage doesn't stall the whole pipeline, an explicit timeout plus CancellationToken because LLM calls are slow and unpredictable, and streaming (CompleteChatStreamingAsync) for any user-facing chat surface. Finally, treat prompts as sensitive: never interpolate secrets or regulated PII into them, log carefully, cap MaxTokens, and cache repeated prompts to control cost.",
+  "interviewAnswerShort": "Register AzureOpenAIClient as a Singleton with DefaultAzureCredential for auth, wrap it behind an IAiService interface for testability, and surround the actual call with Polly retries, a circuit breaker, timeouts/CancellationToken, and streaming for user-facing output.",
+  "interviewAnswerDetailed": "I register the AzureOpenAIClient once as a Singleton in Program.cs, pointed at the endpoint from configuration and authenticated via DefaultAzureCredential using Managed Identity, so there is no API key sitting in appsettings.json to leak or rotate. I never let controllers or other services touch the SDK directly — everything goes through a thin IAiService interface, so it's mockable in unit tests and I can swap providers later without touching callers. Around the actual CompleteChatAsync call I add Polly for retry-with-exponential-backoff on 429s and transient 5xx errors, plus a circuit breaker so a provider outage doesn't cascade and stall the whole pipeline. Every call takes a CancellationToken and an explicit timeout, because LLM latency is seconds, not milliseconds, and a hung thread per request kills throughput fast. For anything user-facing like chat, I use the streaming API so tokens render as they arrive instead of the user staring at a spinner for ten seconds. And I treat prompts as a security and cost surface — no secrets or regulated PII interpolated into them, MaxTokens capped explicitly, and repeated prompts cached to cut both latency and spend.",
+  "codeExample": {
+   "language": "csharp",
+   "code": "// Program.cs — register the client with Managed Identity (no key in code)\nbuilder.Services.AddSingleton(sp => new AzureOpenAIClient(\n    new Uri(builder.Configuration[\"AzureOpenAI:Endpoint\"]),\n    new DefaultAzureCredential()));\n\n// A service wrapping it behind an interface (testable, swappable)\npublic interface IAiService\n{\n    Task<string> SummarizeAsync(string text, CancellationToken ct);\n}\n\npublic class AiService : IAiService\n{\n    private readonly AzureOpenAIClient _client;\n    private readonly ILogger<AiService> _logger;\n\n    public AiService(AzureOpenAIClient client, ILogger<AiService> logger)\n    {\n        _client = client;\n        _logger = logger;\n    }\n\n    public async Task<string> SummarizeAsync(string text, CancellationToken ct)\n    {\n        var chat = _client.GetChatClient(\"gpt-4o\"); // your deployment name\n        var response = await chat.CompleteChatAsync(new ChatMessage[]\n        {\n            new SystemChatMessage(\"You summarize warehouse incident reports in 3 bullet points.\"),\n            new UserChatMessage(text)\n        }, cancellationToken: ct);\n        return response.Value.Content[0].Text;\n    }\n}",
+   "explanation": "The client is registered once as a Singleton using Managed Identity, and every caller goes through IAiService rather than the SDK directly, keeping the integration testable and swappable."
+  },
+  "mistakes": [
+   "Registering the OpenAI/AzureOpenAIClient as Scoped or Transient, creating a new client (and connection) per request and exhausting sockets under load.",
+   "Hardcoding an API key in appsettings.json instead of using Managed Identity via DefaultAzureCredential.",
+   "Calling the SDK directly from controllers instead of behind an interface, making the code untestable and locked to one provider.",
+   "Holding an HTTP request open for a slow, non-streamed completion instead of streaming tokens or offloading to a background job.",
+   "No retry/circuit-breaker policy, so a transient 429 or a brief provider outage becomes a hard failure for the whole feature."
+  ],
+  "followUps": [
+   {
+    "question": "Why Singleton and not Scoped for the AzureOpenAIClient?",
+    "answer": "The client is thread-safe and manages its own HTTP connection pooling internally; registering it Scoped or Transient creates a new client (and new sockets) on every request, which under load exhausts available connections and adds needless allocation overhead for no benefit."
+   },
+   {
+    "question": "Why prefer Managed Identity over an API key?",
+    "answer": "An API key is a long-lived secret that has to be stored, rotated, and can leak via source control, logs, or config files. Managed Identity via DefaultAzureCredential gives the app an Azure AD identity with role-based access to the OpenAI resource — nothing to store or rotate, and access can be revoked centrally."
+   },
+   {
+    "question": "How do you keep LLM calls from blowing your cost budget?",
+    "answer": "Cache identical or near-identical prompts, cap MaxTokens explicitly per call, use a smaller/cheaper model for simple classification-style tasks, trim system prompts since they're resent on every call, and log token counts and cost per request so spend is observable, not discovered on the invoice."
+   }
+  ],
+  "memoryHack": {
+   "emoji": "🪪",
+   "oneLiner": "One badge-carrying Singleton employee, hired via Managed Identity, never a temp per request.",
+   "mnemonic": "S-I-R-S: Singleton, Identity, Resilience, Streaming",
+   "memoryPalace": "Picture a single employee badge hanging on one hook by the door — every request borrows that same badge (Singleton), it opens doors by fingerprint not a key card (Managed Identity), a supervisor stands nearby with a clipboard ready to retry (Polly), and the employee narrates their work out loud as they go (streaming)."
+  },
+  "bestPractices": [
+   "Register the LLM client as a Singleton and hide it behind your own service interface.",
+   "Authenticate with DefaultAzureCredential and Managed Identity instead of API keys where the hosting environment supports it.",
+   "Wrap every call with Polly retry-with-backoff and a circuit breaker for 429s and transient 5xx.",
+   "Use streaming APIs for any user-facing response; use background jobs for anything long-running.",
+   "Never interpolate secrets or regulated PII into prompts, and cap MaxTokens on every call."
+  ],
+  "performanceTips": [
+   "Reuse the Singleton client across the app lifetime rather than creating new instances — connection setup is not free.",
+   "Cache repeated prompt/response pairs (e.g. via IMemoryCache) to cut both latency and token cost.",
+   "Set explicit request timeouts shorter than your HTTP pipeline's overall timeout so a stuck LLM call fails fast instead of holding a thread."
+  ],
+  "quiz": [
+   {
+    "question": "Why should AzureOpenAIClient be registered as a Singleton in DI?",
+    "options": [
+     "It has no state at all",
+     "It is thread-safe and manages connections, so per-request instances exhaust sockets",
+     "Singleton is required by the Azure SDK license",
+     "It makes unit testing easier"
+    ],
+    "answer": 1,
+    "explanation": "The client is thread-safe and holds connection resources; creating a fresh instance per request wastes sockets and setup cost under load."
+   },
+   {
+    "question": "What is the main security benefit of DefaultAzureCredential over an API key?",
+    "options": [
+     "It's faster to authenticate",
+     "There is no secret in code/config to leak or rotate",
+     "It bypasses rate limits",
+     "It works without network access"
+    ],
+    "answer": 1,
+    "explanation": "Managed Identity via DefaultAzureCredential removes the need to store, rotate, or protect a static API key."
+   },
+   {
+    "question": "Why use CompleteChatStreamingAsync for a user-facing chat feature?",
+    "options": [
+     "It's cheaper per token",
+     "Users see tokens as they're generated instead of waiting for the full response",
+     "It avoids the need for a CancellationToken",
+     "It's the only way to call gpt-4o"
+    ],
+    "answer": 1,
+    "explanation": "Streaming renders output incrementally, dramatically improving perceived latency for interactive chat UIs."
+   }
+  ],
+  "flashcards": [
+   {
+    "front": "Why register the LLM client as Singleton?",
+    "back": "It's thread-safe and holds connections — per-request instances exhaust sockets."
+   },
+   {
+    "front": "Preferred auth for Azure OpenAI in production?",
+    "back": "Managed Identity via DefaultAzureCredential, not a static API key."
+   },
+   {
+    "front": "Why wrap the SDK behind IAiService?",
+    "back": "Testable (mockable) and swappable between providers without touching callers."
+   },
+   {
+    "front": "How do you stop a provider outage from stalling your whole pipeline?",
+    "back": "Polly retry with backoff plus a circuit breaker, and explicit timeouts with CancellationToken."
+   }
+  ],
+  "revision30": "Register the Azure OpenAI client as a Singleton, authenticate via Managed Identity, and hide it behind an IAiService interface. Wrap calls with Polly retries/circuit breaker, timeouts, and CancellationToken; stream responses for chat; never log secrets or PII in prompts.",
+  "revision2min": "Integrating Azure OpenAI in .NET starts with registering AzureOpenAIClient once as a Singleton — it's thread-safe and manages connections, so per-request instances exhaust sockets. Authenticate with DefaultAzureCredential and Managed Identity instead of an API key, removing a secret that would otherwise need storage and rotation. Never call the SDK directly from controllers; wrap it behind an interface like IAiService so it's mockable in tests and swappable between providers. Around the actual completion call, add Polly retry-with-exponential-backoff for 429 rate limits and transient 5xx errors, plus a circuit breaker so an outage doesn't stall the whole pipeline, and always pass a CancellationToken with a sane timeout since LLM calls are slow and unpredictable. For user-facing chat, use the streaming completion API so users see tokens appear immediately rather than waiting many seconds for a full response. Finally, treat prompts as a cost and security surface: cap MaxTokens explicitly, cache repeated prompts, never interpolate secrets or regulated PII into prompt text, and log token usage and cost per request for observability.",
+  "challenge": "Design the DI registration and calling code so that if Azure OpenAI's endpoint is unreachable for 30 seconds, new requests fail fast with a friendly fallback message instead of queuing up and exhausting the thread pool — name the specific Polly policies you'd combine and in what order.",
+  "related": [
+   "semantic-kernel-overview",
+   "rag-pipeline-dotnet",
+   "llm-api-dotnet"
+  ],
+  "summary": "Integrating Azure OpenAI into .NET is less about the API call itself and more about Singleton lifecycle, Managed Identity auth, resilience (Polly), streaming, and cost/security discipline around it."
+ },
+ {
+  "id": "ai-02",
+  "title": "Semantic Kernel — Orchestrating LLMs in .NET",
+  "slug": "semantic-kernel-overview",
+  "category": "ai",
+  "difficulty": "Intermediate",
+  "estimatedTime": 9,
+  "emoji": "🧩",
+  "icon": "Layers",
+  "tags": [
+   "semantic-kernel",
+   "orchestration",
+   "function-calling",
+   "plugins",
+   "microsoft"
+  ],
+  "keywords": [
+   "Semantic Kernel",
+   "Kernel",
+   "KernelFunction",
+   "plugins",
+   "planners",
+   "memory",
+   "function calling",
+   "ToolCallBehavior",
+   "AutoInvokeKernelFunctions"
+  ],
+  "companies": [
+   "Microsoft",
+   "Accenture",
+   "TCS",
+   "Infosys",
+   "Deloitte"
+  ],
+  "interviewQuestion": "What is Semantic Kernel?",
+  "story": {
+   "setup": "A raw OpenAI SDK call is like a single walkie-talkie handed to one worker — useful, but someone still has to run the warehouse. Semantic Kernel is the dispatcher's control room.",
+   "scenes": [
+    "The Kernel is the dispatcher's desk — one place where every tool, every conversation, and every workflow step gets registered and coordinated (it doubles as a lightweight DI container).",
+    "A C# method like GetStockAsync is labeled with a bright sticker ([KernelFunction], [Description]) and pinned to the board as a Plugin — now it's not just code the developer calls, it's a tool the model itself is allowed to reach for.",
+    "When a customer asks 'how much stock of SKU-1234 do we have?', the model doesn't hallucinate a number — with ToolCallBehavior.AutoInvokeKernelFunctions turned on, it recognizes the labeled tool, calls GetStockAsync itself, and reports the real answer back.",
+    "For a multi-step goal ('reorder anything under threshold and email the supplier'), a Planner breaks it into an ordered sequence of tool calls instead of the model trying to do everything in one giant, unreliable prompt.",
+    "A Memory component plugs in a vector store so the dispatcher can pull up relevant past documents or conversation history before answering — this is where Semantic Kernel meets RAG."
+   ],
+   "moral": "Semantic Kernel doesn't replace the LLM call — it's the orchestration layer that lets the model safely call your existing C# code, remember context, and chain multi-step work."
+  },
+  "analogy": "Semantic Kernel is a dispatcher's control room: the LLM is the smart operator, but the Kernel is what lets that operator actually reach the warehouse's real tools, radios, and records instead of just guessing over the phone.",
+  "animation": "network",
+  "explanation": "Semantic Kernel is Microsoft's open-source orchestration SDK for building AI applications in .NET. Where calling the OpenAI/Azure OpenAI SDK directly is one raw completion request, Semantic Kernel is the framework wrapped around it: it manages prompt templates, exposes your own C# methods as tools the model can invoke, integrates conversation memory, and chains multi-step workflows. The four core concepts are the Kernel itself (the orchestrator, effectively a lightweight DI container), Plugins/Functions (native C# methods or prompt templates decorated so the model can call them), Planners (which break a high-level goal into an ordered sequence of function calls), and Memory (vector store integration that powers retrieval, i.e. RAG). Function calling is the headline feature in practice: you decorate a method with [KernelFunction] and [Description], register it via kernel.Plugins.AddFromObject(...), and with ToolCallBehavior.AutoInvokeKernelFunctions set, the model decides when to call it and Semantic Kernel executes it and feeds the result back automatically.",
+  "interviewAnswerShort": "Semantic Kernel is Microsoft's .NET orchestration SDK for LLM apps — it manages prompts, lets the model call your C# methods as tools (function calling), integrates memory for RAG, and chains multi-step workflows, on top of the raw completion API.",
+  "interviewAnswerDetailed": "Semantic Kernel sits above the raw OpenAI/Azure OpenAI SDK as an orchestration layer purpose-built for .NET. The Kernel object is the central orchestrator — you build it with Kernel.CreateBuilder(), add a chat completion service, and it acts a bit like a DI container for AI capabilities. The most useful concept in practice is Plugins: you decorate an existing C# method with [KernelFunction] and a [Description] attribute, register it with kernel.Plugins.AddFromObject(new InventoryPlugin()), and the model can now decide to call GetStockAsync itself when it needs real data, rather than hallucinating an answer — you enable that via ToolCallBehavior.AutoInvokeKernelFunctions in the execution settings. Planners take this further by decomposing a multi-step goal into an ordered sequence of function calls instead of relying on one giant prompt to do everything reliably. Memory wires in a vector store so the Kernel can retrieve relevant context before generating an answer, which is exactly the retrieval half of RAG. If I haven't shipped it to production, the honest and still strong answer is: I've used it in personal projects, the value is function calling — letting the model safely invoke my existing C# services — and prompt templating; very few engineers have deep production SK experience yet, so understanding the concepts and being upfront about depth of experience lands well.",
+  "codeExample": {
+   "language": "csharp",
+   "code": "var builder = Kernel.CreateBuilder();\nbuilder.AddAzureOpenAIChatCompletion(deploymentName, endpoint, new DefaultAzureCredential());\nvar kernel = builder.Build();\n\n// Expose a C# method as a tool the model can call\npublic class InventoryPlugin\n{\n    private readonly IInventoryRepository _repo;\n    public InventoryPlugin(IInventoryRepository repo) => _repo = repo;\n\n    [KernelFunction, Description(\"Gets current stock for a SKU\")]\n    public async Task<int> GetStockAsync([Description(\"The product SKU\")] string sku)\n        => await _repo.GetStockAsync(sku);\n}\n\nkernel.Plugins.AddFromObject(new InventoryPlugin(repo));\n\nvar settings = new OpenAIPromptExecutionSettings\n{\n    ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions // model can call your code\n};\n\nvar result = await kernel.InvokePromptAsync(\n    \"How much stock of SKU-1234 do we have?\", new(settings));",
+   "explanation": "GetStockAsync is registered as a Kernel plugin function; with auto-invoke enabled, the model decides to call it directly to answer the question with real data instead of guessing."
+  },
+  "mistakes": [
+   "Treating Semantic Kernel as just another HTTP wrapper around OpenAI instead of an orchestration layer for function calling, memory, and multi-step workflows.",
+   "Forgetting the [Description] attributes on plugin methods/parameters — the model relies on those descriptions to decide when and how to call a function.",
+   "Not enabling ToolCallBehavior.AutoInvokeKernelFunctions and then wondering why the model never actually calls the registered plugin.",
+   "Exposing dangerous or unbounded C# methods (e.g. raw SQL execution) as KernelFunctions without validating what the model is allowed to trigger.",
+   "Overclaiming deep production Semantic Kernel experience in an interview when the honest answer (personal projects, understands the concepts) is actually the stronger, more credible one for most candidates."
+  ],
+  "followUps": [
+   {
+    "question": "How is a Semantic Kernel Plugin different from just calling a C# method yourself?",
+    "answer": "A plugin is a C# method decorated with [KernelFunction] and descriptions, registered with the Kernel, so the LLM itself can decide during a conversation to invoke it — the model chooses when to call your code based on the user's request, rather than your application code calling it directly and deterministically."
+   },
+   {
+    "question": "What problem do Planners solve?",
+    "answer": "A single prompt asking the model to accomplish a multi-step goal in one shot is unreliable. A Planner decomposes that goal into an ordered sequence of discrete function calls, so each step is smaller, more verifiable, and easier to retry or inspect individually."
+   },
+   {
+    "question": "How does Semantic Kernel relate to RAG?",
+    "answer": "Semantic Kernel's Memory abstraction integrates with vector stores, letting the Kernel retrieve relevant chunks before generating a response — that retrieval step plugged into the prompt is exactly the Retrieval Augmented Generation pattern, just wired through SK's memory connectors instead of hand-rolled search calls."
+   }
+  ],
+  "memoryHack": {
+   "emoji": "🎛️",
+   "oneLiner": "Kernel = dispatcher desk; Plugins = labeled tools; Planner = the to-do list; Memory = the filing cabinet.",
+   "mnemonic": "K-P-P-M: Kernel, Plugins, Planners, Memory",
+   "memoryPalace": "Picture a control room desk (Kernel) with tools hanging on labeled pegboard hooks (Plugins with [KernelFunction]), a whiteboard breaking a big job into numbered steps (Planner), and a locked filing cabinet of past documents the dispatcher can pull from before answering (Memory)."
+  },
+  "bestPractices": [
+   "Always add [Description] to KernelFunction methods and their parameters — it's how the model decides when and how to call them.",
+   "Scope plugin functions narrowly and validate inputs; never let the model trigger unbounded or destructive operations without guardrails.",
+   "Register plugins from clean, testable service classes, not from controller or UI code directly.",
+   "Be explicit about ToolCallBehavior settings rather than relying on defaults, so auto-invoke behavior is intentional.",
+   "Log which functions the model actually invoked per request for observability and debugging of agent behavior."
+  ],
+  "performanceTips": [
+   "Function calling round-trips add latency (model decides → SK invokes your code → result sent back → model finalizes) — budget for it in timeouts.",
+   "Keep plugin method descriptions concise; overly long tool catalogs increase prompt size and cost on every call.",
+   "Cache Kernel/plugin registration at startup rather than rebuilding the Kernel per request."
+  ],
+  "quiz": [
+   {
+    "question": "What does [KernelFunction] do to a C# method?",
+    "options": [
+     "Marks it for unit testing",
+     "Exposes it as a tool the LLM can decide to invoke",
+     "Makes it run asynchronously",
+     "Registers it as a minimal API endpoint"
+    ],
+    "answer": 1,
+    "explanation": "[KernelFunction] (with [Description]) registers the method as a callable tool within a Plugin that the model can choose to invoke during a conversation."
+   },
+   {
+    "question": "Which Semantic Kernel concept breaks a high-level goal into an ordered sequence of function calls?",
+    "options": [
+     "Kernel",
+     "Memory",
+     "Planner",
+     "Plugin"
+    ],
+    "answer": 2,
+    "explanation": "Planners decompose multi-step goals into a sequence of discrete, executable steps rather than relying on one prompt to do everything."
+   },
+   {
+    "question": "What setting enables the model to automatically call a registered KernelFunction without extra manual wiring?",
+    "options": [
+     "EnableFunctionCalling = true",
+     "ToolCallBehavior.AutoInvokeKernelFunctions",
+     "Kernel.AutoCall",
+     "Planner.Execute"
+    ],
+    "answer": 1,
+    "explanation": "Setting ToolCallBehavior.AutoInvokeKernelFunctions in the prompt execution settings lets Semantic Kernel automatically execute model-requested function calls."
+   }
+  ],
+  "flashcards": [
+   {
+    "front": "What is Semantic Kernel?",
+    "back": "Microsoft's open-source .NET orchestration SDK for LLM apps: prompts, function calling, memory, multi-step workflows."
+   },
+   {
+    "front": "What are SK's four core concepts?",
+    "back": "Kernel (orchestrator), Plugins/Functions (callable tools), Planners (goal decomposition), Memory (vector store for RAG)."
+   },
+   {
+    "front": "How do you expose a C# method to the model?",
+    "back": "Decorate with [KernelFunction] + [Description], register via kernel.Plugins.AddFromObject(...)."
+   },
+   {
+    "front": "How does the model actually invoke your C# function?",
+    "back": "Set ToolCallBehavior.AutoInvokeKernelFunctions in the execution settings; SK executes the call and feeds the result back."
+   }
+  ],
+  "revision30": "Semantic Kernel is Microsoft's .NET SDK for orchestrating LLM apps: the Kernel is the orchestrator, Plugins expose C# methods as model-callable tools via [KernelFunction], Planners chain multi-step goals, and Memory wires in vector stores for RAG.",
+  "revision2min": "Semantic Kernel is Microsoft's open-source orchestration SDK for building AI applications in .NET, sitting above the raw OpenAI/Azure OpenAI SDK. Where a raw SDK call is one completion request, Semantic Kernel manages prompt templates, lets the model call your own C# functions, integrates conversation memory, and chains multi-step workflows. Its four core concepts are the Kernel (the orchestrator/DI container built via Kernel.CreateBuilder()), Plugins/Functions (C# methods decorated with [KernelFunction] and [Description] that become tools the model can invoke), Planners (which break a high-level goal into an ordered sequence of function calls instead of trusting one giant prompt), and Memory (vector store integration that powers retrieval, i.e. RAG). In practice, function calling is the standout feature: register a plugin with kernel.Plugins.AddFromObject(...), set ToolCallBehavior.AutoInvokeKernelFunctions, and the model decides during a conversation to call your real C# code — like fetching live stock for a SKU — instead of guessing an answer. For most candidates the strongest honest answer is having used SK in personal projects for function calling and prompt templating without deep production experience, since very few engineers have shipped it at scale as of 2026.",
+  "challenge": "Design a Semantic Kernel plugin surface for an order-management system where the model should be allowed to look up order status and check inventory, but must never be able to cancel an order or issue a refund directly — explain how you'd enforce that boundary at the plugin/function level, not just via prompt instructions.",
+  "related": [
+   "azure-openai-dotnet-integration",
+   "rag-pipeline-dotnet",
+   "llm-api-dotnet"
+  ],
+  "summary": "Semantic Kernel is the orchestration layer around raw LLM calls in .NET, turning your existing C# services into model-callable tools via Plugins, chaining multi-step work via Planners, and grounding answers via Memory/RAG."
+ },
+ {
+  "id": "ai-03",
+  "title": "RAG (Retrieval Augmented Generation) in .NET",
+  "slug": "rag-pipeline-dotnet",
+  "category": "ai",
+  "difficulty": "Advanced",
+  "estimatedTime": 10,
+  "emoji": "📚",
+  "icon": "Network",
+  "tags": [
+   "rag",
+   "embeddings",
+   "vector-search",
+   "azure-ai-search",
+   "pgvector"
+  ],
+  "keywords": [
+   "Retrieval Augmented Generation",
+   "embeddings",
+   "vector database",
+   "chunking",
+   "Azure AI Search",
+   "pgvector",
+   "Qdrant",
+   "hybrid search",
+   "citations",
+   "grounding"
+  ],
+  "companies": [
+   "Microsoft",
+   "Accenture",
+   "TCS",
+   "Cognizant",
+   "Deloitte"
+  ],
+  "interviewQuestion": "Explain RAG — can you implement it in .NET?",
+  "story": {
+   "setup": "A brilliant new hire (the LLM) knows a huge amount about the world in general, but nothing about your company's private filing cabinets — and left unchecked, a confidently wrong guess is worse than no answer at all.",
+   "scenes": [
+    "Overnight, an archivist (the indexing pipeline) takes every document, tears it into readable index-card-sized chunks with a bit of overlap so no sentence gets cut mid-thought, and files each card by its 'meaning fingerprint' (embedding vector) in a card catalog (vector DB).",
+    "A customer asks a question. Before the new hire says a single word, a librarian (vector similarity search) sprints to the catalog, finds the five cards whose meaning fingerprint is closest to the question, and hands them over.",
+    "The new hire is now told, in writing: 'Answer using ONLY these cards. If it's not here, say you don't know' — that's the grounded prompt, and it's what keeps an eager employee from making something up to look helpful.",
+    "The final answer comes back with the actual index cards stapled to it (citations), so anyone can check the new hire's work instead of just trusting it.",
+    "A junior archivist tears pages into chunks carelessly, ignores document-level permissions, and only searches by exact keyword — the new hire starts citing HR salary data to the wrong employee and missing obvious answers because a chunk was split badly. The senior archivist fixes chunking, adds hybrid keyword+vector search, and enforces permission filters before retrieval."
+   ],
+   "moral": "RAG doesn't make the model smarter — it makes the model's answers grounded in your real documents, verifiable, and permission-aware, and the engineering quality lives almost entirely in chunking, retrieval, and access control."
+  },
+  "analogy": "RAG is an open-book exam: instead of trusting the LLM's memorized training data, you hand it the exact right pages from your own textbook right before it answers, and it must cite which page it used.",
+  "animation": "flow",
+  "explanation": "RAG (Retrieval Augmented Generation) means retrieving relevant documents first and injecting them into the prompt, so the model answers from your own data instead of its training data. It exists because LLMs don't know your company's private documents, retraining a model per customer or per document update is prohibitively expensive, and without grounding the model hallucinates plausible-sounding but false answers. The pipeline has two phases: indexing, done offline once per document — chunk it into roughly 500-token overlapping pieces, run each chunk through an embedding model to get a vector, and store the vector plus original text plus metadata in a vector database; and query, done per user question — embed the question, run a vector similarity search for the top-K most relevant chunks, assemble a prompt of [system instructions] + [retrieved context] + [question], and send that to the LLM for a grounded answer with citations. It's fully implementable in .NET using Azure AI Search (managed, supports hybrid keyword+vector), PostgreSQL with pgvector, Qdrant/Pinecone, or SQL Server's native vector type, with the embedding and chat calls made through the same SDKs used for any other LLM integration.",
+  "interviewAnswerShort": "RAG retrieves relevant document chunks via vector similarity search and puts them into the prompt before asking the LLM, so it answers from your data with citations instead of hallucinating from its training data — yes, it's fully implementable in .NET with Azure AI Search, pgvector, Qdrant, or SQL Server's vector type.",
+  "interviewAnswerDetailed": "RAG exists to solve three problems: the LLM doesn't know our documents, retraining per customer is impractical, and without grounding it hallucinates — RAG fixes all three and gives us citations for free. The pipeline splits into indexing and query. Indexing happens offline: each document is chunked into overlapping pieces of roughly 500 tokens — overlap matters so a sentence or idea isn't severed at a boundary — each chunk is embedded into a vector, and the vector plus the original text plus metadata like document ID and permissions is stored in a vector database. At query time, I embed the incoming question with the same embedding model, run a top-K similarity search against the vector store, and build a prompt that's explicitly instructed to answer using only the retrieved context and to say it doesn't know otherwise — that instruction is what keeps hallucination in check. On the .NET side this is fully implementable: Azure AI Search is the managed option and supports hybrid keyword-plus-vector search out of the box, or you can use PostgreSQL with the pgvector extension, Qdrant, Pinecone, or SQL Server 2025's native vector type, calling the embedding and chat completion APIs through the same SDK used elsewhere. The engineering quality of a RAG system lives almost entirely outside the LLM call itself: chunking strategy is usually the real cause of bad answers, hybrid search beats pure vector search for exact names and IDs, re-ranking the top results improves precision, document-level permissions must be enforced at retrieval time so users can never see content from documents they can't access, and citations should always be returned so answers are verifiable rather than trusted blindly.",
+  "codeExample": {
+   "language": "csharp",
+   "code": "public async Task<string> AskAsync(string question, CancellationToken ct)\n{\n    // 1. Embed the question\n    var embedding = await _embeddingClient.GenerateEmbeddingAsync(question, ct);\n\n    // 2. Vector search — Azure AI Search, pgvector, Qdrant, or SQL Server's vector type\n    var chunks = await _search.SearchAsync(embedding.Vector, topK: 5, ct);\n\n    // 3. Ground the prompt in the retrieved context\n    var context = string.Join(\"\\n---\\n\", chunks.Select(c => c.Text));\n    var prompt = $\"\"\"\n        Answer using ONLY the context below. If the answer isn't there, say you don't know.\n        Context:\n        {context}\n        Question: {question}\n        \"\"\";\n\n    // 4. Generate\n    var response = await _chatClient.CompleteChatAsync(\n        new ChatMessage[] { new UserChatMessage(prompt) }, cancellationToken: ct);\n    return response.Value.Content[0].Text;\n}",
+   "explanation": "The question is embedded, the top-K most similar chunks are retrieved from a vector store, and the LLM is instructed to answer strictly from that retrieved context — the core retrieve-then-generate loop of RAG."
+  },
+  "mistakes": [
+   "Chunking documents naively without overlap, so relevant sentences get split across chunk boundaries and never retrieved together.",
+   "Relying on pure vector search only, which underperforms on exact names, IDs, and codes that hybrid keyword+vector search handles much better.",
+   "Not enforcing document-level permissions at retrieval time, letting a user's question surface answers from documents they're not authorized to read.",
+   "Skipping citations, so answers can't be verified and users have no way to check if the model actually used the right source.",
+   "Assuming RAG eliminates hallucination entirely — a badly grounded prompt or missing 'say you don't know' instruction still lets the model fabricate when retrieval returns weak matches."
+  ],
+  "followUps": [
+   {
+    "question": "Why chunk documents with overlap instead of clean, non-overlapping splits?",
+    "answer": "A clean split can cut a sentence or idea exactly at a chunk boundary, so neither chunk alone contains the full context needed to answer a question about it. A small overlap (e.g. the last 50 tokens of one chunk repeated at the start of the next) ensures ideas near a boundary are still fully captured in at least one chunk."
+   },
+   {
+    "question": "Why does hybrid search beat pure vector search for names and IDs?",
+    "answer": "Embeddings capture semantic meaning, not exact lexical matches — a vector search for 'SKU-1234' may return semantically similar but wrong SKUs. Keyword/BM25 search matches exact tokens precisely, so combining both (hybrid search) gets the best of semantic recall and exact-match precision."
+   },
+   {
+    "question": "How do you enforce document-level permissions in a RAG system?",
+    "answer": "Store access-control metadata (owning team, required role, tenant ID) alongside each chunk in the vector store, and apply that as a filter on the similarity search itself — not as a post-filter on results — so a user's query never retrieves, and therefore never sees, chunks from documents they aren't authorized to access."
+   },
+   {
+    "question": "What vector store options exist in the .NET/Azure ecosystem?",
+    "answer": "Azure AI Search (managed, supports hybrid keyword+vector search natively), PostgreSQL with the pgvector extension, Qdrant, Pinecone, and SQL Server 2025's native vector data type — the choice usually comes down to whether you want a managed service, are already on Postgres, or need it colocated with existing relational data."
+   }
+  ],
+  "memoryHack": {
+   "emoji": "🗂️",
+   "oneLiner": "Chunk it, embed it, file it — then fetch the five closest cards before the model ever opens its mouth.",
+   "mnemonic": "C-E-S-G: Chunk, Embed, Search, Generate",
+   "memoryPalace": "Picture a librarian tearing a book into overlapping index cards (chunking), stamping each with a unique fingerprint (embedding) and filing it in a card catalog (vector DB) — then, when asked a question, sprinting to pull the five closest-fingerprint cards and stapling them to the answer as citations before handing it over."
+  },
+  "bestPractices": [
+   "Tune chunk size (~500 tokens) and overlap deliberately — bad chunking is the most common cause of poor RAG answers.",
+   "Use hybrid keyword+vector search rather than vector-only, especially for content with exact names, codes, or IDs.",
+   "Enforce document-level access control as part of the retrieval filter, not as a post-processing step.",
+   "Instruct the model explicitly to answer only from retrieved context and to say when it doesn't know.",
+   "Always return citations/source references alongside generated answers so they're verifiable."
+  ],
+  "performanceTips": [
+   "Re-rank the top-K retrieved chunks with a cheaper cross-encoder or scoring step before sending only the best few to the LLM — cuts prompt size and cost.",
+   "Cache embeddings for unchanged documents; re-embedding only on content change avoids redundant embedding-API cost.",
+   "Batch document indexing offline rather than embedding synchronously on the request path."
+  ],
+  "quiz": [
+   {
+    "question": "In the RAG pipeline, when does chunking and embedding of documents happen?",
+    "options": [
+     "On every user query, in real time",
+     "Offline, once per document, during indexing",
+     "Only when the LLM requests it",
+     "After the answer is generated, for logging"
+    ],
+    "answer": 1,
+    "explanation": "Indexing (chunk → embed → store) happens offline, once per document; only the question is embedded at query time."
+   },
+   {
+    "question": "What is the main advantage of hybrid search over pure vector search in RAG?",
+    "options": [
+     "It's always cheaper",
+     "It handles exact names/IDs better while keeping semantic recall",
+     "It removes the need for a vector database",
+     "It eliminates the need for chunking"
+    ],
+    "answer": 1,
+    "explanation": "Keyword search catches exact lexical matches like SKUs and names that pure semantic vector search can miss, while vector search still provides broader semantic recall."
+   },
+   {
+    "question": "Which .NET-compatible options can serve as the vector store in a RAG system?",
+    "options": [
+     "Only Azure AI Search",
+     "Azure AI Search, PostgreSQL+pgvector, Qdrant/Pinecone, or SQL Server's vector type",
+     "Only in-memory Lists",
+     "Redis exclusively"
+    ],
+    "answer": 1,
+    "explanation": "Multiple vector store options integrate with .NET, from managed Azure AI Search to pgvector, Qdrant/Pinecone, or SQL Server's native vector type."
+   }
+  ],
+  "flashcards": [
+   {
+    "front": "What does RAG stand for and solve?",
+    "back": "Retrieval Augmented Generation — grounds LLM answers in your own documents instead of relying on training data, reducing hallucination and giving citations."
+   },
+   {
+    "front": "What are the two phases of a RAG pipeline?",
+    "back": "Indexing (offline: chunk → embed → store) and Query (embed question → vector search top-K → build grounded prompt → generate)."
+   },
+   {
+    "front": "Why is chunking usually the real cause of bad RAG answers?",
+    "back": "Poor chunk boundaries (too big, too small, no overlap) split relevant context apart so retrieval can't find complete, coherent answers."
+   },
+   {
+    "front": "How do you keep RAG from leaking unauthorized documents?",
+    "back": "Enforce document-level permission filters at retrieval/search time, not after results come back."
+   }
+  ],
+  "revision30": "RAG retrieves the top-K most relevant document chunks via vector (or hybrid) search and injects them into the prompt so the LLM answers from your data with citations, instead of guessing from training data. Indexing (chunk, embed, store) happens offline; retrieval and generation happen per query.",
+  "revision2min": "RAG (Retrieval Augmented Generation) solves the problem that LLMs don't know your private documents, can't be cheaply retrained per customer, and hallucinate without grounding. The pipeline has two phases: indexing, done offline per document, which chunks text into overlapping ~500-token pieces, embeds each chunk into a vector, and stores vector plus text plus metadata in a vector database; and query, done per question, which embeds the question, runs a top-K vector similarity search, assembles a prompt of system instructions plus retrieved context plus the question, and sends it to the LLM for a grounded, citable answer. It's fully implementable in .NET with vector store options like Azure AI Search (managed, hybrid keyword+vector), PostgreSQL with pgvector, Qdrant/Pinecone, or SQL Server's native vector type. The engineering quality lives mostly outside the LLM call: chunking strategy and overlap are the usual cause of bad answers, hybrid search beats pure vector for exact names and IDs, re-ranking improves precision on the final top results, document-level permissions must be enforced at retrieval time so users never see unauthorized content, and citations should always accompany generated answers so they can be verified rather than trusted blindly.",
+  "challenge": "A user reports that asking about 'invoice INV-2024-0817' returns answers about a different, semantically similar invoice number. Diagnose why pure vector search would produce this failure and describe the concrete change to the retrieval pipeline that fixes it.",
+  "related": [
+   "azure-openai-dotnet-integration",
+   "semantic-kernel-overview",
+   "prompt-vs-completion-token-limits"
+  ],
+  "summary": "RAG grounds LLM answers in your real, permission-aware documents by retrieving the most relevant chunks via (ideally hybrid) vector search and injecting them into the prompt, with citations for verifiability."
+ },
+ {
+  "id": "ai-04",
+  "title": "Prompt vs Completion, and Handling Token Limits",
+  "slug": "prompt-vs-completion-token-limits",
+  "category": "ai",
+  "difficulty": "Intermediate",
+  "estimatedTime": 7,
+  "emoji": "🎟️",
+  "icon": "Braces",
+  "tags": [
+   "tokens",
+   "context-window",
+   "cost-control",
+   "rate-limits",
+   "summarization"
+  ],
+  "keywords": [
+   "prompt",
+   "completion",
+   "token",
+   "context window",
+   "SharpToken",
+   "map-reduce",
+   "429",
+   "rate limit",
+   "MaxTokens",
+   "rolling summary"
+  ],
+  "companies": [
+   "Microsoft",
+   "Accenture",
+   "TCS",
+   "Infosys",
+   "Wipro"
+  ],
+  "interviewQuestion": "Prompt vs Completion, and how do you handle token limits?",
+  "story": {
+   "setup": "Think of an LLM call as a paid phone booth with a shared line: what you say (prompt) and what the operator says back (completion) both eat the same limited call time, and going over hangs up on you.",
+   "scenes": [
+    "You step into the booth and read your notes into the phone — the system instructions, the background context, your actual question — that's the prompt, and every word is metered.",
+    "The operator on the other end replies — that's the completion — and it's metered too, usually at a steeper per-word rate than what you said.",
+    "The booth has a hard wall-clock limit for the whole call, prompt plus reply combined (the context window); if your notes ran too long, the operator gets cut off mid-sentence with no reply left to give.",
+    "A smart caller doesn't just guess how long their notes are — they time it with a stopwatch first (a tokenizer like SharpToken), trims the parts least essential to the question, and reserves a chunk of the call specifically for the reply (MaxTokens) instead of hogging it all on the setup.",
+    "For a long saga that's been going on for many calls, the caller stops repeating the whole history verbatim and instead gives a quick rolling summary of everything before, plus the last couple of exchanges in full — that's the rolling-window-plus-summary strategy for chat history."
+   ],
+   "moral": "Prompt and completion share one metered budget — the context window — and disciplined engineering (counting, truncating, summarizing, reserving output space) is what keeps calls from failing or blowing the budget."
+  },
+  "analogy": "The context window is a shared phone-booth call timer: what you say (prompt) and what you hear back (completion) both burn the same clock, and if your half runs too long, there's no time left for the reply.",
+  "animation": "compare",
+  "explanation": "The prompt is everything you send to the model — system message, retrieved context, conversation history, the user's question — and the completion is the model's generated output; both are billed, typically with the model provider charging more per output token than per input token. A token is roughly three-quarters of an English word, or about 4 characters, so 'Warehouse management system' is around 4 tokens. The context window is the hard combined limit: prompt tokens plus completion tokens must stay under the model's maximum, or the call fails outright. Practical strategies to manage this include counting tokens before sending with a real tokenizer library like SharpToken rather than estimating from character counts, truncating retrieved RAG context rather than the user's question when something must be cut, summarizing older conversation turns into a rolling summary while keeping the last N turns verbatim, chunking long documents and using a map-reduce approach (summarize each chunk, then summarize the summaries), and explicitly reserving output space by setting MaxTokens so the budget for the reply is never accidentally consumed by an oversized prompt. Rate limits add another dimension: 429 responses are usually governed by tokens-per-minute rather than raw request count, so retry logic needs exponential backoff, and cost control comes from caching identical prompts, using a smaller/cheaper model for simple tasks, and trimming system prompts since they're resent on every single call.",
+  "interviewAnswerShort": "Prompt is what you send (billed), completion is what the model generates (billed, usually at a higher per-token rate) — both together must stay under the model's context window, so I count tokens with a real tokenizer, truncate retrieved context rather than the question, summarize old chat history into a rolling summary, and reserve space with MaxTokens.",
+  "interviewAnswerDetailed": "A prompt is the full input sent to the model — system instructions, any retrieved RAG context, conversation history, and the user's actual question — and a completion is what the model generates back; both are metered and billed, with output tokens typically costing more per token than input tokens. Roughly, one token is about three-quarters of an English word or four characters, and the context window is the combined ceiling on prompt tokens plus completion tokens for that model — go over it and the call simply fails. To manage this in production I count tokens before sending using a real tokenizer library like SharpToken rather than guessing from character counts, because English text doesn't tokenize at a fixed ratio. When something has to be trimmed, I truncate the retrieved context — fewer or shorter RAG chunks — rather than truncating the user's actual question. For ongoing chat, I keep the last few turns verbatim and replace older history with a running rolling summary, so the conversation stays coherent without the token cost of the full transcript. For long documents I chunk and map-reduce: summarize each chunk individually, then summarize those summaries. I always set MaxTokens explicitly and budget it against the context window up front, otherwise a large prompt leaves too little room and the model's answer gets cut off mid-sentence. On the operational side, 429 rate limit errors are usually governed by tokens-per-minute rather than request count, so retries need exponential backoff, and for cost control I cache identical prompts, route simple classification-style tasks to a smaller/cheaper model, and keep system prompts lean since they're resent on every single call.",
+  "codeExample": {
+   "language": "csharp",
+   "code": "// Reserve output space and stay inside the context window\nvar maxContextTokens = 128_000; // model's context window\nvar reservedForOutput = 1_000;  // MaxTokens for the completion\nvar promptBudget = maxContextTokens - reservedForOutput;\n\n// Count real tokens instead of guessing from character length\nvar encoding = GptEncoding.GetEncodingForModel(\"gpt-4o\");\nvar promptTokens = encoding.Encode(fullPrompt).Count;\n\nif (promptTokens > promptBudget)\n{\n    // Truncate retrieved RAG context, not the user's question\n    chunks = chunks.Take(Math.Max(1, chunks.Count - 1)).ToList();\n    fullPrompt = BuildPrompt(chunks, question);\n}\n\nvar settings = new ChatCompletionOptions { MaxOutputTokenCount = reservedForOutput };\nvar response = await chatClient.CompleteChatAsync(\n    new ChatMessage[] { new UserChatMessage(fullPrompt) }, settings, ct);",
+   "explanation": "Output space is reserved up front via MaxOutputTokenCount, actual prompt tokens are counted with a tokenizer, and if the budget is exceeded, retrieved context is trimmed rather than the user's question."
+  },
+  "mistakes": [
+   "Estimating tokens from character or word count instead of using a real tokenizer library, leading to unexpected context-window overflows.",
+   "Truncating the user's question when trimming is needed, instead of truncating retrieved/optional context.",
+   "Not setting MaxTokens explicitly, so an oversized prompt leaves too little room and the completion cuts off mid-sentence.",
+   "Sending the full raw conversation history on every chat turn instead of a rolling window plus summary, wasting tokens and money.",
+   "Treating 429s as simple request-rate limits and retrying immediately instead of respecting tokens-per-minute limits with exponential backoff."
+  ],
+  "followUps": [
+   {
+    "question": "Why does output typically cost more per token than input?",
+    "answer": "Generating tokens is a sequential, compute-heavy autoregressive process for the model, while processing input tokens can be done more in parallel; providers price output higher to reflect that generation cost, which is also why capping MaxTokens matters for cost control, not just correctness."
+   },
+   {
+    "question": "What is the 'rolling window plus summary' strategy for chat history?",
+    "answer": "Keep the last N conversation turns verbatim so recent context stays precise, and replace everything older with a periodically updated running summary — this keeps the token cost roughly constant as a conversation grows instead of scaling linearly with the full transcript."
+   },
+   {
+    "question": "How do you handle summarizing a document longer than the context window?",
+    "answer": "Use a map-reduce approach: split the document into chunks that each individually fit comfortably in the context window, summarize each chunk independently ('map'), then feed those summaries into a final pass that summarizes the summaries ('reduce') into one coherent result."
+   }
+  ],
+  "memoryHack": {
+   "emoji": "📞",
+   "oneLiner": "Prompt and completion share one phone-booth clock — reserve time for the reply before you start talking.",
+   "mnemonic": "C-T-R-S: Count, Truncate-context-not-question, Reserve MaxTokens, Summarize history",
+   "memoryPalace": "Picture stepping into a phone booth with a visible countdown timer shared for both your talking and the operator's reply — you glance at a stopwatch before speaking (count tokens), trim your notes rather than your actual question (truncate context), and pencil in a reserved block of time just for the reply (MaxTokens) before you even pick up the receiver."
+  },
+  "bestPractices": [
+   "Count tokens with an actual tokenizer (e.g. SharpToken) rather than estimating from character length.",
+   "Always set MaxTokens explicitly and reserve that budget before computing how much prompt space remains.",
+   "Truncate retrieved/optional context first, never the user's actual question.",
+   "Use a rolling window plus running summary for long chat conversations instead of resending full history.",
+   "Use map-reduce summarization for documents that exceed the context window on their own."
+  ],
+  "performanceTips": [
+   "Cache identical or near-identical prompts to avoid paying for and waiting on repeated completions.",
+   "Route simple, low-stakes tasks (e.g. basic classification) to a smaller/cheaper model instead of the flagship model.",
+   "Keep system prompts as lean as possible — they're resent in full on every single call and add up fast across high-volume features.",
+   "Implement retry with exponential backoff for 429s, since rate limits are typically tokens-per-minute, not just request counts."
+  ],
+  "quiz": [
+   {
+    "question": "What is the relationship between the context window, prompt tokens, and completion tokens?",
+    "options": [
+     "They are independent limits",
+     "Prompt tokens plus completion tokens together must stay under the context window",
+     "Only completion tokens count against the context window",
+     "The context window only applies to streaming calls"
+    ],
+    "answer": 1,
+    "explanation": "The context window is the combined ceiling — prompt tokens + completion tokens ≤ the model's limit — exceeding it fails the call."
+   },
+   {
+    "question": "When you must trim content to fit the token budget, what should you truncate first?",
+    "options": [
+     "The user's question",
+     "The system message entirely",
+     "Retrieved/optional context (e.g. RAG chunks)",
+     "It doesn't matter what you cut"
+    ],
+    "answer": 2,
+    "explanation": "The user's actual question should never be truncated; retrieved or optional context should be reduced first since it's the more flexible part of the prompt."
+   },
+   {
+    "question": "What typically governs LLM API 429 rate limit errors?",
+    "options": [
+     "Requests per second only",
+     "Tokens per minute, not just request count",
+     "Number of concurrent users",
+     "The size of the response payload only"
+    ],
+    "answer": 1,
+    "explanation": "LLM providers commonly rate-limit by tokens-per-minute in addition to (or instead of) raw request counts, so retry strategies must account for token volume."
+   }
+  ],
+  "flashcards": [
+   {
+    "front": "Prompt vs completion — which costs more per token?",
+    "back": "Completion (output) tokens typically cost more per token than prompt (input) tokens."
+   },
+   {
+    "front": "What is the context window?",
+    "back": "The combined limit: prompt tokens + completion tokens ≤ model's maximum; exceeding it fails the call."
+   },
+   {
+    "front": "What should you truncate first when over budget?",
+    "back": "Retrieved/optional context, never the user's actual question."
+   },
+   {
+    "front": "Strategy for long chat history?",
+    "back": "Rolling window of the last N turns verbatim, plus a running summary replacing older turns."
+   },
+   {
+    "front": "Strategy for a document longer than the context window?",
+    "back": "Map-reduce: summarize each chunk, then summarize the summaries."
+   }
+  ],
+  "revision30": "Prompt (input) and completion (output) are both billed tokens, output usually costing more; together they must fit the model's context window. Count tokens with a real tokenizer, truncate optional context not the question, reserve MaxTokens for output, and summarize long chat history with a rolling window plus summary.",
+  "revision2min": "The prompt is everything sent to the model — system message, context, history, question — and the completion is what the model generates; both are billed tokens, with completions typically costing more per token than prompt input. A token is roughly three-quarters of a word, and the context window is the hard combined ceiling of prompt tokens plus completion tokens for that model — exceeding it fails the call outright. To manage this reliably: count tokens with a real tokenizer library like SharpToken instead of guessing from character counts; if something must be trimmed, truncate retrieved/optional context rather than the user's actual question; for long-running chats, keep the last few turns verbatim and replace older history with a rolling summary rather than resending the full transcript; for documents longer than the window, chunk and map-reduce — summarize each chunk, then summarize the summaries; and always set MaxTokens explicitly, reserving that output budget before computing how much room the prompt has. On the operational side, 429 rate-limit errors are usually governed by tokens-per-minute rather than raw request counts, so retries need exponential backoff, and cost is controlled by caching identical prompts, routing simple tasks to a cheaper model, and keeping system prompts lean since they're resent on every call.",
+  "challenge": "A chat feature's cost triples after three weeks in production even though daily active users only doubled. Given everything about prompt/completion token accounting, propose the two most likely causes and the specific fix for each.",
+  "related": [
+   "rag-pipeline-dotnet",
+   "azure-openai-dotnet-integration",
+   "llm-api-dotnet"
+  ],
+  "summary": "Prompt and completion are both billed and share one context-window budget, so disciplined token counting, context truncation, rolling-summary chat history, and explicit MaxTokens reservation are what keep LLM calls reliable and affordable."
+ },
+ {
+  "id": "ai-05",
+  "title": "Building a .NET API That Talks to an LLM",
+  "slug": "llm-api-dotnet",
+  "category": "ai",
+  "difficulty": "Advanced",
+  "estimatedTime": 10,
+  "emoji": "🛡️",
+  "icon": "Server",
+  "tags": [
+   "api-design",
+   "resilience",
+   "rate-limiting",
+   "streaming",
+   "prompt-injection"
+  ],
+  "keywords": [
+   "EnableRateLimiting",
+   "Polly",
+   "circuit breaker",
+   "IAsyncEnumerable",
+   "Server-Sent Events",
+   "prompt injection",
+   "202 Accepted",
+   "hosted service",
+   "observability"
+  ],
+  "companies": [
+   "Microsoft",
+   "Accenture",
+   "TCS",
+   "Cognizant",
+   "Infosys"
+  ],
+  "interviewQuestion": "How would you build a .NET API that interacts with an LLM?",
+  "story": {
+   "setup": "An LLM-backed endpoint isn't a magic AI feature — treat it like an airport, where every passenger (request) goes through security, boarding, and a flight with real delays.",
+   "scenes": [
+    "At the counter, security checks the ticket and ID before anyone gets near a gate ([Authorize]), and a bouncer at a velvet rope only lets a limited number of people through per minute ([EnableRateLimiting(\"ai-policy\")]) because every seat on this flight is expensive.",
+    "A savvy traveler who's flown this exact route before doesn't board again — the airline just hands them the boarding pass from last time (cache hit on a repeated prompt) and skips the flight entirely.",
+    "For short-haul flights (chat replies), passengers watch the plane taxi and take off in real time on a live board instead of vanishing behind a curtain for ten minutes (streaming via IAsyncEnumerable/SSE) — for a two-hour intercontinental job (long-running generation), the airline instead checks the bag, hands over a 202 Accepted claim ticket, and lets the passenger pick up results later via a queue and hosted service instead of standing at the gate the whole time.",
+    "When a storm grounds flights (LLM outage or timeout), ground control (Polly's circuit breaker) stops sending planes into the storm entirely for a while instead of losing every single one, and passengers are calmly rebooked (graceful fallback) instead of stranded.",
+    "Security never lets a passenger's carry-on note dictate the pilot's flight plan — untrusted input is never blindly interpolated into the system prompt, because that's exactly how prompt injection smuggles a hijacking instruction onto the flight deck."
+   ],
+   "moral": "An LLM API endpoint is fundamentally an engineering problem — auth, rate limiting, caching, streaming vs background processing, resilience, and input safety — with the LLM call itself being the smallest part of the design."
+  },
+  "analogy": "An LLM endpoint is an airport: security checks IDs, a bouncer limits how many pass through per minute because every seat is expensive, frequent flyers get a cached boarding pass instead of a fresh flight, and a storm makes ground control stop sending planes instead of losing them one by one.",
+  "animation": "flow",
+  "explanation": "Building a production .NET API around an LLM is described as an engineering problem, not an AI problem: the actual completion call is a small part of a controller that also needs authorization, rate limiting (LLM calls are expensive per-request, so [EnableRateLimiting] on a dedicated policy matters), input validation, and caching of repeated prompts before the model is even called. Every call must be async with a CancellationToken threaded through, since LLM latency is measured in seconds and a blocked thread per request destroys throughput; user-facing chat should stream via IAsyncEnumerable or Server-Sent Events so tokens render immediately, while long-running generation jobs should return 202 Accepted with a job ID and process asynchronously via a queue and hosted service rather than holding an HTTP request open for minutes. Resilience comes from Polly retry policies plus a circuit breaker plus timeouts, rate limiting and per-user quotas prevent one user from burning the entire token budget, and guardrails matter because prompt injection — untrusted input manipulating the system prompt — is the LLM equivalent of SQL injection. Observability (logging model, token counts, latency, and cost per request) and a graceful fallback when the LLM is unavailable round out a production-ready design.",
+  "interviewAnswerShort": "I treat it as a normal API engineering problem: authorize and rate-limit the endpoint, cache repeated prompts, go fully async with CancellationToken, stream user-facing responses or offload long jobs to a background queue with 202 Accepted, wrap the LLM call in Polly retry/circuit-breaker/timeout, guard against prompt injection, and log token/latency/cost for observability.",
+  "interviewAnswerDetailed": "I frame this as an engineering problem first, an AI problem second. The controller action is authorized, rate-limited with a dedicated policy since LLM calls are expensive per request, and validates input before doing anything else; it also checks a cache keyed on the prompt, because identical questions are common and caching cuts both cost and latency dramatically. Everything downstream is async with a CancellationToken flowing through to the LLM SDK call, because LLM latency is seconds, not milliseconds, and a blocked thread per request destroys throughput under load. For user-facing chat I stream the response — IAsyncEnumerable or Server-Sent Events — so the user sees tokens appear immediately instead of staring at a spinner; for anything long-running, like a multi-minute document generation job, I never hold the HTTP request open — I accept it, return 202 Accepted with a job ID, process it via a queue and a background hosted service, and let the client poll or receive a webhook. Around the actual LLM call I wrap Polly retry-with-backoff and a circuit breaker so a provider outage or a burst of 429s doesn't cascade into a stalled pipeline, plus per-user rate limiting and quotas so one user can't burn the team's entire token budget. Security-wise, I validate and length-limit all input and never interpolate untrusted input directly into the system prompt — that's how prompt injection happens, the LLM equivalent of SQL injection — and I run content filtering on both input and output where the domain requires it. Finally, I log the model used, token counts, latency, and cost per request for observability and spend monitoring, and I make sure there's a graceful fallback — a cached or canned response, or a clear error — so the whole feature degrades instead of failing hard when the LLM is unavailable.",
+  "codeExample": {
+   "language": "csharp",
+   "code": "[ApiController]\n[Route(\"api/[controller]\")]\npublic class AssistantController : ControllerBase\n{\n    private readonly IAiService _ai;\n    private readonly IMemoryCache _cache;\n\n    [HttpPost(\"ask\")]\n    [Authorize]\n    [EnableRateLimiting(\"ai-policy\")] // LLM calls are expensive\n    public async Task<IActionResult> Ask(AskRequest request, CancellationToken ct)\n    {\n        if (!ModelState.IsValid) return BadRequest(ModelState);\n\n        var cacheKey = $\"ai:{request.Question.GetHashCode()}\";\n        if (_cache.TryGetValue(cacheKey, out string cached))\n            return Ok(new { answer = cached });\n\n        try\n        {\n            var answer = await _ai.AskAsync(request.Question, User.GetUserId(), ct);\n            _cache.Set(cacheKey, answer, TimeSpan.FromMinutes(30));\n            return Ok(new { answer });\n        }\n        catch (OperationCanceledException)\n        {\n            return StatusCode(499); // client gave up\n        }\n    }\n}",
+   "explanation": "Auth, rate limiting, input validation, and caching all happen before the expensive LLM call, and the CancellationToken flows through end to end so an abandoned request doesn't waste a completion."
+  },
+  "mistakes": [
+   "Holding an HTTP request open for a multi-minute LLM generation instead of returning 202 Accepted and processing via a background job.",
+   "Interpolating untrusted user input directly into a system prompt, opening the door to prompt injection.",
+   "No per-user rate limiting or quota, letting a single user exhaust the team's entire token/cost budget.",
+   "Skipping caching for identical or near-identical prompts, paying for and waiting on the same completion repeatedly.",
+   "No circuit breaker or timeout around the LLM call, so a provider outage cascades into the whole pipeline stalling."
+  ],
+  "followUps": [
+   {
+    "question": "How do you use GitHub Copilot effectively, and what are its limits?",
+    "answer": "It's excellent for boilerplate — DTOs, mapping code, unit test scaffolding, repetitive CRUD — where it saves real time. For business logic it's treated as a fast first draft that always gets reviewed, since it confidently produces plausible-but-wrong code, especially around edge cases and security; generated SQL or auth code is never accepted without reading it line by line. Good comments and clear method names measurably improve its suggestions. It changes typing speed, not design judgment."
+   },
+   {
+    "question": "Why return 202 Accepted instead of waiting for a long LLM job to finish?",
+    "answer": "HTTP requests and the thread pool aren't designed to hold connections open for minutes; a long-running generation should be accepted immediately, queued for a background hosted service to process, and the client given a job ID to poll or a webhook to receive results, keeping the API responsive and avoiding thread/connection exhaustion."
+   },
+   {
+    "question": "What is prompt injection and how do you defend against it?",
+    "answer": "Prompt injection is when untrusted input (a user message, a retrieved document, a webpage) contains text crafted to override or manipulate the model's instructions — it's the LLM equivalent of SQL injection. Defenses include never interpolating untrusted input directly into the system prompt, keeping system instructions and user content clearly separated, validating and length-limiting input, and applying output content filtering before acting on or displaying model output, especially if the model can call tools/functions."
+   },
+   {
+    "question": "What should you log for an LLM-backed endpoint?",
+    "answer": "The model/deployment used, prompt and completion token counts, latency, and estimated cost per request, plus enough context to correlate a request to a user/feature — this makes cost and performance regressions visible instead of discovered later on a bill."
+   }
+  ],
+  "memoryHack": {
+   "emoji": "✈️",
+   "oneLiner": "Treat the LLM endpoint like an airport, not a magic box: security, a bouncer, cached boarding passes, live boards, and ground control for storms.",
+   "mnemonic": "A-R-C-S-G: Auth, Rate-limit, Cache, Stream-or-queue, Guardrails",
+   "memoryPalace": "Picture an airport terminal: a guard checks IDs at the door (Authorize), a velvet-rope bouncer only lets a few through per minute (rate limiting), a frequent flyer gets handed a reused boarding pass without boarding again (cache), a live departures board shows real-time progress for short flights while long-haul bags get a 202-style claim ticket (streaming vs background job), and ground control halts departures during a storm instead of losing planes one by one (circuit breaker)."
+  },
+  "bestPractices": [
+   "Authorize, rate-limit (dedicated policy), validate, and check cache before ever calling the LLM.",
+   "Thread CancellationToken through the entire call chain; go fully async end to end.",
+   "Stream user-facing responses; use 202 Accepted plus a background hosted service and queue for long-running jobs.",
+   "Wrap the LLM call in Polly retry-with-backoff, a circuit breaker, and an explicit timeout.",
+   "Never interpolate untrusted input directly into a system prompt; validate/length-limit all input to guard against prompt injection."
+  ],
+  "performanceTips": [
+   "Cache identical prompts aggressively — it's often the single biggest cost and latency win available.",
+   "Set per-user/per-tenant quotas so one heavy user can't degrade the experience or budget for everyone else.",
+   "Prefer streaming for perceived latency even when total generation time doesn't change.",
+   "Log token counts and cost per request so regressions in either are caught before the monthly bill, not after."
+  ],
+  "quiz": [
+   {
+    "question": "Why should a multi-minute LLM generation job never be handled synchronously in an HTTP request?",
+    "options": [
+     "HTTP doesn't support POST for AI endpoints",
+     "It holds a thread/connection open for minutes, risking timeouts and exhausting resources under load",
+     "LLMs can't generate long responses",
+     "It's not possible to log the result"
+    ],
+    "answer": 1,
+    "explanation": "Long-running work should be accepted (202 Accepted), queued, and processed by a background hosted service — holding an HTTP request open for minutes doesn't scale and risks client/gateway timeouts."
+   },
+   {
+    "question": "What is prompt injection analogous to in traditional web security?",
+    "options": [
+     "Cross-site scripting only",
+     "SQL injection — untrusted input manipulating the instructions given to a system",
+     "A DDoS attack",
+     "A CSRF attack"
+    ],
+    "answer": 1,
+    "explanation": "Prompt injection is explicitly the LLM equivalent of SQL injection: untrusted input smuggling instructions into what should be a trusted, static system prompt."
+   },
+   {
+    "question": "What is the primary benefit of caching repeated prompts in an LLM-backed API?",
+    "options": [
+     "Improves model accuracy",
+     "Reduces cost and latency for identical/near-identical requests",
+     "Bypasses authentication requirements",
+     "Increases the context window"
+    ],
+    "answer": 1,
+    "explanation": "Caching avoids paying for and waiting on a fresh completion when the same or a very similar prompt has already been answered recently."
+   }
+  ],
+  "flashcards": [
+   {
+    "front": "What should happen before an LLM API endpoint ever calls the model?",
+    "back": "Authorization, rate limiting (dedicated policy), input validation, and a cache lookup."
+   },
+   {
+    "front": "How should a multi-minute LLM job be handled in an API?",
+    "back": "Return 202 Accepted with a job ID; process via a queue and background hosted service, not a held-open HTTP request."
+   },
+   {
+    "front": "What is prompt injection?",
+    "back": "Untrusted input manipulating the model's instructions — the LLM equivalent of SQL injection; never interpolate untrusted input into the system prompt."
+   },
+   {
+    "front": "What resilience pattern protects against a provider outage stalling the pipeline?",
+    "back": "Polly retry-with-backoff plus a circuit breaker plus explicit timeouts."
+   }
+  ],
+  "revision30": "Design an LLM-backed API like any other production endpoint: authorize, rate-limit, validate, and cache before calling the model; stream user-facing responses or offload long jobs to a background queue with 202 Accepted; wrap the call in Polly retry/circuit-breaker/timeout; and never interpolate untrusted input into the system prompt.",
+  "revision2min": "Building a .NET API around an LLM is fundamentally an engineering problem, not an AI problem. The controller authorizes the caller, applies a dedicated rate-limiting policy since LLM calls are expensive, validates input, and checks a cache keyed on the prompt before ever calling the model — repeated prompts are common and caching cuts cost and latency significantly. Everything is async with a CancellationToken flowing all the way through, since LLM latency is seconds and a blocked thread per request destroys throughput. User-facing chat streams its response via IAsyncEnumerable or Server-Sent Events so tokens render immediately; long-running generation jobs never hold an HTTP request open — they return 202 Accepted with a job ID and are processed via a queue and a background hosted service, with the client polling or receiving a webhook. The actual LLM call is wrapped in Polly retry-with-backoff and a circuit breaker plus an explicit timeout, so a provider outage or rate-limit burst doesn't stall the whole pipeline, and per-user rate limits and quotas stop one user from burning the entire token budget. Guardrails matter for safety: input is validated and length-limited, content filtering is applied where relevant, and untrusted input is never interpolated directly into a system prompt, since that's exactly how prompt injection — the LLM equivalent of SQL injection — happens. Finally, observability logs the model, token counts, latency, and cost per request, and the feature degrades gracefully with a fallback rather than failing outright when the LLM is unavailable.",
+  "challenge": "Design the full request lifecycle for a customer-support chat endpoint that must (a) stream partial answers to the browser, (b) never let a user's message override the support-bot's system instructions, and (c) stay within a $50/day budget across all users — specify exactly where in the pipeline each control lives.",
+  "related": [
+   "azure-openai-dotnet-integration",
+   "prompt-vs-completion-token-limits",
+   "rag-pipeline-dotnet"
+  ],
+  "summary": "A production LLM-backed .NET API is mostly ordinary API engineering — auth, rate limiting, caching, async/streaming, Polly resilience, and prompt-injection-aware guardrails — wrapped around a comparatively small LLM call."
+ }
+]

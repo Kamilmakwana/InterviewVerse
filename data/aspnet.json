@@ -1,0 +1,2010 @@
+[
+ {
+  "id": "aspnet-01",
+  "title": "Difference between ASP.NET and ASP.NET Core",
+  "slug": "aspnet-vs-aspnet-core",
+  "category": "aspnet",
+  "difficulty": "Beginner",
+  "estimatedTime": 5,
+  "emoji": "🔄",
+  "icon": "GitBranch",
+  "tags": [
+   "aspnet-core",
+   "fundamentals",
+   "history",
+   "framework"
+  ],
+  "keywords": [
+   "ASP.NET",
+   "ASP.NET Core",
+   "cross-platform",
+   "Kestrel",
+   "web.config",
+   "Global.asax",
+   "Program.cs",
+   "middleware"
+  ],
+  "companies": [
+   "Infosys",
+   "TCS",
+   "Accenture",
+   "Microsoft",
+   "Cognizant"
+  ],
+  "interviewQuestion": "What is the difference between ASP.NET (Framework) and ASP.NET Core?",
+  "story": {
+   "setup": "Imagine two office buildings owned by the same company: an old landmark tower built in the 1990s, and a brand-new modular building built from scratch.",
+   "scenes": [
+    "The old tower (ASP.NET Framework) only has an address on Windows Street — it was built with Windows-only foundations, and it will never move.",
+    "The new building (ASP.NET Core) is modular and can be assembled anywhere — Windows, Linux, a shipping container (Docker) — because it doesn't depend on one city's infrastructure.",
+    "In the old tower, every department (DI, config) hires outside contractors (Unity, Ninject) because the building has no built-in facilities. The new building has its own in-house services team (built-in DI) from day one.",
+    "The old tower starts its business day by reading a giant printed policy binder (web.config XML) and ringing a bell at Application_Start (Global.asax). The new building just runs a lightweight startup script (Program.cs) that assembles a pipeline of checkpoints (middleware).",
+    "When the company needs two versions of the same building running side-by-side for different clients, only the new modular building supports it — the old tower is a single fixed structure."
+   ],
+   "moral": "ASP.NET Core isn't a renovation of ASP.NET — it's a ground-up rewrite optimized for speed, portability, and modern DevOps, while the old ASP.NET Framework stays frozen on Windows/IIS."
+  },
+  "analogy": "ASP.NET is a landmark building fixed to one city (Windows/IIS); ASP.NET Core is a modular building you can assemble anywhere.",
+  "animation": "compare",
+  "explanation": "ASP.NET (Framework 4.x) is Windows-only, hosted exclusively on IIS, closed-source in its core runtime, and configured via XML in web.config with application lifecycle events wired through Global.asax. ASP.NET Core is a complete rewrite: cross-platform (Windows/Linux/macOS), hostable on Kestrel, IIS, Nginx, or inside Docker containers, fully open source, and significantly faster due to a leaner, modular runtime. It has dependency injection built into the framework instead of relying on third-party containers like Unity or Ninject, uses appsettings.json plus environment variables for configuration, and replaces Global.asax with Program.cs and an explicit middleware pipeline. MVC and Web API, which were two separate frameworks in classic ASP.NET, are unified into a single framework in Core. Core also supports side-by-side versioning, so multiple applications on the same machine can target different .NET versions independently.",
+  "interviewAnswerShort": "ASP.NET Core is a complete, cross-platform rewrite of ASP.NET — open source, faster, with built-in DI and a middleware pipeline replacing web.config, HTTP modules, and Global.asax.",
+  "interviewAnswerDetailed": "ASP.NET Framework is Windows-only and tied to IIS, while ASP.NET Core runs cross-platform on Kestrel, IIS, Nginx, or Docker. Core is open source and built with performance as a first-class goal, so it consistently benchmarks faster than Framework. Dependency injection is built into Core's runtime rather than requiring a third-party container. Configuration moved from XML-based web.config to appsettings.json plus environment variables, which plays much better with containers and cloud deployments. Startup logic moved from Global.asax event handlers to Program.cs, where you explicitly compose a middleware pipeline instead of relying on implicit HTTP modules and handlers. MVC and Web API, which were separate frameworks with separate base classes in classic ASP.NET, are unified into one framework in Core. Finally, Core supports side-by-side installation of multiple versions, so you're not forced to upgrade every app on a machine at once.",
+  "codeExample": {
+   "language": "csharp",
+   "code": "// ASP.NET Core minimal startup — Program.cs\nvar builder = WebApplication.CreateBuilder(args);\n\n// Built-in DI container\nbuilder.Services.AddControllers();\nbuilder.Services.AddScoped<IOrderService, OrderService>();\n\nvar app = builder.Build();\n\n// Explicit middleware pipeline (replaces Global.asax + web.config modules)\napp.UseHttpsRedirection();\napp.UseRouting();\napp.UseAuthorization();\napp.MapControllers();\n\napp.Run();",
+   "explanation": "Program.cs replaces Global.asax and web.config — DI registration and the middleware pipeline are both explicit, readable C# code instead of XML and hidden event hooks."
+  },
+  "mistakes": [
+   "Assuming ASP.NET Core is just a new version of ASP.NET rather than a full rewrite with a different runtime model.",
+   "Trying to host ASP.NET Core exclusively on IIS and not knowing Kestrel is the actual cross-platform web server.",
+   "Forgetting that MVC and Web API were separate frameworks (System.Web.Mvc vs System.Web.Http) in classic ASP.NET but are unified in Core.",
+   "Not knowing Global.asax's role, so being unable to answer what replaced it and why.",
+   "Assuming you must use a third-party DI container in Core when one is built in."
+  ],
+  "followUps": [
+   {
+    "question": "What was Global.asax used for?",
+    "answer": "It held application-level event handlers in classic ASP.NET: Application_Start (register routes/filters/bundles, runs once at startup), Session_Start, Application_Error (catches any unhandled exception app-wide), and Application_End. In ASP.NET Core, Program.cs and the middleware pipeline take over this responsibility explicitly."
+   },
+   {
+    "question": "Can you run ASP.NET Core on IIS at all?",
+    "answer": "Yes — IIS can act as a reverse proxy in front of Kestrel (the ASP.NET Core Module forwards requests to Kestrel), or you can use IIS in-process hosting. But Kestrel itself is the cross-platform server; IIS is now optional, not mandatory."
+   },
+   {
+    "question": "Why is ASP.NET Core generally faster than ASP.NET Framework?",
+    "answer": "It has a leaner, modular request pipeline with no legacy HTTP modules/handlers overhead, a more efficient Kestrel server, ahead-of-time and tiered JIT compilation improvements in the .NET runtime, and you only pull in the NuGet packages/middleware you actually need instead of a large fixed framework."
+   }
+  ],
+  "memoryHack": {
+   "emoji": "🏗️",
+   "oneLiner": "Old tower vs modular building — same company, totally different construction.",
+   "mnemonic": "COW: Cross-platform, Open-source, WAY faster.",
+   "memoryPalace": "Picture yourself walking out of a locked Windows-only skyscraper (ASP.NET) into an open-air modular building that you can bolt together on any street (Core) — Kestrel is the crew that assembles it anywhere."
+  },
+  "bestPractices": [
+   "For new projects, always start with ASP.NET Core unless a hard legacy dependency forces classic ASP.NET.",
+   "Use appsettings.{Environment}.json plus environment variables for configuration instead of web.config-style hardcoding.",
+   "Plan Framework-to-Core migrations incrementally (strangler-fig pattern) rather than a big-bang rewrite.",
+   "Leverage built-in DI rather than bolting on a third-party container unless you need advanced features it lacks."
+  ],
+  "performanceTips": [
+   "Kestrel alone is very fast, but for public-facing apps still put it behind a reverse proxy (IIS, Nginx, or a cloud load balancer) for things like TLS termination and process management.",
+   "Trim middleware to only what each app needs — every registered middleware adds a small per-request cost."
+  ],
+  "quiz": [
+   {
+    "question": "Which of these is TRUE about ASP.NET Core compared to classic ASP.NET?",
+    "options": [
+     "It only runs on IIS",
+     "It has dependency injection built in",
+     "It uses web.config for all configuration",
+     "It merges routing but keeps MVC and Web API as separate frameworks"
+    ],
+    "answer": 1,
+    "explanation": "ASP.NET Core ships with a built-in DI container, unlike classic ASP.NET which relies on third-party libraries like Unity or Ninject."
+   },
+   {
+    "question": "What replaced Global.asax's Application_Start in ASP.NET Core?",
+    "options": [
+     "web.config",
+     "Program.cs startup and middleware pipeline",
+     "Session_Start",
+     "IIS Manager"
+    ],
+    "answer": 1,
+    "explanation": "ASP.NET Core moves application startup logic into Program.cs, where services are registered and the middleware pipeline is explicitly configured."
+   }
+  ],
+  "flashcards": [
+   {
+    "front": "Is ASP.NET Core cross-platform?",
+    "back": "Yes — Windows, Linux, macOS, via Kestrel."
+   },
+   {
+    "front": "What replaced web.config for configuration?",
+    "back": "appsettings.json plus environment variables."
+   },
+   {
+    "front": "What replaced Global.asax?",
+    "back": "Program.cs plus the middleware pipeline."
+   },
+   {
+    "front": "Is DI built into ASP.NET Core?",
+    "back": "Yes, natively — no third-party container required."
+   }
+  ],
+  "revision30": "ASP.NET Core is a complete rewrite of ASP.NET: cross-platform, open source, faster, with built-in DI, appsettings.json config, and Program.cs/middleware replacing web.config and Global.asax.",
+  "revision2min": "Classic ASP.NET Framework is Windows-only, hosted solely on IIS, closed-source at its core, and configured through web.config XML with lifecycle events in Global.asax. It relies on third-party DI containers like Unity or Ninject, and MVC/Web API exist as two separate frameworks. ASP.NET Core rewrites all of this: it's cross-platform and can run on Kestrel, IIS, Nginx, or Docker; it's open source; it's significantly faster due to a leaner pipeline; dependency injection is built in; configuration uses appsettings.json plus environment variables, which fits containers and cloud deployment far better; and startup/middleware is explicit C# code in Program.cs rather than implicit event hooks. MVC and Web API are unified into one framework, and Core supports side-by-side versioning so different apps on one machine can target different .NET versions.",
+  "challenge": "You're asked to migrate a large classic ASP.NET MVC 5 app to ASP.NET Core without downtime. Outline your migration strategy and name at least two APIs or patterns that won't have a direct 1:1 equivalent.",
+  "related": [
+   "middleware-pipeline",
+   "dependency-injection-lifetimes",
+   "aspnet-core-mvc-lifecycle"
+  ],
+  "summary": "ASP.NET Core is a ground-up, cross-platform rewrite of ASP.NET Framework — faster, open source, with built-in DI and an explicit middleware pipeline replacing web.config and Global.asax."
+ },
+ {
+  "id": "aspnet-02",
+  "title": "What is Middleware? Build a custom one.",
+  "slug": "middleware-pipeline",
+  "category": "aspnet",
+  "difficulty": "Intermediate",
+  "estimatedTime": 8,
+  "emoji": "🛂",
+  "icon": "Shield",
+  "tags": [
+   "middleware",
+   "pipeline",
+   "aspnet-core",
+   "request-lifecycle"
+  ],
+  "keywords": [
+   "middleware",
+   "RequestDelegate",
+   "InvokeAsync",
+   "pipeline",
+   "UseAuthentication",
+   "UseAuthorization",
+   "short-circuit",
+   "app.Use"
+  ],
+  "companies": [
+   "Microsoft",
+   "Amazon",
+   "Infosys",
+   "Accenture",
+   "TCS"
+  ],
+  "interviewQuestion": "What is middleware in ASP.NET Core, and how would you write a custom middleware component?",
+  "story": {
+   "setup": "Picture an international airport. Every passenger (HTTP request) must pass through a sequence of checkpoints before reaching the gate (your controller).",
+   "scenes": [
+    "First is the emergency response station (Exception middleware) — it wraps the entire journey, ready to catch any crisis anywhere down the line.",
+    "Next, passengers with only a boarding pass to the duty-free shop (Static Files) get waved through a fast lane — no need for a passport check to buy chocolate.",
+    "Then comes the signage system (Routing) that decides which gate a passenger is even headed to, before anyone checks their identity for that gate.",
+    "Only now does passport control (Authentication) check WHO you are, followed by a boarding-pass class check (Authorization) confirming WHAT you're allowed to board.",
+    "Finally the passenger reaches the gate agent (the Controller/endpoint). If passport control ran before signage, the agent wouldn't even know which gate's rules to enforce — that's why order matters, and any checkpoint can pull a passenger aside and send them straight back (short-circuit) without ever reaching the gate."
+   ],
+   "moral": "Middleware is an ordered sequence of checkpoints — each one can inspect, modify, pass along via next(), or stop the request cold, and the order they're registered in determines what each checkpoint is allowed to know."
+  },
+  "analogy": "Middleware is airport security — each checkpoint (static files, routing, authentication, authorization) can inspect you, wave you through, or turn you back before you ever reach the gate.",
+  "animation": "flow",
+  "explanation": "Middleware components are objects that form a pipeline: every incoming request passes through them in registration order, and the response passes back through them in reverse order. Each middleware receives the HttpContext and a reference to the next delegate in the pipeline; it can inspect or modify the request, call await _next(context) to pass control forward, or short-circuit by not calling next and writing a response directly. A custom middleware class needs a constructor that accepts RequestDelegate next (plus any singleton services via DI) and a public InvokeAsync (or Invoke) method that takes HttpContext. It's typically registered via an app.UseMiddleware<T>() extension method wrapped in a clean UseXxx() call. Order is critical: exception handling must wrap everything so it's registered first, static files should be early to avoid paying auth costs for assets, routing must run before authentication/authorization so endpoint metadata like [Authorize] is known, and authentication must run before authorization so an identity exists to check permissions against.",
+  "interviewAnswerShort": "Middleware are ordered pipeline components that each get the request, can act on it, call next() to pass it along, or short-circuit and return a response — order of registration is critical because each component only sees what earlier ones passed through.",
+  "interviewAnswerDetailed": "Middleware forms a chain: Request → [Exception] → [Static Files] → [Routing] → [AuthN] → [AuthZ] → Controller, and the response travels back up the same chain in reverse. Each middleware is a class with a RequestDelegate _next field injected via constructor, and an InvokeAsync(HttpContext context) method — inside it, you do work before calling await _next(context), and can do more work after that call runs and returns, which is how you can measure things like request timing. If a middleware doesn't call next, it short-circuits the pipeline entirely — nothing downstream runs. You register custom middleware either inline with app.Use(...) or as a class via an extension method that calls app.UseMiddleware<T>(). Ordering rules that come up constantly: exception handling must be registered first so it wraps every other component; static files early, before auth, so serving a CSS file doesn't pay authentication overhead; routing before authentication/authorization, because AuthZ needs to know the matched endpoint's [Authorize] attributes, which routing determines; and authentication before authorization, because you can't check permissions for an identity you haven't established yet.",
+  "codeExample": {
+   "language": "csharp",
+   "code": "public class RequestTimingMiddleware\n{\n    private readonly RequestDelegate _next;\n    private readonly ILogger<RequestTimingMiddleware> _logger;\n\n    public RequestTimingMiddleware(RequestDelegate next, ILogger<RequestTimingMiddleware> log)\n    {\n        _next = next;\n        _logger = log;\n    }\n\n    public async Task InvokeAsync(HttpContext context) // must be InvokeAsync/Invoke\n    {\n        var sw = Stopwatch.StartNew();\n        await _next(context); // pass down the pipeline\n        _logger.LogInformation(\"{Path} took {Ms}ms\", context.Request.Path, sw.ElapsedMilliseconds);\n    }\n}\n\npublic static class MiddlewareExtensions\n{\n    public static IApplicationBuilder UseRequestTiming(this IApplicationBuilder app)\n        => app.UseMiddleware<RequestTimingMiddleware>();\n}\n\n// Program.cs\napp.UseExceptionHandler(\"/error\"); // 1st — must WRAP everything\napp.UseHttpsRedirection();\napp.UseStaticFiles();               // early — serve css/js without auth cost\napp.UseRouting();                   // decides WHICH endpoint matches\napp.UseCors();\napp.UseAuthentication();             // WHO are you\napp.UseAuthorization();              // WHAT can you do\napp.MapControllers();\napp.UseRequestTiming();",
+   "explanation": "A custom middleware measures request duration around await _next(context); the correct pipeline order ensures exception handling wraps everything and authentication precedes authorization."
+  },
+  "mistakes": [
+   "Registering [Authorize]-checking middleware (UseAuthorization) before UseAuthentication, so no identity exists yet to authorize.",
+   "Placing UseAuthentication/UseAuthorization before UseRouting, so endpoint metadata like [Authorize] attributes isn't known yet.",
+   "Registering the global exception handler last instead of first, so it sits inside everything and misses errors thrown by earlier middleware.",
+   "Putting UseStaticFiles after authentication, forcing every image/CSS/JS request to pay the authentication cost.",
+   "Forgetting to call await _next(context) when it should be called, silently short-circuiting the pipeline."
+  ],
+  "followUps": [
+   {
+    "question": "Why does middleware order matter?",
+    "answer": "Each middleware only sees what earlier middleware passed to it, and any middleware can short-circuit everything after it. If routing hasn't run yet, authorization doesn't know which endpoint's [Authorize] rules apply; if exception handling isn't first, it can't catch errors thrown earlier in the pipeline."
+   },
+   {
+    "question": "When would you write custom middleware versus using a filter?",
+    "answer": "Write middleware when a concern applies to every request regardless of controller — correlation IDs for tracing, global exception handling, tenant resolution in multi-tenant apps, request/response logging, rate limiting, or maintenance-mode 503s. The rule of thumb: cross-cutting concern at the HTTP level → middleware; needs MVC context like the action or ModelState → filter; already built in (e.g. UseRateLimiter) → just use the built-in."
+   },
+   {
+    "question": "What's the difference between Use, Run, and Map?",
+    "answer": "Use can call next() and continue the pipeline. Run is terminal — it never calls next and always ends the pipeline there. Map branches the pipeline based on a path prefix, routing a subset of requests into a separate sub-pipeline."
+   }
+  ],
+  "memoryHack": {
+   "emoji": "🛂",
+   "oneLiner": "Passport control before boarding-pass check — auth before authz, always.",
+   "mnemonic": "ESRA-AA: Exception, Static, Routing, AuthN, AuthZ.",
+   "memoryPalace": "Walk through the airport terminal in order: emergency exits (exception) wrap the whole building, duty-free fast lane (static files), the signage board (routing) telling you which gate, passport control (authN), then the gate agent checking your ticket class (authZ) — reversing any two breaks the whole terminal's logic."
+  },
+  "bestPractices": [
+   "Always register exception-handling middleware first so it wraps the entire pipeline.",
+   "Keep middleware focused on one cross-cutting concern per class for testability and reuse.",
+   "Expose custom middleware via a UseXxx() extension method for clean, readable Program.cs registration.",
+   "Use Map/MapWhen to branch the pipeline for distinct sub-apps (e.g. health checks) instead of littering conditionals inside one middleware."
+  ],
+  "performanceTips": [
+   "Order matters for performance too — put cheap, high-rejection-rate checks (like static file serving or rate limiting) early so expensive downstream work is avoided.",
+   "Avoid heavy synchronous work inside middleware; always await async calls to not block Kestrel's thread pool."
+  ],
+  "quiz": [
+   {
+    "question": "What must a custom middleware class's request-handling method be named?",
+    "options": [
+     "Handle or HandleAsync",
+     "Execute or ExecuteAsync",
+     "Invoke or InvokeAsync",
+     "Process or ProcessAsync"
+    ],
+    "answer": 2,
+    "explanation": "ASP.NET Core's middleware convention requires a public Invoke or InvokeAsync method accepting HttpContext."
+   },
+   {
+    "question": "Which middleware ordering is correct?",
+    "options": [
+     "UseAuthorization, UseAuthentication, UseRouting",
+     "UseRouting, UseAuthentication, UseAuthorization",
+     "UseAuthentication, UseRouting, UseAuthorization",
+     "UseAuthorization, UseRouting, UseAuthentication"
+    ],
+    "answer": 1,
+    "explanation": "Routing must resolve the endpoint (and its [Authorize] metadata) before authentication establishes identity, which must happen before authorization checks permissions."
+   }
+  ],
+  "flashcards": [
+   {
+    "front": "What does calling next() in middleware do?",
+    "back": "Passes control to the next middleware in the pipeline; skipping it short-circuits the request."
+   },
+   {
+    "front": "Use vs Run vs Map?",
+    "back": "Use continues the pipeline; Run is terminal; Map branches by path prefix."
+   },
+   {
+    "front": "Why register exception middleware first?",
+    "back": "So it wraps every other middleware and can catch errors thrown anywhere downstream."
+   },
+   {
+    "front": "Why must routing run before authorization?",
+    "back": "Authorization needs the matched endpoint's [Authorize] metadata, which routing determines."
+   }
+  ],
+  "revision30": "Middleware is an ordered pipeline where each component can act, call next() to continue, or short-circuit. Order matters: exception handling first, static files early, routing before auth, authentication before authorization.",
+  "revision2min": "Middleware components form a request pipeline: requests flow through in registration order, responses flow back in reverse. Each middleware gets HttpContext and a RequestDelegate next; it can inspect/modify the request, call await _next(context) to continue, or short-circuit by writing a response directly without calling next. Custom middleware is a class with a constructor taking RequestDelegate next plus DI services, and an InvokeAsync(HttpContext) method, typically exposed via a UseXxx() extension method. The canonical order is: exception handler first (wraps everything), HTTPS redirection, static files early (avoid auth cost on assets), routing (determines the endpoint), CORS, authentication (who you are), authorization (what you can do), then endpoint execution. Getting this order wrong is a classic bug: AuthZ before AuthN means no identity exists to check; Auth before Routing means [Authorize] metadata isn't known yet; exception handler last means it can't catch earlier errors. Use vs Run vs Map: Use can continue the chain, Run is terminal, Map branches the pipeline by path.",
+  "challenge": "Write a custom middleware that adds a correlation ID (a GUID) to every request if one isn't already present in an X-Correlation-Id header, attaches it to the logging scope, and includes it in the response headers — and explain exactly where in the pipeline you'd register it and why.",
+  "related": [
+   "aspnet-vs-aspnet-core",
+   "aspnet-core-mvc-lifecycle",
+   "action-filters",
+   "cors-explained"
+  ],
+  "summary": "Middleware is an ordered, composable pipeline of request/response handlers where registration order determines what each component can see and short-circuit."
+ },
+ {
+  "id": "aspnet-03",
+  "title": "What is Dependency Injection and its uses?",
+  "slug": "dependency-injection-lifetimes",
+  "category": "aspnet",
+  "difficulty": "Intermediate",
+  "estimatedTime": 9,
+  "emoji": "🍽️",
+  "icon": "Layers",
+  "tags": [
+   "dependency-injection",
+   "di",
+   "ioc",
+   "aspnet-core",
+   "lifetimes"
+  ],
+  "keywords": [
+   "Dependency Injection",
+   "AddTransient",
+   "AddScoped",
+   "AddSingleton",
+   "DbContext lifetime",
+   "captive dependency",
+   "IServiceScopeFactory",
+   "constructor injection"
+  ],
+  "companies": [
+   "Microsoft",
+   "Amazon",
+   "Google",
+   "Infosys",
+   "Accenture"
+  ],
+  "interviewQuestion": "What is Dependency Injection, what are its uses, and how do you choose between Transient, Scoped, and Singleton?",
+  "story": {
+   "setup": "A restaurant kitchen doesn't grow its own vegetables or bottle its own water — ingredients are delivered to the chef, ready to use.",
+   "scenes": [
+    "The chef (OrderService) doesn't personally drive to a farm to grow tomatoes; a supplier hands ingredients (IEmailService) directly to the kitchen through the delivery window (constructor). This is Dependency Injection — the class receives what it needs instead of creating it.",
+    "Disposable napkins (Transient services) are grabbed fresh for every single table — cheap, stateless, no need to reuse.",
+    "A table's shared serving platter (Scoped service) is used for the whole duration of one table's meal (one HTTP request) and then cleared away — never shared between two different tables at once.",
+    "The restaurant's single walk-in freezer (Singleton service) is shared by the entire kitchen for the whole night — expensive to build, so there's only ever one, and it must be safe for every chef to use concurrently.",
+    "A new chef made the mistake of storing today's specials board (a Scoped DbContext) inside the walk-in freezer (a Singleton) — now every table for the rest of the night sees stale, shared, conflicting specials. That's a captive dependency, and it breaks the kitchen."
+   ],
+   "moral": "DI hands each class its dependencies instead of letting it create them — and choosing the right lifetime (Transient/Scoped/Singleton) is what keeps shared state from leaking across requests."
+  },
+  "analogy": "Dependency Injection is a restaurant kitchen receiving ingredients through a supply window instead of growing its own — the class just declares what it needs via its constructor.",
+  "animation": "restaurant",
+  "explanation": "Dependency Injection is a pattern where a class receives its dependencies from the outside (typically via its constructor) rather than constructing them itself, decoupling the class from concrete implementations. ASP.NET Core has a built-in DI container configured in Program.cs via builder.Services, with three lifetimes: Transient creates a new instance every time it's requested, ideal for lightweight, stateless services; Scoped creates one instance per HTTP request, ideal for anything tied to a unit of work like DbContext; and Singleton creates one instance for the entire application lifetime, ideal for expensive, thread-safe shared resources like caches or IHttpClientFactory. Its uses include loose coupling (code depends on interfaces, not concrete classes), easy unit testing via mocking those interfaces, swapping implementations through configuration without code changes, and centralized lifetime management instead of manual object creation scattered everywhere. A dangerous mistake is a 'captive dependency' — injecting a Scoped service (like DbContext) into a Singleton, which captures that Scoped instance for the application's entire lifetime, causing it to outlive its intended request and misbehave or throw concurrency errors.",
+  "interviewAnswerShort": "Dependency Injection means a class receives its dependencies via its constructor instead of creating them itself, giving loose coupling, testability via mocks, and centralized lifetime management through Transient, Scoped, and Singleton registrations.",
+  "interviewAnswerDetailed": "Instead of a class newing up its own dependencies, ASP.NET Core's built-in DI container constructs and injects them, usually through the constructor. You register services in Program.cs with builder.Services.AddTransient/AddScoped/AddSingleton, mapping an interface to an implementation. Transient services get a brand-new instance every single time they're resolved — good for cheap, stateless services. Scoped services get one instance per HTTP request — this is essential for DbContext, because EF Core's change tracking is per-unit-of-work, DbContext isn't thread-safe, and a longer-lived instance would leak memory as its change tracker accumulates entities. Singleton services get exactly one instance for the whole app's lifetime — good for expensive, thread-safe shared resources like a cache or IHttpClientFactory. The uses of DI beyond lifetime management are loose coupling (depend on abstractions, not concretions), easier unit testing (swap real implementations for mocks/stubs), and configuration-driven implementation swapping. The most common interview trap is the captive dependency: injecting a Scoped service into a Singleton captures it for the app's whole lifetime, so a captured DbContext eventually throws concurrency exceptions across unrelated requests — the fix is to inject IServiceScopeFactory and create a fresh scope manually when needed.",
+  "codeExample": {
+   "language": "csharp",
+   "code": "public class OrderService\n{\n    private readonly IEmailService _email;\n    public OrderService(IEmailService email) => _email = email;\n}\n\n// Program.cs\nbuilder.Services.AddTransient<IEmailService, EmailService>();   // new every time\nbuilder.Services.AddScoped<IOrderService, OrderService>();      // one per HTTP request\nbuilder.Services.AddSingleton<ICacheService, CacheService>();   // one per application\n\n// Fixing a captive dependency inside a Singleton\npublic class BackgroundReportGenerator\n{\n    private readonly IServiceScopeFactory _scopeFactory;\n    public BackgroundReportGenerator(IServiceScopeFactory scopeFactory) => _scopeFactory = scopeFactory;\n\n    public async Task RunAsync()\n    {\n        using var scope = _scopeFactory.CreateScope();\n        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();\n        // use db safely — a fresh, correctly-scoped DbContext\n    }\n}",
+   "explanation": "OrderService declares IEmailService as a constructor dependency; the three AddXxx calls show the three lifetimes, and the scope factory pattern shows how a Singleton safely obtains a Scoped DbContext without capturing it."
+  },
+  "mistakes": [
+   "Registering DbContext as Singleton or Transient instead of Scoped, causing thread-safety exceptions or breaking the unit-of-work boundary.",
+   "Injecting a Scoped service directly into a Singleton's constructor, creating a captive dependency.",
+   "Using the service locator anti-pattern (resolving from IServiceProvider inside business logic) instead of constructor injection.",
+   "Registering the interface and implementation with mismatched lifetimes across different registrations, causing subtle bugs.",
+   "Overusing Singleton for convenience without checking thread-safety, leading to race conditions."
+  ],
+  "followUps": [
+   {
+    "question": "Transient vs Scoped vs Singleton — how do you choose?",
+    "answer": "Transient for stateless, cheap services. Scoped for anything tied to one request, especially DbContext. Singleton for expensive, thread-safe shared things like caches, configuration, or IHttpClientFactory."
+   },
+   {
+    "question": "Which lifetime should DbContext use, and why?",
+    "answer": "Scoped. Three reasons: change tracking is per-request, so one SaveChanges() commits the request as a single unit of work; DbContext isn't thread-safe, so a Singleton shared across concurrent requests throws 'A second operation was started on this context…'; and memory grows with every tracked entity, so a Singleton would leak. Transient would create multiple contexts per request, breaking the unit-of-work boundary and any shared transaction."
+   },
+   {
+    "question": "What is a captive dependency?",
+    "answer": "Injecting a Scoped service into a Singleton — the scoped object gets captured for the application's entire lifetime, so a DbContext outlives its request and starts failing. The fix is to inject IServiceScopeFactory and create a scope manually: using var scope = _scopeFactory.CreateScope(); var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();"
+   },
+   {
+    "question": "Constructor vs property vs method injection?",
+    "answer": "Constructor injection is the default — it makes dependencies explicit and mandatory, so the object is never in an invalid state. Property injection is for genuinely optional dependencies. Method injection passes a dependency only to the single method that needs it."
+   }
+  ],
+  "memoryHack": {
+   "emoji": "🍽️",
+   "oneLiner": "Transient = napkin, Scoped = table's platter, Singleton = the kitchen's freezer.",
+   "mnemonic": "TSS: Transient-per-use, Scoped-per-request, Singleton-forever.",
+   "memoryPalace": "Walk the restaurant floor: napkins (Transient) restocked at every table visit, a shared platter (Scoped) that lives only for one table's meal, and the one walk-in freezer (Singleton) the whole kitchen shares all night — never store a table's platter inside the freezer."
+  },
+  "bestPractices": [
+   "Always register DbContext as Scoped (AddDbContext does this by default).",
+   "Prefer constructor injection over property or method injection unless the dependency is genuinely optional.",
+   "Depend on interfaces/abstractions in constructors, never concrete classes, to preserve testability.",
+   "When a Singleton needs a Scoped resource, inject IServiceScopeFactory and create scopes explicitly rather than capturing the dependency."
+  ],
+  "performanceTips": [
+   "Singleton services avoid repeated construction cost, so use them for expensive-to-build, thread-safe resources like HttpClient (via IHttpClientFactory) or in-memory caches.",
+   "Avoid excessive Transient registrations for expensive-to-construct objects — the constant re-instantiation adds up under load."
+  ],
+  "quiz": [
+   {
+    "question": "What lifetime should EF Core's DbContext normally be registered with?",
+    "options": [
+     "Transient",
+     "Scoped",
+     "Singleton",
+     "It doesn't matter"
+    ],
+    "answer": 1,
+    "explanation": "DbContext must be Scoped — its change tracker is per-request, and it isn't thread-safe, so Singleton throws concurrency errors and Transient breaks the unit-of-work boundary."
+   },
+   {
+    "question": "What is a captive dependency?",
+    "options": [
+     "A service with no registered interface",
+     "A Scoped service injected into and captured by a Singleton",
+     "A Transient service that never gets disposed",
+     "A circular dependency between two services"
+    ],
+    "answer": 1,
+    "explanation": "Injecting a Scoped dependency (like DbContext) into a Singleton captures it for the app's full lifetime, causing it to outlive its intended request scope."
+   }
+  ],
+  "flashcards": [
+   {
+    "front": "What lifetime creates a new instance every resolution?",
+    "back": "Transient."
+   },
+   {
+    "front": "What lifetime is correct for DbContext?",
+    "back": "Scoped — one per HTTP request."
+   },
+   {
+    "front": "What lifetime is correct for a shared in-memory cache?",
+    "back": "Singleton — one per application."
+   },
+   {
+    "front": "How do you safely use a Scoped service inside a Singleton?",
+    "back": "Inject IServiceScopeFactory and call CreateScope() to resolve it manually."
+   }
+  ],
+  "revision30": "DI hands dependencies to a class via its constructor instead of the class creating them. Transient = new every time, Scoped = one per request (DbContext), Singleton = one per app. Never let a Singleton capture a Scoped dependency.",
+  "revision2min": "Dependency Injection means classes declare what they need (usually via constructor parameters) and the DI container supplies it, rather than the class instantiating dependencies itself. ASP.NET Core's built-in container is configured with builder.Services.AddTransient/AddScoped/AddSingleton in Program.cs. Transient services are created fresh on every resolution — good for cheap, stateless work. Scoped services get one instance per HTTP request, which is exactly why DbContext must be Scoped: its change tracker represents one unit of work, it's not thread-safe, and a longer lifetime would leak memory. Singleton services live for the entire application — good for expensive, thread-safe shared resources like caches or IHttpClientFactory. Beyond lifetime management, DI's real value is loose coupling (depend on interfaces), testability (swap real services for mocks), and configuration-driven implementation swapping. The classic trap is a captive dependency — injecting a Scoped service into a Singleton captures it for the app's whole life, so a captured DbContext eventually throws thread-safety or staleness errors; the fix is injecting IServiceScopeFactory and creating a scope on demand. Constructor injection is preferred over property/method injection because it makes dependencies explicit and mandatory.",
+  "challenge": "A Singleton IReportCache needs to occasionally query the database via a Scoped DbContext to refresh its cache on a timer. Design the class so it never becomes a captive dependency, and explain what would go wrong if you just injected AppDbContext into its constructor.",
+  "related": [
+   "middleware-pipeline",
+   "aspnet-vs-aspnet-core",
+   "aspnet-core-mvc-lifecycle"
+  ],
+  "summary": "Dependency Injection decouples classes from their dependencies via constructor injection, and choosing the right lifetime — Transient, Scoped, or Singleton — is what prevents state from leaking across unrelated requests."
+ },
+ {
+  "id": "aspnet-04",
+  "title": "What is Routing?",
+  "slug": "aspnet-core-routing",
+  "category": "aspnet",
+  "difficulty": "Beginner",
+  "estimatedTime": 6,
+  "emoji": "🗺️",
+  "icon": "Network",
+  "tags": [
+   "routing",
+   "aspnet-core",
+   "web-api",
+   "mvc"
+  ],
+  "keywords": [
+   "routing",
+   "MapControllerRoute",
+   "attribute routing",
+   "route constraints",
+   "UseRouting",
+   "MapControllers",
+   "endpoint routing"
+  ],
+  "companies": [
+   "Infosys",
+   "TCS",
+   "Wipro",
+   "Accenture",
+   "HCL"
+  ],
+  "interviewQuestion": "What is routing in ASP.NET Core and how does it map URLs to controller actions?",
+  "story": {
+   "setup": "Think of Google Maps directing a delivery driver to the right house — it doesn't just find any street, it finds the exact address and the exact door.",
+   "scenes": [
+    "Conventional routing is like a GPS with a general rule of thumb: 'go to whichever street matches {controller}, then the house numbered {action}, then optionally apartment {id}' — one flexible pattern covers many destinations.",
+    "Attribute routing is a hand-written address label pinned right on each building: [Route(\"api/[controller]\")] on ProductsController literally stamps the building's street name onto the door.",
+    "A route constraint like {id:int} is a bouncer at the door checking that whatever number shows up is actually a number, not a name — /products/5 gets in, /products/abc doesn't match at all.",
+    "UseRouting() is the moment the GPS finishes calculating which exact address matches the incoming request; MapControllers() is the moment the driver actually knocks on that door and hands over the package — which is why authentication and authorization checkpoints sit between those two moments, once the address (and its rules) are known but before delivery happens."
+   ],
+   "moral": "Routing is the map-matching engine that turns an incoming URL into a specific controller/action (and generates URLs back out) — and it must finish selecting the destination before authorization can decide who's allowed to receive the delivery."
+  },
+  "analogy": "Routing is Google Maps for your API — it matches an incoming URL to the exact controller/action 'address', with route constraints acting as the delivery bouncer checking id types along the way.",
+  "animation": "network",
+  "explanation": "Routing maps an incoming request URL to the code that should handle it, and can also generate outbound URLs from route data. ASP.NET Core supports conventional routing, defined once with app.MapControllerRoute using a pattern like {controller=Home}/{action=Index}/{id?}, typically used in traditional MVC apps, and attribute routing, where each controller or action is decorated with [Route] and [HttpGet]/[HttpPost] attributes, typically used in Web API controllers for precise, self-documenting URL definitions. Route parameters can carry constraints like {id:int}, {id:guid}, or {page:int:min(1)} to restrict what values match. In the pipeline, UseRouting() is the middleware that matches the incoming request to an endpoint (determining which controller/action and its metadata, like [Authorize] attributes), while MapControllers() (or the equivalent Map* calls) actually executes that matched endpoint — this is exactly why authentication and authorization middleware are registered between UseRouting() and MapControllers(), since AuthZ needs the endpoint's metadata resolved by routing but hasn't executed the endpoint yet.",
+  "interviewAnswerShort": "Routing maps an incoming URL to the controller/action that handles it (and generates URLs back out), using either conventional patterns like {controller}/{action}/{id?} or attribute routing with [Route] and [HttpGet] on Web API controllers, with constraints like {id:int} restricting matches.",
+  "interviewAnswerDetailed": "Routing is the mechanism that decides which piece of code handles an incoming HTTP request URL, and it can also build URLs back out from route values, which is how Url.Action or link generation works. Conventional routing, registered once via app.MapControllerRoute(\"default\", \"{controller=Home}/{action=Index}/{id?}\"), is typical for traditional server-rendered MVC apps where many controllers share one pattern. Attribute routing decorates controllers and actions directly, e.g. [Route(\"api/[controller]\")] on a ProductsController combined with [HttpGet], [HttpGet(\"{id:int}\")], giving explicit, self-documenting, and more flexible per-action URLs, which is standard for Web API controllers. Route constraints like {id:int}, {id:guid}, or {page:int:min(1)} restrict which values are allowed to match a segment, so a route only activates for correctly-typed input rather than failing inside the action. In the middleware pipeline, UseRouting() performs endpoint matching — deciding which endpoint a request maps to and exposing its metadata — while MapControllers() (or Map* endpoints generally) is where that matched endpoint actually executes. That's why authentication and authorization middleware sit between UseRouting() and MapControllers(): by the time AuthZ runs, routing has already determined the endpoint and any [Authorize] attributes on it, but the endpoint hasn't executed yet.",
+  "codeExample": {
+   "language": "csharp",
+   "code": "// Conventional (MVC)\napp.MapControllerRoute(\"default\", \"{controller=Home}/{action=Index}/{id?}\");\n\n// Attribute (Web API)\n[ApiController]\n[Route(\"api/[controller]\")] // -> api/products\npublic class ProductsController : ControllerBase\n{\n    [HttpGet]\n    public IActionResult GetAll() { return Ok(); } // api/products\n\n    [HttpGet(\"{id:int}\")]\n    public IActionResult Get(int id) { return Ok(); } // api/products/5\n\n    [HttpGet(\"category/{name}\")]\n    public IActionResult ByCat(string name) { return Ok(); } // api/products/category/electronics\n}",
+   "explanation": "Attribute routing on a Web API controller: [Route(\"api/[controller]\")] sets the base path, and each action's own attribute (plus constraints like {id:int}) precisely defines its matching URL."
+  },
+  "mistakes": [
+   "Mixing conventional and attribute routing inconsistently, causing ambiguous route matches.",
+   "Forgetting route constraints (like {id:int}), letting non-numeric input reach the action and fail deep inside business logic instead of returning a clean 404.",
+   "Registering UseAuthentication/UseAuthorization before UseRouting, so endpoint metadata isn't resolved yet.",
+   "Assuming [ApiController] is optional decoration rather than what enables automatic model validation and other Web API conventions.",
+   "Not realizing MapControllers() must be called or no attribute-routed endpoints will ever be reachable."
+  ],
+  "followUps": [
+   {
+    "question": "What's the difference between UseRouting() and MapControllers()?",
+    "answer": "UseRouting() performs endpoint matching — it decides which endpoint a request maps to and makes that endpoint's metadata (like [Authorize]) available to later middleware. MapControllers() is where that matched endpoint actually executes, which is why authentication/authorization sit in between."
+   },
+   {
+    "question": "Give an example of a route constraint and why you'd use one.",
+    "answer": "{id:int} restricts a route segment to only match integers, so /products/5 matches but /products/abc doesn't match this route at all (and can 404 cleanly or fall through to another route) rather than reaching the action and failing during parsing."
+   },
+   {
+    "question": "When would you choose conventional routing over attribute routing?",
+    "answer": "Conventional routing suits traditional server-rendered MVC apps with many similarly-shaped controller/action URLs sharing one pattern. Attribute routing suits Web APIs where each endpoint's URL, HTTP verb, and constraints need to be explicit and independently controlled."
+   }
+  ],
+  "memoryHack": {
+   "emoji": "🗺️",
+   "oneLiner": "Routing is Google Maps for your URLs — it finds the address before anyone checks your ID at the door.",
+   "mnemonic": "R before A-A: Routing resolves the address before AuthN/AuthZ check the visitor.",
+   "memoryPalace": "Picture a GPS calculating the destination address (UseRouting) before the delivery driver actually knocks (MapControllers) — the security guard (AuthZ) checks your badge only once the GPS has confirmed which door you're headed to."
+  },
+  "bestPractices": [
+   "Use attribute routing with [ApiController] for Web APIs to get explicit, self-documenting endpoint definitions.",
+   "Apply route constraints ({id:int}, {id:guid}) to fail fast on malformed input instead of letting it reach the action.",
+   "Keep route templates consistent and plural-noun-based across controllers for a predictable API surface.",
+   "Register UseRouting() before any middleware (auth, etc.) that depends on the matched endpoint's metadata."
+  ],
+  "performanceTips": [
+   "Endpoint routing (the modern ASP.NET Core routing system) is optimized with a route table lookup, so having many routes has minimal per-request overhead compared to older regex-heavy routing.",
+   "Avoid overly generic catch-all routes that force the router to evaluate many candidates before matching."
+  ],
+  "quiz": [
+   {
+    "question": "What does the route constraint {id:int} do?",
+    "options": [
+     "Requires the id segment to be present but of any type",
+     "Restricts the id segment to only match integer values",
+     "Makes the id parameter optional",
+     "Converts id to a string automatically"
+    ],
+    "answer": 1,
+    "explanation": "{id:int} restricts that route segment so only integer values match, causing non-numeric input to not match the route."
+   },
+   {
+    "question": "Why must UseRouting() come before UseAuthorization()?",
+    "options": [
+     "Authorization needs the matched endpoint's metadata, which routing determines",
+     "It's just convention with no functional impact",
+     "UseAuthorization requires HTTPS which routing enables",
+     "Routing performs the actual authentication check"
+    ],
+    "answer": 0,
+    "explanation": "Authorization needs to inspect the matched endpoint's [Authorize] metadata, which only exists once UseRouting() has selected the endpoint."
+   }
+  ],
+  "flashcards": [
+   {
+    "front": "What does UseRouting() do?",
+    "back": "Matches the incoming request to an endpoint and exposes its metadata."
+   },
+   {
+    "front": "What does MapControllers() do?",
+    "back": "Executes the endpoint that routing matched."
+   },
+   {
+    "front": "Example of a route constraint?",
+    "back": "{id:int}, {id:guid}, {page:int:min(1)}."
+   },
+   {
+    "front": "Conventional vs attribute routing?",
+    "back": "Conventional: one shared pattern (MVC). Attribute: per-controller/action [Route] attributes (Web API)."
+   }
+  ],
+  "revision30": "Routing maps a URL to a controller/action and back. Conventional routing uses one shared pattern; attribute routing decorates each action; constraints like {id:int} restrict matches. UseRouting() matches the endpoint, MapControllers() executes it.",
+  "revision2min": "Routing maps an incoming request URL to the code that handles it, and generates URLs back out from route data. Conventional routing, set up once with app.MapControllerRoute using a pattern like {controller=Home}/{action=Index}/{id?}, suits traditional MVC apps where many controllers share a shape. Attribute routing decorates controllers and actions directly with [Route] and HTTP verb attributes like [HttpGet(\"{id:int}\")], giving explicit, self-documenting URLs — the norm for Web API controllers. Constraints such as {id:int}, {id:guid}, and {page:int:min(1)} restrict which values a segment accepts, so malformed input fails to match rather than reaching the action. In the pipeline, UseRouting() is the middleware that performs endpoint matching, determining which endpoint (and its metadata, like [Authorize]) a request maps to; MapControllers() is where that matched endpoint actually executes. This ordering is exactly why authentication and authorization middleware sit between UseRouting() and MapControllers() — AuthZ needs the endpoint's metadata resolved but the endpoint hasn't run yet.",
+  "challenge": "Design attribute routes for a nested resource: GET /api/orders/{orderId:int}/items/{itemId:int} that also supports GET /api/orders/{orderId:int}/items for listing. Write the controller actions and explain what happens if orderId is passed as a non-numeric string.",
+  "related": [
+   "aspnet-core-mvc-lifecycle",
+   "rest-api-design-http-status-codes",
+   "middleware-pipeline"
+  ],
+  "summary": "Routing matches an incoming URL to the exact controller/action that should handle it — via conventional or attribute routing — and must resolve before authentication/authorization can act on the matched endpoint's metadata."
+ },
+ {
+  "id": "aspnet-05",
+  "title": "What are Filters? What is an Action Filter?",
+  "slug": "aspnet-core-filters",
+  "category": "aspnet",
+  "difficulty": "Intermediate",
+  "estimatedTime": 7,
+  "emoji": "🎛️",
+  "icon": "Filter",
+  "tags": [
+   "filters",
+   "action-filter",
+   "mvc",
+   "aspnet-core"
+  ],
+  "keywords": [
+   "ActionFilterAttribute",
+   "OnActionExecuting",
+   "OnActionExecuted",
+   "authorization filter",
+   "resource filter",
+   "exception filter",
+   "result filter",
+   "ModelState"
+  ],
+  "companies": [
+   "Infosys",
+   "TCS",
+   "Cognizant",
+   "Capgemini",
+   "Accenture"
+  ],
+  "interviewQuestion": "What are filters in ASP.NET Core MVC, and what is an action filter specifically?",
+  "story": {
+   "setup": "Think of a TV studio's live broadcast pipeline, with distinct crew stations checking the show before and after the segment airs.",
+   "scenes": [
+    "The security guard at the studio door (Authorization filter) checks credentials first, before anyone even walks toward the set.",
+    "The stage manager (Resource filter) does a quick prop check right after security but before the script (model binding) is even handed out — they can cancel the whole segment right there and cut to a rerun.",
+    "The floor director (Action filter) watches the segment live: OnActionExecuting shouts 'we're rolling' just before the host speaks, and OnActionExecuted shouts 'cut' right after, logging how the take went.",
+    "If a camera catches fire mid-segment (an unhandled exception), the emergency crew (Exception filter) is the only station that activates — it's not there for a normal broadcast.",
+    "After the segment airs, the broadcast engineer (Result filter) tweaks the final output — adding a lower-third caption — right before and after it's actually transmitted to viewers (the result executing)."
+   ],
+   "moral": "Filters are checkpoints inside the MVC pipeline, each specialized for a different stage and each with access to MVC-specific context (like ModelState) that raw middleware never sees."
+  },
+  "analogy": "Filters are TV studio crew stations inside the broadcast pipeline — authorization checks credentials at the door, action filters watch the live segment, and result filters tweak the output right before air.",
+  "animation": "layers",
+  "explanation": "Filters run at specific stages inside the ASP.NET Core MVC pipeline, for concerns that need action-level context that middleware doesn't have. There are five kinds: Authorization filters run first and back [Authorize]; Resource filters run after authorization but before model binding, useful for caching or short-circuiting; Action filters run immediately before and after the action method executes, via OnActionExecuting and OnActionExecuted, useful for logging, validation, and timing; Exception filters run only when an unhandled exception occurs, for centralized error handling; and Result filters run before and after the action's result executes, letting you modify the final response. An action filter is implemented by inheriting ActionFilterAttribute and overriding OnActionExecuting(ActionExecutingContext) to run code (and optionally set context.Result to short-circuit, e.g. on invalid ModelState) before the action runs, and OnActionExecuted(ActionExecutedContext) to run code after, including inspecting context.Exception. Filters can be applied to a single action, a whole controller, or registered globally via builder.Services.AddControllers(o => o.Filters.Add<T>()).",
+  "interviewAnswerShort": "Filters are pipeline stages inside MVC — authorization, resource, action, exception, and result filters — that run at specific points around action execution and, unlike middleware, have access to MVC context like the action arguments and ModelState.",
+  "interviewAnswerDetailed": "Filters let you inject logic at specific stages of the MVC request-processing pipeline, distinct from raw HTTP middleware because they run inside MVC and can see action-specific context. Authorization filters run first, backing attributes like [Authorize]. Resource filters run right after authorization but before model binding — useful for caching responses or short-circuiting expensive work early. Action filters wrap the actual action method call: OnActionExecuting runs immediately before the action, letting you inspect or reject the call (for example, checking context.ModelState.IsValid and setting context.Result to a BadRequestObjectResult to short-circuit invalid input before it ever reaches your action code); OnActionExecuted runs immediately after, letting you inspect the outcome or any exception via context.Exception. Exception filters activate only when an unhandled exception escapes the action, giving centralized MVC-level error handling. Result filters wrap the execution of the action's result (like rendering a view or serializing to JSON), letting you modify headers or content right before/after the response is actually written. You implement an action filter by inheriting ActionFilterAttribute, applying it as an attribute on an action or controller, or registering it globally via builder.Services.AddControllers(o => o.Filters.Add<T>()) so it runs for every action.",
+  "codeExample": {
+   "language": "csharp",
+   "code": "public class LogActionFilter : ActionFilterAttribute\n{\n    public override void OnActionExecuting(ActionExecutingContext context)\n    {\n        Console.WriteLine(\"BEFORE action\");\n        if (!context.ModelState.IsValid)\n            context.Result = new BadRequestObjectResult(context.ModelState); // short-circuit\n    }\n\n    public override void OnActionExecuted(ActionExecutedContext context)\n    {\n        Console.WriteLine(\"AFTER action\");\n        if (context.Exception != null)\n            Console.WriteLine(context.Exception.Message);\n    }\n}\n\n[LogActionFilter]\npublic IActionResult Index() => View();\n\n// Global registration:\n// builder.Services.AddControllers(o => o.Filters.Add<LogActionFilter>());",
+   "explanation": "LogActionFilter short-circuits invalid ModelState with a 400 before the action runs, and logs any exception the action threw afterward — both impossible from plain middleware, which has no concept of ModelState."
+  },
+  "mistakes": [
+   "Confusing filters with middleware and putting HTTP-wide concerns (like static file serving) into a filter, where they'd never apply to non-MVC requests.",
+   "Forgetting that Exception filters only catch exceptions thrown inside the MVC action pipeline, not ones thrown by middleware earlier in the request.",
+   "Not checking ModelState.IsValid in an action filter or the action itself, letting invalid input reach business logic.",
+   "Overriding the wrong method (e.g. OnResultExecuting instead of OnActionExecuting) and being confused when the filter runs at the wrong stage.",
+   "Applying an expensive filter globally when it's only needed on a handful of actions, adding overhead to every request."
+  ],
+  "followUps": [
+   {
+    "question": "Filter vs Middleware — what's the real difference?",
+    "answer": "Middleware is HTTP-level, runs for every request regardless of whether MVC handles it, and knows nothing about controllers or ModelState. Filters run inside the MVC pipeline and can see the action, its arguments, ModelState, and the result. Rule of thumb: need MVC context → filter; need it on all traffic including static files → middleware."
+   },
+   {
+    "question": "Which filter type would you use for centralized error handling, and are there better alternatives?",
+    "answer": "An Exception filter, implementing IExceptionFilter, is the MVC-native option, but it only catches exceptions inside the MVC pipeline — it misses errors thrown by middleware earlier in the request. For truly global handling, exception-handling middleware (registered first in the pipeline) or the modern IExceptionHandler with AddExceptionHandler is usually preferred."
+   },
+   {
+    "question": "Can you short-circuit the pipeline from an action filter?",
+    "answer": "Yes — setting context.Result inside OnActionExecuting (an ActionExecutingContext) prevents the action method from running at all and returns that result instead, which is exactly how a global ModelState validation filter works."
+   }
+  ],
+  "memoryHack": {
+   "emoji": "🎛️",
+   "oneLiner": "Filters are TV studio crew stations — each one only activates at its own stage of the broadcast.",
+   "mnemonic": "AR-A-E-R: AuthZ, Resource, Action, Exception, Result.",
+   "memoryPalace": "Walk the TV studio: security guard at the door (Authorization), stage manager's prop check (Resource), floor director yelling rolling/cut around the live take (Action), the emergency crew only if a camera catches fire (Exception), and the broadcast engineer tweaking output right before air (Result)."
+  },
+  "bestPractices": [
+   "Use a global ModelState-validation action filter instead of repeating if (!ModelState.IsValid) checks in every action.",
+   "Prefer middleware over filters for concerns that must apply to all HTTP traffic, not just MVC-routed requests.",
+   "Keep filters focused on one cross-cutting concern (logging, validation, caching) for reuse across controllers.",
+   "Register filters globally only when truly needed everywhere; otherwise scope them to specific controllers/actions."
+  ],
+  "performanceTips": [
+   "Resource filters can short-circuit before model binding runs, making them cheaper than action filters for early rejection scenarios like response caching.",
+   "Avoid heavy synchronous work inside OnActionExecuting/OnActionExecuted; prefer the async filter interfaces (IAsyncActionFilter) for I/O-bound work."
+  ],
+  "quiz": [
+   {
+    "question": "Which filter type runs only when an unhandled exception occurs?",
+    "options": [
+     "Resource filter",
+     "Action filter",
+     "Exception filter",
+     "Authorization filter"
+    ],
+    "answer": 2,
+    "explanation": "Exception filters activate specifically when an unhandled exception escapes an action, for centralized MVC-level error handling."
+   },
+   {
+    "question": "What can you access in a filter that you cannot in plain middleware?",
+    "options": [
+     "The raw HttpContext",
+     "The response headers",
+     "ModelState and action arguments",
+     "The request path"
+    ],
+    "answer": 2,
+    "explanation": "Filters run inside the MVC pipeline and have access to MVC-specific context like ModelState and the action's arguments, which middleware has no concept of."
+   }
+  ],
+  "flashcards": [
+   {
+    "front": "What are the five filter types in order?",
+    "back": "Authorization, Resource, Action, Exception, Result."
+   },
+   {
+    "front": "What does OnActionExecuting let you do?",
+    "back": "Run code (and optionally short-circuit via context.Result) before the action executes."
+   },
+   {
+    "front": "Filter vs middleware — key distinction?",
+    "back": "Filters run inside MVC with action context; middleware is HTTP-level and applies to all requests."
+   },
+   {
+    "front": "How do you register a filter globally?",
+    "back": "builder.Services.AddControllers(o => o.Filters.Add<T>())."
+   }
+  ],
+  "revision30": "Filters run at specific MVC pipeline stages — Authorization, Resource, Action, Exception, Result — and unlike middleware, have access to action context like ModelState. Action filters use OnActionExecuting/OnActionExecuted around the action call.",
+  "revision2min": "Filters are MVC-pipeline-specific checkpoints for concerns that need action-level context. Authorization filters run first, backing [Authorize]. Resource filters run after authorization but before model binding, useful for caching or early short-circuiting. Action filters wrap the action method itself: OnActionExecuting runs just before (and can set context.Result to short-circuit, e.g. rejecting invalid ModelState with a 400), OnActionExecuted runs just after (and can inspect context.Exception). Exception filters only fire when an unhandled exception escapes the action. Result filters wrap the execution of the action's result, letting you adjust the response right before/after it's written. You build an action filter by inheriting ActionFilterAttribute and applying it as an attribute, or registering it globally with builder.Services.AddControllers(o => o.Filters.Add<T>()). The key interview distinction is filter vs middleware: middleware is HTTP-level and runs for every request including static files, with no knowledge of controllers; filters run inside MVC and can see the action, its arguments, ModelState, and the result — so cross-cutting concerns needing MVC context belong in a filter, while concerns needing to apply to all HTTP traffic belong in middleware.",
+  "challenge": "Write a Result filter that adds a custom X-Response-Time header measuring how long result execution (view rendering or JSON serialization) took, and explain why this couldn't be done as cleanly in an Action filter.",
+  "related": [
+   "middleware-pipeline",
+   "global-exception-handling",
+   "aspnet-core-mvc-lifecycle"
+  ],
+  "summary": "Filters are MVC-pipeline checkpoints (Authorization, Resource, Action, Exception, Result) that, unlike middleware, have direct access to action context like ModelState and the action's result."
+ },
+ {
+  "id": "aspnet-06",
+  "title": "How do you handle Global Exception handling in .NET Core?",
+  "slug": "global-exception-handling",
+  "category": "aspnet",
+  "difficulty": "Intermediate",
+  "estimatedTime": 8,
+  "emoji": "🧯",
+  "icon": "AlertTriangle",
+  "tags": [
+   "exception-handling",
+   "middleware",
+   "error-handling",
+   "aspnet-core"
+  ],
+  "keywords": [
+   "UseExceptionHandler",
+   "IExceptionHandler",
+   "AddExceptionHandler",
+   "try catch finally",
+   "ProblemDetails",
+   "IExceptionFilter",
+   "TraceIdentifier"
+  ],
+  "companies": [
+   "Microsoft",
+   "Accenture",
+   "TCS",
+   "Infosys",
+   "Deloitte"
+  ],
+  "interviewQuestion": "How do you implement global exception handling in ASP.NET Core?",
+  "story": {
+   "setup": "Imagine a building's central fire-alarm and sprinkler system, wired to cover every single floor — not one hand-held extinguisher per office.",
+   "scenes": [
+    "The sprinkler system's control panel is installed on floor zero, wired to blanket every floor above it — that's exception middleware registered FIRST in Program.cs, wrapping everything downstream.",
+    "When a fire breaks out on any floor (an unhandled exception anywhere in the pipeline), the sprinkler doesn't just spray water blindly — it checks what kind of fire it is: an electrical fire (KeyNotFoundException → 404), a chemical fire (UnauthorizedAccessException → 401), a grease fire (ValidationException → 400) — and responds with the matching status code.",
+    "The fire department's incident report (logging) is filed with full detail — exact floor, cause, time — but the announcement broadcast to tenants (the JSON response) only ever says 'a fire occurred, here's your incident number' — never the messy internal cause. That's why you log full detail server-side but return a safe message plus a traceId.",
+    "A junior building manager once tried putting the sprinkler system on the top floor only (an IExceptionFilter, which is MVC-only) — but fires that started in the elevator shafts (middleware-level errors) never triggered it, because it was scoped too narrowly."
+   ],
+   "moral": "Global exception handling has to sit at the very top of the pipeline to catch everything beneath it, log full detail privately, and expose only a safe, correlated response to the caller."
+  },
+  "analogy": "Global exception handling is a building-wide sprinkler system wired to the top of the pipeline — it catches fires from any floor, logs the real cause internally, but only ever announces a safe incident number to tenants.",
+  "animation": "flow",
+  "explanation": "The recommended approach for global exception handling in ASP.NET Core is exception-handling middleware registered first in the pipeline, so it wraps everything downstream in a try/catch. Inside the catch block, you log the full exception detail (including a trace/correlation ID like context.TraceIdentifier) for internal diagnostics, map the exception type to the correct HTTP status code (e.g. KeyNotFoundException to 404, UnauthorizedAccessException to 401, a custom ValidationException to 400, defaulting to 500), and write a safe JSON response that never leaks stack traces or internal details, ideally including the trace ID so a user's error report can be correlated with server logs. Alternatives include app.UseExceptionHandler(\"/error\") pointing at a dedicated error endpoint/controller, an IExceptionFilter which is MVC-only and therefore misses exceptions thrown by middleware itself, and the modern IExceptionHandler interface registered via AddExceptionHandler, which integrates cleanly with the built-in exception-handling middleware pipeline. Best practice is to return a standardized error shape, ideally RFC 7807 ProblemDetails, so API consumers get a consistent error contract.",
+  "interviewAnswerShort": "Register exception-handling middleware first in the pipeline so it wraps everything, log the full exception with a trace ID server-side, map the exception type to the right HTTP status code, and return a safe ProblemDetails-style JSON response without leaking stack traces.",
+  "interviewAnswerDetailed": "The most robust approach is a custom exception-handling middleware, or the built-in app.UseExceptionHandler, registered as the very first middleware in Program.cs so its try/catch wraps every other middleware and the entire MVC pipeline beneath it. Inside the catch, you log the exception with full detail — message, stack trace, and a correlation ID like context.TraceIdentifier — so you can debug from logs without exposing that detail to the client. You then map the exception's type to the appropriate HTTP status code using a switch expression: not-found scenarios to 404, authorization failures to 401, validation exceptions to 400, and anything unrecognized to a generic 500. The response body should be a safe, generic JSON object (or better, an RFC 7807 ProblemDetails payload) containing something like 'An error occurred' plus the trace ID for correlation — never the raw exception message or stack trace, which could leak internals to an attacker. Alternatives include app.UseExceptionHandler(\"/error\") which redirects to a dedicated error-handling endpoint, an IExceptionFilter which only catches exceptions inside the MVC action pipeline (it misses anything thrown by middleware itself, including other middleware's exceptions before MVC even runs), and the newer IExceptionHandler interface registered with AddExceptionHandler, which is the modern, DI-friendly, ASP.NET Core-native pattern for this exact problem.",
+  "codeExample": {
+   "language": "csharp",
+   "code": "public class ExceptionMiddleware\n{\n    private readonly RequestDelegate _next;\n    private readonly ILogger<ExceptionMiddleware> _logger;\n\n    public ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger)\n    {\n        _next = next;\n        _logger = logger;\n    }\n\n    public async Task InvokeAsync(HttpContext context)\n    {\n        try { await _next(context); }\n        catch (Exception ex)\n        {\n            _logger.LogError(ex, \"Unhandled exception. TraceId {Id}\", context.TraceIdentifier);\n            context.Response.StatusCode = ex switch\n            {\n                KeyNotFoundException => StatusCodes.Status404NotFound,\n                UnauthorizedAccessException => StatusCodes.Status401Unauthorized,\n                ValidationException => StatusCodes.Status400BadRequest,\n                _ => StatusCodes.Status500InternalServerError\n            };\n            context.Response.ContentType = \"application/json\";\n            await context.Response.WriteAsJsonAsync(new\n            {\n                error = \"An error occurred\",       // never leak stack traces\n                traceId = context.TraceIdentifier   // correlate with logs\n            });\n        }\n    }\n}\n\n// Program.cs\napp.UseMiddleware<ExceptionMiddleware>(); // FIRST",
+   "explanation": "Registered first, ExceptionMiddleware wraps the entire pipeline, logs full exception detail with a trace ID, maps exception types to status codes, and returns a safe generic error body."
+  },
+  "mistakes": [
+   "Registering the exception middleware anywhere but first, so earlier middleware errors escape unhandled.",
+   "Returning raw exception messages or stack traces in the JSON response, leaking internal implementation details.",
+   "Using only an IExceptionFilter and assuming it covers all exceptions, when it actually misses anything thrown by middleware.",
+   "Not including a correlation/trace ID in the error response, making it impossible to match a user's bug report to server logs.",
+   "Using try/catch for expected, normal control flow (like parsing user input) instead of TryParse-style APIs, when exceptions should be reserved for truly exceptional cases."
+  ],
+  "followUps": [
+   {
+    "question": "Explain try/catch/finally with the classic divide-by-zero example.",
+    "answer": "try { int c = a / b; } throws DivideByZeroException for integer division; catch (DivideByZeroException ex) { } should come first since it's more specific, followed by catch (Exception ex) { throw; } as a general fallback last (or the code won't compile, since unreachable specific catches after a general one are a compile error) — throw; re-throws while preserving the original stack trace, whereas throw ex; resets it, destroying the original call site info. finally { } always runs regardless of whether an exception was thrown, which is exactly what a using block compiles down to for cleanup. Also worth noting: integer division by zero throws, but floating-point division by zero returns Infinity or NaN instead of throwing."
+   },
+   {
+    "question": "What's the difference between IExceptionFilter and exception-handling middleware?",
+    "answer": "IExceptionFilter is MVC-only — it catches exceptions thrown by action execution but misses exceptions thrown by middleware itself, including middleware registered before MVC even runs. Exception-handling middleware, registered first in the pipeline, wraps everything and catches exceptions from any layer."
+   },
+   {
+    "question": "What is ProblemDetails and why use it?",
+    "answer": "ProblemDetails (RFC 7807) is a standardized JSON shape for HTTP API error responses, containing fields like type, title, status, detail, and instance. Using it gives API consumers a predictable, machine-parseable error contract instead of ad hoc error shapes per endpoint."
+   }
+  ],
+  "memoryHack": {
+   "emoji": "🧯",
+   "oneLiner": "Sprinklers on floor zero — register the exception handler first so it covers every floor above it.",
+   "mnemonic": "LMS: Log full detail, Map to status code, Send safe response + traceId.",
+   "memoryPalace": "Picture the sprinkler control panel bolted to the building's foundation (registered first) — no matter which floor catches fire, it triggers, logs the real cause in the fire department's private report, and only ever tells tenants a safe incident number."
+  },
+  "bestPractices": [
+   "Always register global exception handling as the first middleware so it wraps the entire pipeline.",
+   "Log full exception detail (including stack trace and trace ID) server-side, but return only a safe, generic message to the client.",
+   "Return a standardized error shape like RFC 7807 ProblemDetails for consistent API error contracts.",
+   "Map known exception types to specific HTTP status codes rather than always returning a generic 500.",
+   "Prefer 'throw;' over 'throw ex;' when re-throwing, to preserve the original stack trace for diagnostics."
+  ],
+  "performanceTips": [
+   "Exceptions are relatively expensive in .NET (stack unwinding, stack trace capture) — don't use them for expected/normal control flow like input validation; use TryParse-style patterns instead.",
+   "Keep the try block in exception middleware as small as just await _next(context) so you're not adding unnecessary overhead to every request's happy path."
+  ],
+  "quiz": [
+   {
+    "question": "Where should global exception-handling middleware be registered in the pipeline?",
+    "options": [
+     "Last, after MapControllers",
+     "First, before everything else",
+     "Immediately before UseRouting",
+     "It doesn't matter"
+    ],
+    "answer": 1,
+    "explanation": "Registering it first ensures its try/catch wraps every other middleware and the entire MVC pipeline, catching exceptions from any layer."
+   },
+   {
+    "question": "What is the key difference between 'throw;' and 'throw ex;' when re-throwing?",
+    "options": [
+     "No functional difference",
+     "throw; preserves the original stack trace; throw ex; resets it",
+     "throw ex; is faster",
+     "throw; only works in finally blocks"
+    ],
+    "answer": 1,
+    "explanation": "'throw;' re-throws the current exception preserving its original stack trace, while 'throw ex;' resets the stack trace to the current line, losing the original failure location."
+   }
+  ],
+  "flashcards": [
+   {
+    "front": "Where should exception middleware be registered?",
+    "back": "First in the pipeline, so it wraps everything downstream."
+   },
+   {
+    "front": "What should the client-facing error response contain?",
+    "back": "A safe generic message plus a trace/correlation ID — never a stack trace."
+   },
+   {
+    "front": "IExceptionFilter vs middleware for exceptions?",
+    "back": "IExceptionFilter only catches MVC action exceptions; middleware catches exceptions from any layer."
+   },
+   {
+    "front": "throw; vs throw ex;?",
+    "back": "throw; preserves the original stack trace; throw ex; resets it."
+   }
+  ],
+  "revision30": "Register exception-handling middleware first so it wraps the whole pipeline. Catch, log full detail with a trace ID, map exception type to HTTP status code, and return a safe generic body — never a stack trace. Prefer 'throw;' to preserve stack traces.",
+  "revision2min": "Global exception handling in ASP.NET Core is best done with middleware registered first in the pipeline, so its try/catch wraps every other middleware and the whole MVC pipeline beneath it. On catch, log the full exception with a correlation ID (context.TraceIdentifier) for internal diagnostics, map the exception type to an appropriate HTTP status code (KeyNotFoundException to 404, UnauthorizedAccessException to 401, ValidationException to 400, default 500), and return a safe JSON body with a generic message plus the trace ID — never the raw exception message or stack trace. Alternatives are app.UseExceptionHandler(\"/error\") redirecting to a dedicated error endpoint, IExceptionFilter which is MVC-only and misses middleware-level exceptions, and the modern IExceptionHandler interface with AddExceptionHandler. Best practice is to shape the response as RFC 7807 ProblemDetails for a consistent contract. On the classic try/catch/finally question: specific catch blocks must precede general ones (or it won't compile), 'throw;' preserves the original stack trace while 'throw ex;' resets it, finally always runs (that's what a using block compiles into), integer division by zero throws DivideByZeroException while floating-point division gives Infinity/NaN, and exceptions shouldn't be used for normal control flow — that's exactly why TryParse-style APIs exist.",
+  "challenge": "Implement global exception handling using the modern IExceptionHandler interface and AddExceptionHandler instead of custom middleware, and explain one advantage this approach has over a hand-rolled middleware try/catch.",
+  "related": [
+   "middleware-pipeline",
+   "aspnet-core-filters",
+   "rest-api-design-http-status-codes"
+  ],
+  "summary": "Global exception handling should wrap the entire pipeline via middleware registered first, logging full detail internally while returning only a safe, correlated response mapped to the correct HTTP status code."
+ },
+ {
+  "id": "aspnet-07",
+  "title": "What is a Minimal API and when would you use it over controllers?",
+  "slug": "minimal-apis-vs-controllers",
+  "category": "aspnet",
+  "difficulty": "Intermediate",
+  "estimatedTime": 6,
+  "emoji": "⚡",
+  "icon": "Zap",
+  "tags": [
+   "minimal-api",
+   "web-api",
+   "controllers",
+   "aspnet-core"
+  ],
+  "keywords": [
+   "Minimal API",
+   "MapGet",
+   "MapPost",
+   "Program.cs",
+   "Results.Ok",
+   "RequireAuthorization",
+   "endpoint filters",
+   "controllers"
+  ],
+  "companies": [
+   "Microsoft",
+   "Amazon",
+   "Google",
+   "Infosys",
+   "Accenture"
+  ],
+  "interviewQuestion": "What is a Minimal API in ASP.NET Core, and when would you use it instead of controllers?",
+  "story": {
+   "setup": "Compare a food truck to a full sit-down restaurant — both serve the same cuisine, but they're built for different scales.",
+   "scenes": [
+    "The food truck (Minimal API) has a tiny, direct menu board bolted right to the window — app.MapGet(\"/orders\", ...) — no host, no separate kitchen department, just a straight line from order to food.",
+    "The sit-down restaurant (Controllers) has a full org chart: hosts (routing conventions), a maître d' (model binding), specialized stations (filters), and printed multi-page menus — more ceremony, but it scales to banquet-sized events without becoming chaos.",
+    "Both kitchens use the exact same supply chain (DI) — parameters like AppDbContext or IOrderService are resolved from the container the same way whether you're a truck or a restaurant.",
+    "A startup opens five food trucks around the city instead of one giant restaurant — that's microservices: many small, focused Minimal API services, each dead simple, easier to deploy and scale independently.",
+    "A hotel chain running one massive banquet hall needs the full restaurant's structure — many menus (endpoints), consistent service standards (model validation conventions) — which is exactly when Controllers' extra ceremony pays for itself."
+   ],
+   "moral": "Minimal APIs trade ceremony for directness — perfect for small, focused services; Controllers trade some directness for structure that scales to large, complex APIs."
+  },
+  "analogy": "A Minimal API is a food truck — a short, direct line from order to food; Controllers are a full restaurant with hosts, stations, and menus that scale to banquet-sized complexity.",
+  "animation": "compare",
+  "explanation": "Minimal APIs let you define HTTP endpoints directly in Program.cs using app.MapGet, app.MapPost, etc., without controller classes or attribute routing ceremony. Handlers are typically lambdas whose parameters — like a DbContext, a DTO, or a service interface — are resolved from the same dependency injection container as controllers, so DI behaves identically. Route-specific behaviors like authorization and endpoint naming are chained fluently, e.g. .RequireAuthorization().WithName(\"CreateOrder\"). Minimal APIs have less boilerplate and slightly faster startup/throughput, but offer more limited filter and model-binding-convention support (endpoint filters instead of the full MVC filter pipeline) and require more manual discipline to stay organized at scale (typically by grouping endpoints into extension methods or route groups). Controllers carry more ceremony but give you the full MVC pipeline — action filters, model binding conventions, and a structure that's natural for large applications with many endpoints. Minimal APIs suit microservices, small focused services, serverless/Azure Functions-style endpoints, prototypes, and internal tooling; Controllers suit large applications with many endpoints, heavy use of filters/validation conventions, and teams that benefit from familiar, established structure.",
+  "interviewAnswerShort": "Minimal APIs define endpoints directly in Program.cs with app.MapGet/MapPost lambdas instead of controller classes — less boilerplate and slightly faster, best for small services and microservices, while Controllers give you the full MVC pipeline and scale better for large, complex APIs.",
+  "interviewAnswerDetailed": "Minimal APIs let you skip controller classes entirely and register endpoints directly against the WebApplication instance, e.g. app.MapGet(\"/orders/{id:int}\", async (int id, AppDbContext db) => ...). The lambda's parameters are resolved from DI exactly the same way controller constructor parameters are, so services, DbContext, and DTOs all work identically. You can chain fluent configuration onto the mapped endpoint, like .RequireAuthorization() for auth requirements or .WithName(...) for link generation and OpenAPI metadata. Compared to controllers, Minimal APIs have dramatically less boilerplate, and benchmark slightly faster in startup time and raw throughput because there's less pipeline machinery involved. The trade-off is that Minimal APIs use endpoint filters rather than the full MVC filter pipeline (so Action/Result filters as you'd write for controllers don't directly apply), and organizing dozens of endpoints requires deliberate discipline — usually grouping related endpoints into extension methods or MapGroup route groups — whereas controllers give you that organizational structure for free through classes. In practice, Minimal APIs are the right choice for microservices, small focused services, serverless-style functions, prototypes, and internal tooling; Controllers remain the better choice for large applications with many endpoints, heavy reliance on the full MVC filter/validation pipeline, and teams who benefit from the conventional controller structure.",
+  "codeExample": {
+   "language": "csharp",
+   "code": "var app = builder.Build();\n\napp.MapGet(\"/orders\", async (AppDbContext db) => await db.Orders.ToListAsync());\n\napp.MapGet(\"/orders/{id:int}\", async (int id, AppDbContext db) =>\n    await db.Orders.FindAsync(id) is Order o ? Results.Ok(o) : Results.NotFound());\n\napp.MapPost(\"/orders\", async (OrderDto dto, IOrderService svc) =>\n{\n    var created = await svc.CreateAsync(dto);\n    return Results.Created($\"/orders/{created.Id}\", created);\n})\n.RequireAuthorization()\n.WithName(\"CreateOrder\");\n\napp.Run();",
+   "explanation": "Endpoints are mapped directly in Program.cs; handler parameters (AppDbContext, IOrderService, DTOs) are resolved from DI the same way as in controllers, and .RequireAuthorization() applies auth declaratively."
+  },
+  "mistakes": [
+   "Assuming Minimal APIs skip dependency injection entirely — they use the exact same DI container as controllers.",
+   "Using Minimal APIs for a large, complex API without adopting route groups or extension-method organization, leading to an unmaintainable Program.cs.",
+   "Expecting the full MVC filter pipeline (Action/Result filters) to work unmodified in Minimal APIs — they use endpoint filters instead.",
+   "Believing Minimal APIs are strictly 'worse' or 'toy-only' rather than a legitimate, production-grade option for the right scale of service.",
+   "Forgetting to chain .RequireAuthorization() on endpoints that need auth, since Minimal APIs don't get controller-level [Authorize] by default."
+  ],
+  "followUps": [
+   {
+    "question": "Does dependency injection work differently in Minimal APIs?",
+    "answer": "No — DI works the same way. Handler lambda parameters that match a registered service type (like AppDbContext or IOrderService) are resolved from the same container used for controllers."
+   },
+   {
+    "question": "How do you keep a large Minimal API organized?",
+    "answer": "Group related endpoints using MapGroup, or split endpoint registration into extension methods per feature (e.g. app.MapOrderEndpoints()), rather than letting Program.cs grow into a single massive file."
+   },
+   {
+    "question": "What do you lose by choosing Minimal APIs over Controllers?",
+    "answer": "The full MVC filter pipeline (Action, Result, Resource, Exception filters as controller attributes) — Minimal APIs use a separate, more limited endpoint filter mechanism — along with the built-in model binding conventions and structure controllers provide for large teams."
+   }
+  ],
+  "memoryHack": {
+   "emoji": "🚚",
+   "oneLiner": "Food truck (Minimal API) vs full restaurant (Controllers) — same ingredients (DI), different scale of ceremony.",
+   "mnemonic": "MICRO: Minimal for MICROservices; Controllers for Corporate-scale.",
+   "memoryPalace": "Picture five food trucks parked around a city block (many small Minimal API services) versus one grand banquet hall (a Controller-based monolith) — both are fed from the same supply chain (DI container)."
+  },
+  "bestPractices": [
+   "Use route groups (MapGroup) or extension methods to keep large Minimal API surfaces organized.",
+   "Chain .RequireAuthorization(), .WithName(), and .Produces<T>() for auth, link generation, and OpenAPI documentation respectively.",
+   "Reach for controllers when a service needs heavy model validation conventions or the full MVC filter pipeline.",
+   "Keep Minimal API handlers thin — delegate real logic to injected services rather than writing business logic inline in the lambda."
+  ],
+  "performanceTips": [
+   "Minimal APIs have a leaner request pipeline, giving slightly faster cold-start and marginally higher throughput — meaningful for serverless/Azure Functions-style workloads with tight cold-start budgets.",
+   "Avoid capturing large closures in Minimal API lambdas; inject dependencies as parameters instead for cleaner DI resolution and testability."
+  ],
+  "quiz": [
+   {
+    "question": "In a Minimal API, how are handler dependencies like a DbContext resolved?",
+    "options": [
+     "They must be manually instantiated",
+     "From the same DI container used by controllers",
+     "Only via static service locator calls",
+     "Minimal APIs don't support dependency injection"
+    ],
+    "answer": 1,
+    "explanation": "Minimal API handler parameters are resolved from the same built-in DI container as controller constructors — DI behavior is identical."
+   },
+   {
+    "question": "Which scenario best fits Minimal APIs over Controllers?",
+    "options": [
+     "A large enterprise app with dozens of controllers and heavy filter usage",
+     "A small, focused microservice or serverless function",
+     "An app requiring the full MVC action filter pipeline",
+     "A legacy app migrating from ASP.NET Framework"
+    ],
+    "answer": 1,
+    "explanation": "Minimal APIs shine for microservices, small focused services, serverless/Azure Functions-style endpoints, prototypes, and internal tooling."
+   }
+  ],
+  "flashcards": [
+   {
+    "front": "Where are Minimal API endpoints defined?",
+    "back": "Directly in Program.cs via app.MapGet/MapPost/etc., no controller classes."
+   },
+   {
+    "front": "Does DI differ between Minimal APIs and Controllers?",
+    "back": "No — same container, same resolution behavior."
+   },
+   {
+    "front": "What replaces the MVC filter pipeline in Minimal APIs?",
+    "back": "Endpoint filters — more limited than full Action/Result/Resource filters."
+   },
+   {
+    "front": "Best use case for Minimal APIs?",
+    "back": "Microservices, small focused services, serverless functions, prototypes, internal tooling."
+   }
+  ],
+  "revision30": "Minimal APIs define endpoints directly in Program.cs with app.MapGet/MapPost lambdas — less boilerplate, slightly faster, same DI as controllers. Best for microservices/small services; Controllers scale better for large apps needing full MVC filters and structure.",
+  "revision2min": "Minimal APIs let you skip controller classes and map endpoints directly against the WebApplication instance in Program.cs, e.g. app.MapGet(\"/orders/{id:int}\", async (int id, AppDbContext db) => ...). Handler parameters are resolved from the exact same DI container controllers use, so services, DbContext, and DTOs work identically. You chain fluent configuration like .RequireAuthorization() and .WithName() onto mapped endpoints for auth and metadata. Compared to Controllers, Minimal APIs have far less boilerplate and slightly better startup/throughput, but only support endpoint filters rather than the full MVC filter pipeline (Action/Result/Resource/Exception filters), and require deliberate organization at scale — typically via MapGroup or extension methods — since there's no controller-class structure to lean on. Controllers, in exchange for more ceremony, give you the complete MVC pipeline: full filter support, established model binding conventions, and a structure that naturally organizes large numbers of endpoints. The practical guidance: reach for Minimal APIs for microservices, small focused services, serverless/Azure Functions-style endpoints, prototypes, and internal tooling; reach for Controllers for large applications with many endpoints, heavy filter/validation-convention usage, and teams that benefit from familiar structure.",
+  "challenge": "Refactor a 15-endpoint Minimal API scattered across Program.cs into a well-organized structure using MapGroup and extension methods, grouped by resource (orders, customers, products), while preserving per-group authorization requirements.",
+  "related": [
+   "aspnet-core-routing",
+   "dependency-injection-lifetimes",
+   "rest-api-design-http-status-codes"
+  ],
+  "summary": "Minimal APIs trade the MVC controller ceremony for direct, lightweight endpoint definitions in Program.cs — ideal for small/focused services, while Controllers' full pipeline still wins for large, complex APIs."
+ },
+ {
+  "id": "aspnet-08",
+  "title": "REST API design and HTTP status codes",
+  "slug": "rest-api-design-http-status-codes",
+  "category": "aspnet",
+  "difficulty": "Beginner",
+  "estimatedTime": 7,
+  "emoji": "🌐",
+  "icon": "Server",
+  "tags": [
+   "rest",
+   "http",
+   "status-codes",
+   "api-design",
+   "web-api"
+  ],
+  "keywords": [
+   "REST",
+   "HTTP status codes",
+   "idempotent",
+   "PUT vs PATCH vs POST",
+   "201 Created",
+   "404",
+   "401 vs 403",
+   "safe methods"
+  ],
+  "companies": [
+   "Microsoft",
+   "Amazon",
+   "Google",
+   "Infosys",
+   "Accenture"
+  ],
+  "interviewQuestion": "How do you design a RESTful API, and what HTTP status codes should each operation return?",
+  "story": {
+   "setup": "A well-run postal service has strict rules: every package (resource) has a fixed address (URL made of nouns), and every action has a designated stamp (HTTP method and status code) that tells you exactly what happened.",
+   "scenes": [
+    "Mail addresses are always places, never verbs — /api/orders is a mailbox, not an instruction like /api/getOrders shouted at the mail carrier.",
+    "Dropping a NEW letter in the box (POST /api/orders) gets you back a '201 Created' receipt with the tracking address of your new letter (the Location header) — do it ten times and you've mailed ten separate letters, never idempotent.",
+    "Replacing the entire contents of an existing mailbox (PUT /api/orders/5) is idempotent — swap the same full letter in ten times, the mailbox ends up the same either way — while editing just one line on the existing letter (PATCH) only touches what changed.",
+    "A guard at the post office checks your ID two different ways: 'I don't even know who you are' (401 Unauthorized) versus 'I know exactly who you are, and you're still not on the list' (403 Forbidden) — the single most confused pair in REST interviews.",
+    "A crawler bot once found an old post office that let you 'mail a bomb' via a GET request link — because browsers, proxies, and crawlers freely prefetch and cache GET requests, that GET must never change state, which is why real deletes always use DELETE, not a clickable GET link."
+   ],
+   "moral": "REST is a postal service with strict conventions — nouns for addresses, the right verb for the right action, and a precise status code vocabulary so every response is self-explanatory."
+  },
+  "analogy": "REST is a postal service — URLs are mailbox addresses (nouns, never verbs), HTTP verbs are the action performed on that mailbox, and status codes are the standardized receipt stamped on every response.",
+  "animation": "network",
+  "explanation": "A well-designed REST API uses plural noun URLs representing resources, never verbs: GET /api/orders lists, GET /api/orders/5 fetches one, POST /api/orders creates, PUT /api/orders/5 fully replaces, PATCH /api/orders/5 partially updates, DELETE /api/orders/5 deletes, and nested resources like GET /api/orders/5/items express relationships. HTTP status codes communicate outcome precisely: 200 OK for successful GET/PUT/PATCH, 201 Created for successful POST (including a Location header pointing to the new resource), 204 No Content for a successful action with nothing to return (typically DELETE), 400 Bad Request for invalid input/validation failures, 401 Unauthorized when the caller isn't authenticated at all, 403 Forbidden when they're authenticated but lack permission, 404 Not Found when the resource doesn't exist, 409 Conflict for state conflicts like duplicates or optimistic concurrency failures, 422 Unprocessable Entity for business rule violations, 429 Too Many Requests for rate limiting, 500 Internal Server Error for unhandled exceptions (never leaking stack traces), and 503 Service Unavailable when the system is down or overloaded. PUT replaces the whole resource and is idempotent (repeating it produces the same final state); PATCH updates only changed fields; POST creates and is explicitly not idempotent, since repeating it creates multiple resources. GET is defined as 'safe' — it must never change state — because browsers, proxies, CDNs, and crawlers freely prefetch and cache GET requests.",
+  "interviewAnswerShort": "Use plural noun URLs and the right HTTP verb per action (GET, POST, PUT, PATCH, DELETE), and return precise status codes — 200/201/204 for success, 400/401/403/404/409/422/429 for client-side problems, and 500/503 for server-side ones — with 401 meaning 'unauthenticated' and 403 meaning 'authenticated but forbidden.'",
+  "interviewAnswerDetailed": "Good REST design centers resources as plural nouns in the URL — /api/orders, never /api/getOrders — with the HTTP verb expressing the action: GET for reading (list or single item, with query params for pagination/filtering), POST for creating, PUT for a full replace, PATCH for a partial update, and DELETE for removal, with nested resources like /api/orders/5/items expressing containment relationships. Status codes then communicate the exact outcome: 200 OK for successful reads/updates, 201 Created for a successful POST (with a Location header pointing at the new resource), 204 No Content when an operation succeeds but returns nothing (typical for DELETE), 400 Bad Request for validation failures, 401 Unauthorized when the caller couldn't be authenticated at all (missing or invalid token), 403 Forbidden when they are authenticated but lack permission (wrong role), 404 Not Found when the resource simply doesn't exist, 409 Conflict for state conflicts like duplicate creation or optimistic-concurrency mismatches, 422 Unprocessable Entity when input is syntactically valid but violates a business rule, 429 Too Many Requests for rate limiting, and 500/503 for server-side failures — 500 for unhandled exceptions (never leaking a stack trace to the client) and 503 when the service is intentionally down or overloaded. The 401 vs 403 distinction is the single most-asked pair: 401 means 'I don't know who you are'; 403 means 'I know who you are, and you still can't do this.' On idempotency: PUT replaces the whole resource and is idempotent — ten identical PUTs leave the same final state — PATCH sends only the changed fields, and POST creates a new resource and is explicitly not idempotent, since ten POSTs create ten records, which is exactly the duplicate-payment failure mode you must design against. GET must remain 'safe' and side-effect-free, because browsers, proxies, CDNs, and web crawlers freely prefetch and cache GET requests — a crawler hitting a state-changing GET endpoint has historically caused real data-loss incidents.",
+  "codeExample": {
+   "language": "csharp",
+   "code": "[ApiController]\n[Route(\"api/[controller]\")]\npublic class OrdersController : ControllerBase\n{\n    [HttpGet] // GET /api/orders?page=1&size=20&status=pending\n    public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int size = 20)\n        => Ok(await _svc.GetPagedAsync(page, size));\n\n    [HttpGet(\"{id:int}\")] // GET /api/orders/5\n    public async Task<IActionResult> Get(int id)\n        => await _svc.GetAsync(id) is Order o ? Ok(o) : NotFound();\n\n    [HttpPost] // POST /api/orders\n    public async Task<IActionResult> Create(OrderDto dto)\n    {\n        var created = await _svc.CreateAsync(dto);\n        return CreatedAtAction(nameof(Get), new { id = created.Id }, created); // 201 + Location\n    }\n\n    [HttpDelete(\"{id:int}\")] // DELETE /api/orders/5\n    public async Task<IActionResult> Delete(int id)\n    {\n        await _svc.DeleteAsync(id);\n        return NoContent(); // 204\n    }\n}",
+   "explanation": "CreatedAtAction returns 201 with a Location header pointing at the new resource; NoContent returns 204 for a successful DELETE with nothing to return."
+  },
+  "mistakes": [
+   "Using verbs in URLs, like /api/getOrders or /api/deleteOrder/5, instead of nouns with the correct HTTP method.",
+   "Returning 200 OK for every outcome instead of the semantically correct code (201 for creates, 204 for deletes, 404 for missing resources).",
+   "Confusing 401 and 403 — returning 401 when the user is authenticated but lacks permission, or vice versa.",
+   "Treating POST as idempotent and not guarding against duplicate submissions (e.g. double-clicking a 'Pay' button creating two charges).",
+   "Performing state-changing operations via GET requests, which browsers/crawlers/proxies can trigger unintentionally by prefetching or caching."
+  ],
+  "followUps": [
+   {
+    "question": "PUT vs PATCH vs POST?",
+    "answer": "PUT replaces the whole resource and is idempotent — ten identical calls leave the same final state. PATCH sends only the changed fields. POST creates a new resource and is NOT idempotent — ten POSTs create ten records, which is exactly the duplicate-payment problem."
+   },
+   {
+    "question": "Why can't we just use GET for everything?",
+    "answer": "GET is defined as 'safe' — it must not change state. Browsers, proxies, CDNs, and crawlers prefetch and cache GET requests freely; a crawler hitting GET /deleteUser?id=5 would wipe data (this genuinely happened to early web companies). GET also has no body, URLs cap around 2,000 characters, query strings leak into browser history/server logs/Referer headers (a security incident if they contain passwords or card numbers), and cached GETs can return stale data instead of performing the intended action."
+   },
+   {
+    "question": "What's the difference between 404 and 410?",
+    "answer": "404 Not Found means the resource doesn't exist (and may never have, or its absence isn't guaranteed permanent). 410 Gone explicitly signals the resource used to exist and was intentionally, permanently removed — useful for deprecated API versions or deleted content you want search engines to stop indexing."
+   }
+  ],
+  "memoryHack": {
+   "emoji": "📮",
+   "oneLiner": "REST is a postal service — nouns for addresses, verbs for actions, status codes as receipts.",
+   "mnemonic": "401 = 'who are you?' 403 = 'I know you, no.'",
+   "memoryPalace": "Picture a post office counter: dropping a new letter (POST) gets a 201 receipt with a tracking number; replacing the whole letter (PUT) is idempotent; a guard checks ID twice — 401 if you show no ID at all, 403 if your ID says you're just not allowed in."
+  },
+  "bestPractices": [
+   "Use plural nouns for resource URLs and let the HTTP method express the action.",
+   "Return the semantically correct status code for every outcome, not just 200 for everything.",
+   "Include a Location header on 201 Created responses pointing to the new resource.",
+   "Design POST endpoints to be safe against duplicate submissions (idempotency keys) since POST itself isn't idempotent.",
+   "Never perform state-changing work in a GET handler — keep GET safe and cacheable."
+  ],
+  "performanceTips": [
+   "Support pagination (?page=&size=) on list endpoints to avoid returning unbounded result sets.",
+   "Use 304 Not Modified with ETags/If-None-Match for cacheable GET endpoints to save bandwidth on unchanged resources."
+  ],
+  "quiz": [
+   {
+    "question": "What status code should a successful POST that creates a resource return?",
+    "options": [
+     "200 OK",
+     "201 Created",
+     "204 No Content",
+     "202 Accepted"
+    ],
+    "answer": 1,
+    "explanation": "201 Created signals successful resource creation and should include a Location header pointing to the new resource."
+   },
+   {
+    "question": "What is the key difference between 401 and 403?",
+    "options": [
+     "401 is for GET, 403 is for POST",
+     "401 means unauthenticated; 403 means authenticated but not permitted",
+     "They are interchangeable",
+     "401 is client-side, 403 is server-side"
+    ],
+    "answer": 1,
+    "explanation": "401 Unauthorized means the server doesn't know who you are (missing/invalid credentials); 403 Forbidden means it knows who you are but you lack permission."
+   }
+  ],
+  "flashcards": [
+   {
+    "front": "Is PUT idempotent?",
+    "back": "Yes — repeating it produces the same final resource state."
+   },
+   {
+    "front": "Is POST idempotent?",
+    "back": "No — repeating it creates multiple resources."
+   },
+   {
+    "front": "401 vs 403?",
+    "back": "401 = not authenticated; 403 = authenticated but not authorized."
+   },
+   {
+    "front": "Status code for a successful DELETE?",
+    "back": "204 No Content."
+   }
+  ],
+  "revision30": "REST uses plural noun URLs and HTTP verbs for actions. 201 for creates (with Location), 204 for deletes, 400/401/403/404/409/422/429 for client errors, 500/503 for server errors. PUT is idempotent, POST is not. 401 = unauthenticated, 403 = unauthorized.",
+  "revision2min": "REST API design centers resources as plural nouns — /api/orders, never /api/getOrders — with HTTP verbs expressing the action: GET for reads, POST for creates, PUT for full replaces, PATCH for partial updates, DELETE for removal, and nested paths like /api/orders/5/items for relationships. Status codes precisely communicate outcome: 200 for successful reads/updates, 201 with a Location header for successful creates, 204 for successful operations with nothing to return (typically DELETE), 400 for validation failures, 401 when the caller isn't authenticated at all, 403 when they're authenticated but lack permission, 404 for missing resources, 409 for state conflicts (duplicates, concurrency), 422 for business-rule violations, 429 for rate limiting, and 500/503 for server-side failures. PUT is idempotent — repeating it leaves the same final state — while POST creates a new resource each time and is not idempotent, which is exactly the duplicate-payment failure mode to design against. GET must remain 'safe' (no state changes) because browsers, proxies, and crawlers freely prefetch and cache GET requests; a state-changing GET has historically caused real data-loss incidents when crawlers followed a delete link.",
+  "challenge": "Design the full REST surface (URLs, verbs, and status codes) for a 'shopping cart' resource nested under a user, including adding an item, updating item quantity, removing an item, and checking out — and specify which operations are idempotent.",
+  "related": [
+   "aspnet-core-routing",
+   "global-exception-handling",
+   "soap-vs-rest"
+  ],
+  "summary": "REST design uses plural-noun resource URLs, the correct HTTP verb per action, and precise status codes — with PUT idempotent and POST not, and 401 vs 403 marking unauthenticated versus unauthorized."
+ },
+ {
+  "id": "aspnet-09",
+  "title": "Explain the ASP.NET Core MVC life cycle",
+  "slug": "aspnet-core-mvc-lifecycle",
+  "category": "aspnet",
+  "difficulty": "Advanced",
+  "estimatedTime": 9,
+  "emoji": "🔁",
+  "icon": "GitBranch",
+  "tags": [
+   "mvc",
+   "lifecycle",
+   "aspnet-core",
+   "pipeline",
+   "filters"
+  ],
+  "keywords": [
+   "MVC lifecycle",
+   "model binding",
+   "action filters",
+   "result filters",
+   "Kestrel",
+   "middleware pipeline",
+   "ModelState",
+   "endpoint execution"
+  ],
+  "companies": [
+   "Microsoft",
+   "Amazon",
+   "Accenture",
+   "TCS",
+   "Deloitte"
+  ],
+  "interviewQuestion": "Walk me through the complete ASP.NET Core MVC request life cycle, step by step.",
+  "story": {
+   "setup": "Think of a courtroom trial, from the moment a case file arrives at the courthouse to the moment a verdict is delivered.",
+   "scenes": [
+    "The case file physically arrives at the courthouse door (Kestrel receives the request), then passes through the building's general security checkpoints (middleware pipeline) before reaching the right courtroom (routing matches the URL to a controller/action).",
+    "A bailiff checks if you're even allowed in this courtroom (Authorization filters), then a clerk does a quick pre-screening of the paperwork (Resource filters) before the case is properly logged and translated into court-usable evidence (model binding + validation into ModelState).",
+    "The judge announces 'court is now in session' (OnActionExecuting — Action filters, before), the actual trial happens (the action method executes), and then the judge announces 'court is adjourned' (OnActionExecuted — Action filters, after).",
+    "A stenographer prepares the transcript for release (Result filters, before), the verdict document is actually typed up and handed out — a rendered View or serialized JSON (Result execution) — then the stenographer files the final copy (Result filters, after) followed by the clerk closing the courtroom's outer doors (Resource filters, after).",
+    "If chaos breaks out anywhere in the middle of the trial (an unhandled exception between steps 6–11), a standing order (Exception filters) can intervene at any point in that span. Finally, the verdict travels back out through the same building security checkpoints in reverse (response travels back up the middleware pipeline) before it's delivered to the public (response sent)."
+   ],
+   "moral": "The MVC life cycle is a strict, ordered courtroom procedure — each stage only has access to what the previous stage produced, and exception filters stand ready across the entire trial phase to catch chaos."
+  },
+  "analogy": "The MVC life cycle is a courtroom trial — security checkpoints, a bailiff, model binding as evidence logging, the judge's before/after announcements around the action, and a verdict that travels back out the same doors it came in.",
+  "animation": "timeline",
+  "explanation": "The full ASP.NET Core MVC life cycle begins when Kestrel receives the request, which then flows through the registered middleware pipeline in order. Routing matches the URL to a specific controller/action (an endpoint). Authorization filters run first to check access, then Resource filters run (before model binding) allowing early short-circuiting like caching. Model binding then maps route values, query strings, and the request body into action parameters, and validates them into ModelState. Action filters run OnActionExecuting immediately before the action method actually executes, the action method runs, and then Action filters run OnActionExecuted immediately after. Result filters then run before the result executes — where a View is rendered or an object is serialized to JSON/XML — and again after result execution completes, followed by Resource filters running their 'after' phase. The response then travels back up through the middleware pipeline in reverse order before finally being sent to the client. Exception filters wrap the entire span from model binding through result execution (steps 6–11), ready to intercept any unhandled exception raised anywhere in that range.",
+  "interviewAnswerShort": "A request flows: Kestrel receives it, through middleware, routing matches an endpoint, then Authorization → Resource (before) → model binding/ModelState → Action filters before → action executes → Action filters after → Result filters before → result executes (view/JSON) → Result filters after → Resource (after), then the response travels back up the middleware pipeline — with exception filters wrapping the model-binding-through-result-execution span.",
+  "interviewAnswerDetailed": "The life cycle starts when Kestrel accepts the raw HTTP request, which then travels down the registered middleware pipeline in order. Routing middleware matches the incoming URL to a specific endpoint — a controller and action, or a Razor Page handler. From there, MVC-specific stages take over: Authorization filters run first, checking things like [Authorize] before any real work happens. Resource filters run next, after authorization but before model binding, which is the earliest point you can short-circuit the pipeline cheaply, e.g. for response caching. Model binding then maps route values, query string parameters, and (for complex types) the request body into the action's parameters, running validation and populating ModelState with any errors. Action filters' OnActionExecuting runs immediately before the action method itself executes — this is where you'd reject invalid ModelState — the action method runs, and Action filters' OnActionExecuted runs immediately after, with access to the action's result or any thrown exception. Result filters then wrap result execution: their 'before' hook runs, then the actual result executes (rendering a Razor view, or serializing the return value to JSON for a Web API), then the 'after' hook runs, followed by Resource filters' 'after' phase closing out that stage. Once MVC is done producing the response, it travels back up through the middleware pipeline in reverse registration order — each middleware gets a chance to inspect or modify the outgoing response — before the response is finally sent to the client. Exception filters aren't tied to one single point; they wrap the entire span from model binding through result execution, ready to intercept any unhandled exception raised anywhere in that range, though they still won't catch exceptions thrown by middleware itself, which is why exception-handling middleware registered first in the pipeline remains the more complete safety net.",
+  "codeExample": {
+   "language": "csharp",
+   "code": "// Order of execution for a single request, annotated:\n// 1. Request -> Kestrel\n// 2. Middleware pipeline (in registration order)\n// 3. Routing -> matches controller/action\n// 4. Authorization filters\n// 5. Resource filters (before)\n// 6. Model binding + validation (ModelState)\n// 7. Action filters: OnActionExecuting\n// 8. Action method executes\n// 9. Action filters: OnActionExecuted\n// 10. Result filters (before)\n// 11. Result execution -- View rendered / object serialized to JSON\n// 12. Result filters (after) -> Resource filters (after)\n// 13. Response travels back up the middleware pipeline\n// 14. Response sent\n// Exception filters wrap stages 6-11.\n\npublic class TraceFilter : ActionFilterAttribute\n{\n    public override void OnActionExecuting(ActionExecutingContext c) => Console.WriteLine(\"7: action executing\");\n    public override void OnActionExecuted(ActionExecutedContext c) => Console.WriteLine(\"9: action executed\");\n    public override void OnResultExecuting(ResultExecutingContext c) => Console.WriteLine(\"10: result executing\");\n    public override void OnResultExecuted(ResultExecutedContext c) => Console.WriteLine(\"12: result executed\");\n}",
+   "explanation": "TraceFilter overrides all four ActionFilterAttribute hooks to make the exact order of steps 7, 9, 10, and 12 observable at runtime."
+  },
+  "mistakes": [
+   "Confusing the middleware pipeline order with the MVC filter order — they're related but distinct stages.",
+   "Assuming Exception filters catch everything, when they only wrap the model-binding-through-result-execution span, not middleware-level exceptions.",
+   "Forgetting that model binding and ModelState validation happen before Action filters, not inside them.",
+   "Believing the response is sent immediately after the result executes, without accounting for the reverse trip back up the middleware pipeline.",
+   "Not knowing Resource filters run before model binding, which is what makes them suitable for the cheapest possible short-circuiting (like caching)."
+  ],
+  "followUps": [
+   {
+    "question": "Where exactly do Exception filters apply in this life cycle?",
+    "answer": "Exception filters wrap the span from model binding through result execution (roughly stages 6 to 11) — they catch unhandled exceptions from model binding, action filters, the action method, result filters, or result execution, but not from middleware or routing."
+   },
+   {
+    "question": "Why do Resource filters run before model binding but Action filters run after?",
+    "answer": "Resource filters are designed for the cheapest possible short-circuit — deciding to skip the entire rest of the pipeline (including the relatively expensive model binding step) for something like a cached response. Action filters need the bound and validated model to be meaningful, since they typically inspect action arguments or ModelState."
+   },
+   {
+    "question": "What happens to the response after the result executes?",
+    "answer": "After Result filters' 'after' phase and Resource filters' 'after' phase complete, the response object travels back up through the middleware pipeline in reverse registration order — each middleware can still inspect or modify it — before it's finally written to the client."
+   }
+  ],
+  "memoryHack": {
+   "emoji": "⚖️",
+   "oneLiner": "It's a courtroom trial: bailiff, clerk, evidence log, judge's before/after, verdict, and a standing order over the whole trial.",
+   "mnemonic": "AR-MB-A-R: AuthZ, Resource(before) → Model Binding → Action(before/after) → Result(before/after) → Resource(after).",
+   "memoryPalace": "Walk the courthouse: door security (middleware) → courtroom assignment (routing) → bailiff ID check (AuthZ) → clerk's quick screen (Resource before) → evidence logged (model binding) → judge's 'in session'/'adjourned' (Action before/after) → verdict typed and filed (Result before/after) → clerk closes doors (Resource after) → verdict travels back out the same security doors (middleware reverse)."
+  },
+  "bestPractices": [
+   "Use Resource filters for the cheapest, earliest short-circuit opportunities (e.g. output caching) since they run before model binding.",
+   "Validate ModelState in an Action filter (OnActionExecuting) globally instead of repeating checks in every action.",
+   "Don't rely solely on Exception filters for global error handling — pair them with exception-handling middleware registered first, since filters miss middleware-level errors.",
+   "Keep Result filters focused on response shaping (headers, envelope formatting) rather than business logic."
+  ],
+  "performanceTips": [
+   "Short-circuiting in a Resource filter avoids the cost of model binding entirely for cacheable or rejected requests.",
+   "Avoid heavy synchronous work in Action/Result filter overrides; prefer the async filter interfaces to not block the request thread."
+  ],
+  "quiz": [
+   {
+    "question": "Which stage runs before model binding and validation?",
+    "options": [
+     "Action filters",
+     "Result filters",
+     "Resource filters",
+     "Exception filters"
+    ],
+    "answer": 2,
+    "explanation": "Resource filters run after authorization but before model binding, making them the earliest point for cheap short-circuiting."
+   },
+   {
+    "question": "What span do Exception filters wrap?",
+    "options": [
+     "The entire middleware pipeline",
+     "Only the action method itself",
+     "Model binding through result execution",
+     "Only routing"
+    ],
+    "answer": 2,
+    "explanation": "Exception filters wrap stages from model binding through result execution, but do not catch exceptions thrown by middleware or routing."
+   }
+  ],
+  "flashcards": [
+   {
+    "front": "What runs immediately after routing?",
+    "back": "Authorization filters."
+   },
+   {
+    "front": "What runs right before Action filters?",
+    "back": "Model binding and validation into ModelState."
+   },
+   {
+    "front": "What span do Exception filters cover?",
+    "back": "Model binding through result execution (steps 6-11)."
+   },
+   {
+    "front": "What happens after the result executes?",
+    "back": "Result filters (after), Resource filters (after), then the response travels back up the middleware pipeline."
+   }
+  ],
+  "revision30": "Request flow: Kestrel → middleware → routing → AuthZ filters → Resource filters (before) → model binding/ModelState → Action filters before → action runs → Action filters after → Result filters before → result executes → Result/Resource filters after → response back up middleware. Exception filters wrap steps 6-11.",
+  "revision2min": "The ASP.NET Core MVC life cycle begins when Kestrel receives the request and it flows through the registered middleware pipeline. Routing matches the URL to a controller/action. Authorization filters run first, then Resource filters (before model binding — the cheapest short-circuit point). Model binding maps request data into action parameters and populates ModelState with validation results. Action filters' OnActionExecuting runs right before the action method executes, the action runs, and OnActionExecuted runs right after. Result filters wrap result execution — rendering a view or serializing to JSON — with their before/after hooks, followed by Resource filters' after phase. The response then travels back up through the middleware pipeline in reverse order before being sent to the client. Exception filters wrap the span from model binding through result execution, but they don't catch exceptions from middleware or routing — that's still the job of exception-handling middleware registered first in the pipeline.",
+  "challenge": "Draw out (in words) exactly which stage of this life cycle you'd hook to implement response caching that completely bypasses model binding and the action method for a cache hit, and explain why that stage is the correct one instead of an Action filter.",
+  "related": [
+   "aspnet-core-filters",
+   "middleware-pipeline",
+   "global-exception-handling"
+  ],
+  "summary": "The MVC life cycle is a strict, ordered sequence from Kestrel through middleware, routing, filters (Authorization, Resource, Action, Result), model binding, and action/result execution, with exception filters wrapping the model-binding-to-result-execution span."
+ },
+ {
+  "id": "aspnet-10",
+  "title": "Explain JWT and where it is stored",
+  "slug": "jwt-authentication-storage",
+  "category": "aspnet",
+  "difficulty": "Intermediate",
+  "estimatedTime": 9,
+  "emoji": "🎫",
+  "icon": "Shield",
+  "tags": [
+   "jwt",
+   "authentication",
+   "security",
+   "aspnet-core"
+  ],
+  "keywords": [
+   "JWT",
+   "JSON Web Token",
+   "Bearer token",
+   "HttpOnly cookie",
+   "localStorage",
+   "AddJwtBearer",
+   "TokenValidationParameters",
+   "refresh token"
+  ],
+  "companies": [
+   "Microsoft",
+   "Amazon",
+   "Google",
+   "Accenture",
+   "Infosys"
+  ],
+  "interviewQuestion": "Explain how JWT authentication works and where the token should be stored on the client.",
+  "story": {
+   "setup": "A JWT is exactly like an airline boarding pass — printed once at check-in, carried by you, and trusted by every gate agent without them calling the airline's server to verify it.",
+   "scenes": [
+    "Check-in (login) prints your boarding pass with three visible sections: the fare class stamp (header — algorithm/type), your name and seat details (payload — claims like user id, roles, expiry), and a tamper-evident hologram (signature) that any gate agent can verify without calling headquarters.",
+    "Anyone can read your name and seat number by glancing at the boarding pass (payload is Base64-encoded, not encrypted) — so airlines never print your passport number or credit card there. That's why JWT claims should never hold secrets.",
+    "If you tried to scribble over your seat number in pen, the hologram (signature) would visibly break under UV light — HMACSHA256(header + payload, secret) fails the moment even one character changes, making tampering obvious.",
+    "You hand your boarding pass to every gate agent on the way to your seat — Authorization: Bearer <token> — and each one checks the hologram and reads your seat class themselves, with zero phone calls back to check-in. That's what makes JWT stateless and horizontally scalable.",
+    "Here's the catch: once printed, a boarding pass can't be un-printed if you get banned mid-flight — it stays valid until it expires on its own. That's the fundamental JWT revocation trade-off, solved in practice with short expiries and refresh tokens."
+   ],
+   "moral": "A JWT is a self-contained, signed boarding pass — readable and verifiable by anyone holding it, which makes it fast and stateless, but also means it can't be revoked early without extra machinery."
+  },
+  "analogy": "A JWT is an airline boarding pass — anyone can read your seat class, the hologram proves it wasn't forged, and every gate agent verifies it locally without calling headquarters, but once printed it can't be un-issued before it expires.",
+  "animation": "flow",
+  "explanation": "JWT (JSON Web Token) is a compact, self-contained, digitally signed token used for stateless authentication, structured as header.payload.signature, three Base64-encoded parts. The header specifies the signing algorithm and token type. The payload holds claims — user id, roles, expiry (exp), issuer (iss), audience (aud) — that are readable by anyone, since Base64 is encoding, not encryption, meaning secrets must never be placed in the payload. The signature is computed as HMACSHA256(header + payload, secret); changing a single character in the header or payload invalidates the signature, which is what makes JWTs tamper-evident. The flow is: the user logs in, the server issues a signed JWT, the client sends it back on every subsequent request via the Authorization: Bearer <token> header, and the server verifies the signature and reads the claims — with no server-side session store required, which is exactly why JWTs scale across multiple servers. In ASP.NET Core, JWT bearer authentication is configured via AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(...) with TokenValidationParameters validating the issuer, audience, lifetime, and signing key. On the client, storage matters: HttpOnly Secure cookies are the safest against XSS (JavaScript can't read them) but need CSRF protection via SameSite; localStorage is simple but readable by any injected script, making it an XSS risk; sessionStorage shares that risk but clears on tab close; in-memory storage is safest against XSS but is lost on page refresh. Because a JWT can't be revoked before it expires (that's the trade-off for statelessness), production systems typically use a short-lived access token (around 15 minutes) plus a longer-lived refresh token stored in an HttpOnly cookie.",
+  "interviewAnswerShort": "JWT is a compact, self-contained, signed token (header.payload.signature) used for stateless auth — the payload is readable but tamper-evident via the signature, and the safest client storage is a short-lived access token plus an HttpOnly, Secure, SameSite cookie holding a refresh token, since localStorage is vulnerable to XSS.",
+  "interviewAnswerDetailed": "A JWT consists of three Base64-encoded, dot-separated parts: a header naming the signing algorithm and token type, a payload of claims (user id, roles, exp, iss, aud) that anyone can decode and read since Base64 is encoding not encryption, and a signature computed as HMACSHA256(header + payload, secret) that breaks the instant any character in the header or payload changes, which is what makes the token tamper-proof without needing to be secret itself. The authentication flow is: the user logs in with credentials, the server validates them and issues a signed JWT, the client attaches it to every subsequent request as Authorization: Bearer <token>, and the server verifies the signature and reads the claims directly — no database or session-store lookup required, which is exactly why JWT-based auth scales horizontally across many stateless servers. On the ASP.NET Core side, you wire this up with builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(o => o.TokenValidationParameters = new TokenValidationParameters { ValidateIssuer = true, ValidateAudience = true, ValidateLifetime = true, ValidateIssuerSigningKey = true, ... }). The client-side storage question is the part interviewers really probe: localStorage is simple and survives page refreshes but is readable by any injected JavaScript, making it vulnerable to XSS; sessionStorage has the same XSS exposure but clears on tab close; pure in-memory storage is safest against XSS but is lost on refresh; and an HttpOnly, Secure, SameSite cookie is the strongest option because JavaScript literally cannot read it, at the cost of needing CSRF protection (which SameSite largely handles). The answer interviewers want to hear: HttpOnly, Secure, SameSite cookies — localStorage is readable by any XSS payload — and in practice, pair a short-lived access token (around 15 minutes) with a refresh token stored in an HttpOnly cookie, since JWTs can't be revoked before expiry, which is the fundamental trade-off for statelessness.",
+  "codeExample": {
+   "language": "csharp",
+   "code": "builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)\n    .AddJwtBearer(o => o.TokenValidationParameters = new TokenValidationParameters\n    {\n        ValidateIssuer = true,\n        ValidateAudience = true,\n        ValidateLifetime = true,\n        ValidateIssuerSigningKey = true,\n        ValidIssuer = config[\"Jwt:Issuer\"],\n        ValidAudience = config[\"Jwt:Audience\"],\n        IssuerSigningKey = new SymmetricSecurityKey(\n            Encoding.UTF8.GetBytes(config[\"Jwt:Key\"]))\n    });\n\n// Structure: header.payload.signature\n// header:    { \"alg\": \"HS256\", \"typ\": \"JWT\" }\n// payload:   { \"sub\": \"user123\", \"role\": \"Admin\", \"exp\": 1723651200 }\n// signature: HMACSHA256(base64(header) + \".\" + base64(payload), secretKey)",
+   "explanation": "TokenValidationParameters validates issuer, audience, lifetime, and signing key on every request; the header.payload.signature structure shows the readable claims versus the tamper-evident signature."
+  },
+  "mistakes": [
+   "Putting secrets (passwords, credit card numbers) in the JWT payload, forgetting it's Base64-encoded and readable by anyone, not encrypted.",
+   "Storing the JWT in localStorage for a high-security app without acknowledging the XSS exposure that comes with it.",
+   "Assuming a JWT can be revoked instantly like a server-side session — it can't, without extra machinery like a blocklist.",
+   "Using an overly long-lived single access token instead of pairing a short-lived access token with a refresh token.",
+   "Forgetting to set ValidateLifetime = true, silently accepting expired tokens."
+  ],
+  "followUps": [
+   {
+    "question": "Can you revoke a JWT?",
+    "answer": "Not before its expiry — that's the trade-off for statelessness. Mitigations include short-lived access tokens paired with refresh tokens, a server-side blocklist for immediate revocation (which reintroduces state), or a token-version claim checked against the user record at validation time."
+   },
+   {
+    "question": "Why never put secrets in the JWT payload?",
+    "answer": "The payload is only Base64-encoded, not encrypted — anyone who intercepts or even just decodes the token client-side can read every claim in it. The signature guarantees the claims haven't been tampered with, but it does nothing to keep them confidential."
+   },
+   {
+    "question": "What's the difference between JWT authentication and traditional session-based authentication?",
+    "answer": "Session-based auth stores session state server-side (often in a distributed cache like Redis) and gives the client only an opaque session ID cookie; every request requires a server-side lookup. JWT is self-contained — the server verifies the signature and reads claims directly with no lookup, making it stateless and easier to scale horizontally, at the cost of harder revocation."
+   }
+  ],
+  "memoryHack": {
+   "emoji": "🎫",
+   "oneLiner": "JWT is a boarding pass — readable by anyone, verifiable everywhere, unrevokable once printed.",
+   "mnemonic": "HPS: Header (algorithm), Payload (claims, readable), Signature (tamper-proof).",
+   "memoryPalace": "Picture your boarding pass at the gate: your seat class is printed in plain text (payload), a UV hologram breaks if scratched (signature), and every gate agent checks it themselves without calling HQ (stateless verification) — but once printed, it's valid until it expires, no matter what happens after check-in."
+  },
+  "bestPractices": [
+   "Keep access tokens short-lived (around 15 minutes) and use a refresh token for renewing sessions.",
+   "Store refresh tokens in HttpOnly, Secure, SameSite cookies rather than localStorage.",
+   "Never place sensitive data (passwords, PII beyond what's needed, secrets) in JWT claims.",
+   "Always validate issuer, audience, lifetime, and signing key server-side — never skip ValidateLifetime.",
+   "Use a strong, sufficiently long signing key and rotate it periodically."
+  ],
+  "performanceTips": [
+   "JWT's stateless verification (no DB/session-store lookup per request) is precisely why it scales better than server-side sessions under high concurrent load.",
+   "Keep the payload small — large claim sets bloat every single request's Authorization header."
+  ],
+  "quiz": [
+   {
+    "question": "What makes a JWT tamper-evident?",
+    "options": [
+     "Base64 encoding of the payload",
+     "The signature, computed over the header and payload with a secret",
+     "HTTPS transport",
+     "The expiry claim"
+    ],
+    "answer": 1,
+    "explanation": "The signature is computed as HMACSHA256(header + payload, secret); any change to header or payload invalidates it, revealing tampering."
+   },
+   {
+    "question": "Which client-side storage is safest against XSS for a JWT?",
+    "options": [
+     "localStorage",
+     "sessionStorage",
+     "A plain cookie without HttpOnly",
+     "An HttpOnly, Secure, SameSite cookie"
+    ],
+    "answer": 3,
+    "explanation": "HttpOnly cookies can't be read by JavaScript, eliminating the primary XSS token-theft vector; localStorage and sessionStorage are both readable by any injected script."
+   }
+  ],
+  "flashcards": [
+   {
+    "front": "What are the three parts of a JWT?",
+    "back": "header.payload.signature."
+   },
+   {
+    "front": "Is the JWT payload encrypted?",
+    "back": "No — only Base64-encoded, readable by anyone."
+   },
+   {
+    "front": "Can a JWT be revoked before expiry?",
+    "back": "Not natively — needs a blocklist or short expiry + refresh tokens."
+   },
+   {
+    "front": "Safest client storage for a token?",
+    "back": "HttpOnly, Secure, SameSite cookie."
+   }
+  ],
+  "revision30": "JWT = header.payload.signature, self-contained and stateless. Payload is readable, not encrypted — never put secrets there. Signature makes it tamper-evident. Store via HttpOnly Secure SameSite cookies, not localStorage, which is XSS-exposed. Can't revoke before expiry — use short access tokens + refresh tokens.",
+  "revision2min": "JWT is a compact, self-contained, digitally signed token for stateless authentication, structured as header.payload.signature with all three parts Base64-encoded. The header names the signing algorithm; the payload carries claims like user id, roles, and expiry, and is readable by anyone since Base64 is encoding, not encryption — secrets must never go there. The signature, HMACSHA256(header + payload, secret), breaks the moment any character changes, making the token tamper-evident. The flow: login issues a signed JWT, the client sends it as Authorization: Bearer <token> on every request, and the server verifies the signature and reads claims directly with no session-store lookup — that statelessness is exactly why JWTs scale horizontally. In ASP.NET Core you configure this with AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(...) and a TokenValidationParameters object validating issuer, audience, lifetime, and signing key. Client-side storage is the classic follow-up: localStorage and sessionStorage are simple but readable by any injected JavaScript (XSS risk); in-memory storage is safest against XSS but lost on refresh; HttpOnly, Secure, SameSite cookies are the strongest choice since JavaScript can't read them, at the cost of needing CSRF protection, which SameSite largely provides. The practical pattern is a short-lived access token (about 15 minutes) plus a refresh token in an HttpOnly cookie, because JWTs fundamentally can't be revoked before they expire without reintroducing server-side state.",
+  "challenge": "Design a token refresh flow: an access token expires after 15 minutes, and a refresh token (7-day expiry, HttpOnly cookie) is used to silently obtain a new access token. Describe what happens if the refresh token itself is stolen, and how you'd mitigate that.",
+  "related": [
+   "cors-explained",
+   "session-and-cookies",
+   "global-exception-handling"
+  ],
+  "summary": "JWT is a self-contained, signed token (header.payload.signature) enabling stateless authentication — its payload is readable but tamper-evident, and it should be stored client-side via HttpOnly Secure SameSite cookies rather than localStorage."
+ },
+ {
+  "id": "aspnet-11",
+  "title": "What is CORS?",
+  "slug": "cors-explained",
+  "category": "aspnet",
+  "difficulty": "Intermediate",
+  "estimatedTime": 6,
+  "emoji": "🚧",
+  "icon": "Network",
+  "tags": [
+   "cors",
+   "security",
+   "browser",
+   "aspnet-core"
+  ],
+  "keywords": [
+   "CORS",
+   "Same-Origin Policy",
+   "preflight",
+   "OPTIONS request",
+   "AllowAnyOrigin",
+   "AllowCredentials",
+   "Access-Control-Allow-Origin"
+  ],
+  "companies": [
+   "Microsoft",
+   "Amazon",
+   "Google",
+   "Accenture",
+   "Infosys"
+  ],
+  "interviewQuestion": "What is CORS, why does it exist, and how do you configure it in ASP.NET Core?",
+  "story": {
+   "setup": "Picture a gated apartment complex where every resident's browser lives in a different building (origin), and the gate guard enforces a strict rule: 'no visitor from another building gets in unless the front desk explicitly allows it.'",
+   "scenes": [
+    "By default, the Same-Origin Policy locks every gate — a script running in Building A (yourapp.com) can't just walk over and use Building B's mailroom (api.otherapp.com) with a resident's own key (cookies) unless Building B's front desk has posted an explicit allow-list.",
+    "For anything more than a simple visit — like a delivery with special paperwork (a non-simple request: custom headers, PUT/DELETE) — the guard first sends a courier to ask permission (a browser-issued OPTIONS preflight request), and only proceeds if the front desk answers with the right Access-Control-Allow-* headers.",
+    "The front desk posts its policy on the board: WithOrigins(\"https://myapp.com\").AllowAnyHeader().AllowAnyMethod().AllowCredentials() — a named allow-list, not a blanket 'anyone welcome' sign.",
+    "A rookie manager once tried posting AllowAnyOrigin() next to AllowCredentials() on the same board — but the building's charter forbids it outright: that combination would let literally any stranger's browser make authenticated requests using a resident's cookies, so the system throws before it even ships.",
+    "Meanwhile, a courier walking directly up with a hand-delivered request (Postman, curl, or a server calling another server) was never subject to any of this — the guard only checks browsers making cross-origin JavaScript calls; CORS is a browser-side courtesy rule, not a server security wall."
+   ],
+   "moral": "CORS is the browser's enforced courtesy rule for cross-origin JavaScript calls — the server opts specific origins in, but CORS is not, and was never meant to be, an API security control."
+  },
+  "analogy": "CORS is a gated apartment complex's front-desk policy — the browser (guard) blocks scripts from one building (origin) from freely using another building's services unless the front desk explicitly allows it, but a courier walking up directly (Postman, curl, server-to-server) skips the gate entirely.",
+  "animation": "network",
+  "explanation": "CORS (Cross-Origin Resource Sharing) is a browser mechanism controlling whether JavaScript running on one origin (scheme + domain + port) is allowed to call an API on a different origin. It exists because browsers enforce the Same-Origin Policy by default, preventing a malicious website from silently making authenticated requests to another site (like a bank's API) using the victim's own cookies; CORS is the controlled, server-opted-in relaxation of that policy. In ASP.NET Core, you configure a named CORS policy via builder.Services.AddCors(o => o.AddPolicy(\"AllowFrontend\", p => p.WithOrigins(...).AllowAnyHeader().AllowAnyMethod().AllowCredentials())) and apply it with app.UseCors(\"AllowFrontend\"), registered before UseAuthorization and MapControllers. For 'non-simple' requests (custom headers, methods like PUT/DELETE, certain content types), the browser first sends an automatic OPTIONS preflight request, and the server must respond with the appropriate Access-Control-Allow-Origin, -Methods, and -Headers headers before the browser sends the real request. Two things that stand out in interviews: combining AllowAnyOrigin() with AllowCredentials() is explicitly illegal and throws at startup, because it would let any website make authenticated, credentialed requests on a user's behalf; and CORS is enforced entirely by the browser, not the server — tools like Postman, curl, and direct server-to-server calls ignore it completely, meaning CORS is not, and should never be relied on as, an API security/authorization control.",
+  "interviewAnswerShort": "CORS is a browser-enforced mechanism that relaxes the Same-Origin Policy for specific, server-approved origins, configured via AddCors/UseCors in ASP.NET Core — it's enforced only by browsers (not curl/Postman/server-to-server calls), so it's not an API security control, and AllowAnyOrigin() combined with AllowCredentials() is explicitly illegal.",
+  "interviewAnswerDetailed": "By default, browsers enforce the Same-Origin Policy, which blocks JavaScript running on one origin (defined as scheme + domain + port) from making requests to a different origin — this exists specifically to stop a malicious site from silently using a logged-in user's cookies to call, say, their bank's API. CORS is the mechanism a server uses to opt specific origins back into cross-origin access. In ASP.NET Core, you register a named policy with builder.Services.AddCors(o => o.AddPolicy(\"AllowFrontend\", p => p.WithOrigins(\"https://myapp.com\", \"http://localhost:3000\").AllowAnyHeader().AllowAnyMethod().AllowCredentials())), then apply it with app.UseCors(\"AllowFrontend\"), which must be registered before UseAuthorization() and MapControllers() in the pipeline. For requests beyond simple GET/POST with standard headers — anything with custom headers, methods like PUT or DELETE, or certain content types — the browser automatically issues a preflight OPTIONS request before the real one, and the server must answer it with the right Access-Control-Allow-Origin/-Methods/-Headers response headers, or the browser blocks the actual request from ever being sent. Two points that really land in an interview: first, AllowAnyOrigin() combined with AllowCredentials() is illegal and throws a runtime exception at startup — allowing literally any origin to make authenticated, credentialed requests would defeat the entire purpose of CORS as a security-adjacent mechanism. Second, and often missed, CORS is enforced by the browser, not the server — tools like Postman, curl, and any server-to-server HTTP call never go through a browser's CORS engine at all, so they ignore CORS entirely. That means CORS protects browser users from malicious cross-origin JavaScript, but it is not, and should never be treated as, an actual API authorization or security boundary — that job belongs to authentication and authorization.",
+  "codeExample": {
+   "language": "csharp",
+   "code": "builder.Services.AddCors(o => o.AddPolicy(\"AllowFrontend\", p =>\n    p.WithOrigins(\"https://myapp.com\", \"http://localhost:3000\")\n     .AllowAnyHeader()\n     .AllowAnyMethod()\n     .AllowCredentials()));\n\nvar app = builder.Build();\n\napp.UseCors(\"AllowFrontend\"); // BEFORE UseAuthorization and MapControllers\napp.UseAuthorization();\napp.MapControllers();\n\n// ILLEGAL and throws at startup:\n// p.AllowAnyOrigin().AllowCredentials();",
+   "explanation": "A named CORS policy allow-lists specific origins with credentials support; UseCors must be registered before UseAuthorization/MapControllers, and combining AllowAnyOrigin with AllowCredentials is explicitly disallowed."
+  },
+  "mistakes": [
+   "Registering app.UseCors() after UseAuthorization()/MapControllers(), so the policy doesn't apply where needed.",
+   "Trying to combine AllowAnyOrigin() with AllowCredentials(), which throws at runtime since it's explicitly disallowed.",
+   "Treating CORS as an API security control, when it's only enforced by browsers and is trivially bypassed by curl, Postman, or server-to-server calls.",
+   "Not understanding preflight requests, and being confused why a PUT/DELETE call with custom headers triggers an extra OPTIONS request.",
+   "Using AllowAnyOrigin() in production for a credentialed API 'just to make it work,' unknowingly exposing it to any website."
+  ],
+  "followUps": [
+   {
+    "question": "Why does CORS exist in the first place?",
+    "answer": "Browsers enforce the Same-Origin Policy so that a malicious site can't silently use JavaScript to call another site's API — like a bank's — carrying the victim's own cookies along automatically. CORS is the server's controlled, explicit relaxation of that policy for specific trusted origins."
+   },
+   {
+    "question": "What is a CORS preflight request?",
+    "answer": "For 'non-simple' cross-origin requests (custom headers, methods beyond GET/POST/HEAD, certain content types), the browser automatically sends an OPTIONS request first, asking the server what's allowed. The server must respond with Access-Control-Allow-Origin/-Methods/-Headers, or the browser blocks the actual request from ever being sent."
+   },
+   {
+    "question": "Is CORS an API security mechanism?",
+    "answer": "No. CORS is enforced entirely by the browser — tools like Postman, curl, and any direct server-to-server call bypass it completely since there's no browser enforcing the policy. Actual API security still has to come from authentication and authorization."
+   }
+  ],
+  "memoryHack": {
+   "emoji": "🚧",
+   "oneLiner": "CORS is the gated building's front-desk allow-list — browsers enforce it, couriers (curl/Postman) walk right past it.",
+   "mnemonic": "AAA-illegal: AllowAnyOrigin + AllowCredentials = throws at startup.",
+   "memoryPalace": "Picture a gated apartment complex where the guard only checks residents' own browsers making cross-building requests — a courier hand-delivering a package (curl/Postman/server calls) walks straight past the guard, because the gate was only ever built to control what a resident's own JavaScript is allowed to do."
+  },
+  "bestPractices": [
+   "Name CORS policies explicitly (e.g. \"AllowFrontend\") and scope them to only the origins that truly need access.",
+   "Register UseCors() before UseAuthorization() and MapControllers() in the middleware pipeline.",
+   "Never combine AllowAnyOrigin() with AllowCredentials() — restrict to specific origins whenever credentials are involved.",
+   "Don't rely on CORS as a security boundary — enforce real authentication/authorization on the server regardless of origin."
+  ],
+  "performanceTips": [
+   "Preflight OPTIONS requests add an extra round-trip; where possible, keep requests 'simple' (standard headers, GET/POST) to avoid triggering preflight for latency-sensitive calls.",
+   "Cache preflight responses using Access-Control-Max-Age to reduce repeated OPTIONS round-trips for the same origin/method/header combination."
+  ],
+  "quiz": [
+   {
+    "question": "What combination of CORS policy settings is illegal in ASP.NET Core?",
+    "options": [
+     "WithOrigins + AllowAnyHeader",
+     "AllowAnyOrigin + AllowCredentials",
+     "AllowAnyMethod + WithOrigins",
+     "AllowCredentials alone"
+    ],
+    "answer": 1,
+    "explanation": "AllowAnyOrigin() combined with AllowCredentials() throws at startup, since it would let any origin make authenticated, credentialed requests."
+   },
+   {
+    "question": "Who enforces CORS?",
+    "options": [
+     "The server",
+     "The browser",
+     "The database",
+     "The load balancer"
+    ],
+    "answer": 1,
+    "explanation": "CORS is enforced by the browser, not the server — tools like Postman, curl, and server-to-server calls ignore CORS entirely."
+   }
+  ],
+  "flashcards": [
+   {
+    "front": "What does CORS control?",
+    "back": "Whether JavaScript on one origin can call an API on a different origin."
+   },
+   {
+    "front": "What's illegal to combine?",
+    "back": "AllowAnyOrigin() with AllowCredentials()."
+   },
+   {
+    "front": "Who enforces CORS — browser or server?",
+    "back": "The browser."
+   },
+   {
+    "front": "What triggers a preflight OPTIONS request?",
+    "back": "Non-simple requests: custom headers, PUT/DELETE, certain content types."
+   }
+  ],
+  "revision30": "CORS lets a server opt specific origins into the browser's Same-Origin Policy relaxation. Configure via AddCors/UseCors (before UseAuthorization). AllowAnyOrigin + AllowCredentials is illegal. CORS is browser-enforced only — curl/Postman/server calls ignore it, so it isn't real API security.",
+  "revision2min": "CORS is a browser mechanism that controls whether JavaScript on one origin (scheme + domain + port) can call an API on a different origin. It exists because browsers enforce the Same-Origin Policy to stop a malicious site from silently calling another site's API using a victim's own cookies; CORS is the server's explicit, controlled relaxation of that policy. In ASP.NET Core, you register a named policy via AddCors with WithOrigins/AllowAnyHeader/AllowAnyMethod/AllowCredentials, then apply it with UseCors(\"PolicyName\"), which must be registered before UseAuthorization and MapControllers. For non-simple requests (custom headers, PUT/DELETE, certain content types) the browser automatically sends a preflight OPTIONS request first, and the server must respond with the correct Access-Control-Allow-* headers before the real request is sent. Two important gotchas: combining AllowAnyOrigin() with AllowCredentials() is explicitly illegal and throws at startup, since it would let any site make authenticated requests on a user's behalf; and CORS is enforced entirely by the browser — Postman, curl, and server-to-server calls bypass it completely, which means CORS is not an API security control and should never be relied on as one.",
+  "challenge": "Your React app on http://localhost:3000 calls a Web API that needs to send cookies with every request. Configure the CORS policy correctly to support credentialed requests, and explain why AllowAnyOrigin() cannot be used here.",
+  "related": [
+   "jwt-authentication-storage",
+   "middleware-pipeline",
+   "session-and-cookies"
+  ],
+  "summary": "CORS is a browser-enforced, server-opted-in relaxation of the Same-Origin Policy for cross-origin JavaScript calls — it protects browser users, not APIs, since non-browser clients bypass it entirely."
+ },
+ {
+  "id": "aspnet-12",
+  "title": "ViewData vs ViewBag vs TempData",
+  "slug": "viewdata-viewbag-tempdata",
+  "category": "aspnet",
+  "difficulty": "Beginner",
+  "estimatedTime": 5,
+  "emoji": "📬",
+  "icon": "Layers",
+  "tags": [
+   "mvc",
+   "razor",
+   "viewdata",
+   "viewbag",
+   "tempdata"
+  ],
+  "keywords": [
+   "ViewData",
+   "ViewBag",
+   "TempData",
+   "ITempDataDictionary",
+   "RedirectToAction",
+   "flash message",
+   "strongly-typed view"
+  ],
+  "companies": [
+   "Infosys",
+   "TCS",
+   "Wipro",
+   "Cognizant",
+   "HCL"
+  ],
+  "interviewQuestion": "What is the difference between ViewData, ViewBag, and TempData in ASP.NET MVC?",
+  "story": {
+   "setup": "Think of passing notes between a controller and a view like passing sticky notes across an office desk versus mailing a letter that survives a move to a new desk.",
+   "scenes": [
+    "ViewData is a labeled sticky-note dictionary left on today's desk — you write ViewData[\"Title\"] = \"Dashboard\" and anyone at that same desk (the current request's view) can read it, but it's gone tomorrow.",
+    "ViewBag is the exact same sticky-note pad, just relabeled as a dynamic notepad — ViewBag.Title = \"Dashboard\" writes to the very same underlying storage as ViewData, just with friendlier dot-syntax instead of dictionary brackets.",
+    "TempData is different — it's a letter mailed through the postal system (session or cookies) that survives exactly one desk move: TempData[\"Success\"] = \"Saved!\" then RedirectToAction(\"Index\") still has that letter waiting on the new desk, while a plain sticky note (ViewData/ViewBag) would have been thrown out during the move.",
+    "Here's the catch: TempData is read-once mail — the moment someone opens the letter, it's shredded. If you need to peek without destroying it, you use Peek(); if you need to keep it around for one more stop, you call Keep()."
+   ],
+   "moral": "ViewData and ViewBag are the same short-lived, single-request storage in two syntaxes; TempData is a different, longer-lived mechanism that survives exactly one redirect but gets consumed on first read."
+  },
+  "analogy": "ViewData/ViewBag are sticky notes that vanish at the end of today's desk (one request); TempData is a mailed letter that survives one desk move (one redirect) but gets shredded the moment it's opened.",
+  "animation": "compare",
+  "explanation": "ViewData is a dictionary (ViewDataDictionary) used to pass data from a controller to a view, living only for the duration of the current request. ViewBag is a dynamic wrapper over that same underlying ViewData storage — ViewBag.Title and ViewData[\"Title\"] refer to the same data, just accessed with dot syntax versus dictionary syntax; both are lost after a redirect. TempData, backed by ITempDataDictionary and stored in session or cookies depending on configuration, is designed to survive exactly one redirect, making it ideal for flash messages like a post-redirect success notification: TempData[\"Success\"] = \"Saved!\"; return RedirectToAction(\"Index\"); works because TempData persists across that redirect, whereas ViewData or ViewBag would be lost. TempData is read-once by default — reading a key removes it — so if you need to preserve a value for a subsequent read, use Keep() (marks it to survive one more request) or Peek() (reads without marking for deletion). Best practice is to use a strongly-typed ViewModel with @model for real page data, and reserve ViewBag/ViewData for small incidental values and TempData specifically for flash/status messages across a redirect.",
+  "interviewAnswerShort": "ViewData is a dictionary and ViewBag is its dynamic wrapper — both live for only the current request; TempData survives exactly one redirect (backed by session/cookies) but is read-once unless you call Keep() or Peek().",
+  "interviewAnswerDetailed": "ViewData is a ViewDataDictionary the controller populates and the view reads within a single request — once that request ends (including after a redirect), the data is gone. ViewBag is not a separate storage mechanism; it's a dynamic object layered directly over the same ViewData dictionary, so ViewBag.Title and ViewData[\"Title\"] are literally the same value accessed two different ways — dot notation versus string-keyed dictionary lookup. TempData is fundamentally different: it's backed by ITempDataDictionary, which persists data using session state or cookies (depending on the configured TempData provider), and it's specifically designed to survive exactly one subsequent request — most commonly a redirect. This is why the Post-Redirect-Get pattern for flash messages uses TempData: setting TempData[\"Success\"] = \"Saved!\" right before RedirectToAction(\"Index\") means the Index action's view can still read that message, whereas ViewData or ViewBag would have been wiped by the redirect. TempData's other defining trait is that it's read-once — accessing a key marks it for removal after the current request completes — so if a value needs to survive an additional request beyond the first read, you call Keep() to explicitly preserve it, or use Peek() to read the value without marking it for deletion at all. The recommended pattern is to avoid ViewData/ViewBag for real page data in favor of a strongly-typed ViewModel bound with @model in Razor, reserving ViewBag/ViewData for small incidental values (like a page title) and TempData specifically for cross-redirect flash/status messages.",
+  "codeExample": {
+   "language": "csharp",
+   "code": "// Controller\npublic IActionResult Save(OrderDto dto)\n{\n    _svc.Save(dto);\n\n    TempData[\"Success\"] = \"Saved!\";\n    return RedirectToAction(\"Index\"); // ViewData/ViewBag would be LOST here\n}\n\npublic IActionResult Index()\n{\n    ViewBag.Title = \"Orders\";          // same storage as ViewData[\"Title\"]\n    ViewData[\"PageSize\"] = 20;\n    return View();\n}\n\n// Razor view (Index.cshtml)\n@if (TempData[\"Success\"] != null)\n{\n    <div class=\"alert\">@TempData[\"Success\"]</div> // read-once; TempData.Keep() to preserve\n}\n<h1>@ViewBag.Title</h1>",
+   "explanation": "TempData survives the RedirectToAction call to display a flash message on the next page; ViewBag.Title and ViewData[\"PageSize\"] both live only for the current Index request/view."
+  },
+  "mistakes": [
+   "Trying to use ViewData or ViewBag to persist data across a redirect, not realizing they're both request-scoped and get wiped.",
+   "Reading a TempData value twice and being confused why the second read returns null, forgetting it's read-once by default.",
+   "Forgetting to call Keep() when a TempData value legitimately needs to survive more than one additional request.",
+   "Overusing ViewBag/ViewData for primary page data instead of a strongly-typed ViewModel, losing compile-time safety and IntelliSense.",
+   "Assuming ViewBag and ViewData are separate storage mechanisms rather than two syntaxes over the same dictionary."
+  ],
+  "followUps": [
+   {
+    "question": "Why does TempData survive a redirect but ViewData/ViewBag don't?",
+    "answer": "ViewData/ViewBag live only in the current request's ViewDataDictionary, which is discarded once that request's response is sent. TempData is backed by session state or cookies (via ITempDataDictionary), which persist independently of any single request, specifically designed to survive to the very next request."
+   },
+   {
+    "question": "What happens if you read a TempData value twice in the same request?",
+    "answer": "Nothing special — TempData is only marked for removal after the current request completes, so reading it multiple times within the same request returns the same value. The removal happens at the end of the request in which it was read, so on the following request that key returns null unless Keep() was called."
+   },
+   {
+    "question": "When would you use Peek() versus Keep()?",
+    "answer": "Peek() reads a TempData value without marking it for deletion at all, useful when you want to inspect it but definitely need it to persist further. Keep() is called after a normal read to explicitly re-mark an already-read value so it survives one more request, useful when the value might be displayed across more than one subsequent page."
+   }
+  ],
+  "memoryHack": {
+   "emoji": "📬",
+   "oneLiner": "Sticky note (ViewData/ViewBag) vs mailed letter (TempData) that gets shredded after one open.",
+   "mnemonic": "VV-same, T-different: ViewData/ViewBag = same request-only dict; TempData = one-redirect, read-once.",
+   "memoryPalace": "Picture two sticky notes on today's desk that vanish overnight (ViewData and ViewBag, same pad, two pens), versus a mailed letter (TempData) that survives one office move but gets shredded the instant someone reads it — unless they stamp it 'Keep' first."
+  },
+  "bestPractices": [
+   "Use a strongly-typed ViewModel with @model for the primary data a view needs, not ViewBag/ViewData.",
+   "Reserve TempData specifically for flash/status messages that must survive a redirect.",
+   "Call TempData.Keep() explicitly if a value needs to survive beyond the immediate next request.",
+   "Avoid mixing ViewBag and ViewData for the same key in different parts of the codebase — pick one syntax for consistency."
+  ],
+  "performanceTips": [
+   "TempData backed by session requires a configured session provider (in-memory or distributed like Redis); on a web farm without a distributed session store, TempData can behave inconsistently across servers.",
+   "Avoid stuffing large objects into TempData — it round-trips through session/cookie storage, adding overhead."
+  ],
+  "quiz": [
+   {
+    "question": "What is the relationship between ViewBag and ViewData?",
+    "options": [
+     "Completely separate storage mechanisms",
+     "ViewBag is a dynamic wrapper over the same underlying ViewData storage",
+     "ViewBag survives redirects, ViewData doesn't",
+     "ViewData is faster than ViewBag"
+    ],
+    "answer": 1,
+    "explanation": "ViewBag is a dynamic object layered over the exact same ViewDataDictionary that ViewData uses — they're two syntaxes for the same storage."
+   },
+   {
+    "question": "Why use TempData instead of ViewData for a post-save success message before a redirect?",
+    "options": [
+     "TempData is faster",
+     "TempData survives exactly one subsequent request (like a redirect); ViewData does not",
+     "ViewData can't hold strings",
+     "TempData is strongly typed"
+    ],
+    "answer": 1,
+    "explanation": "TempData is backed by session/cookies and specifically designed to persist across one redirect, while ViewData is discarded at the end of the current request."
+   }
+  ],
+  "flashcards": [
+   {
+    "front": "Is ViewBag separate storage from ViewData?",
+    "back": "No — it's a dynamic wrapper over the same ViewData dictionary."
+   },
+   {
+    "front": "What survives a redirect: ViewData or TempData?",
+    "back": "TempData."
+   },
+   {
+    "front": "Is TempData read-once by default?",
+    "back": "Yes — use Keep() or Peek() to preserve it."
+   },
+   {
+    "front": "Best practice for primary view data?",
+    "back": "Use a strongly-typed ViewModel with @model instead of ViewBag/ViewData."
+   }
+  ],
+  "revision30": "ViewData (dictionary) and ViewBag (dynamic wrapper over the same dictionary) live only for the current request. TempData survives one redirect (backed by session/cookies) but is read-once — use Keep()/Peek() to preserve it. Prefer a strongly-typed ViewModel for real data.",
+  "revision2min": "ViewData is a ViewDataDictionary passed from controller to view, living only for the current request. ViewBag is not separate storage — it's a dynamic wrapper over that exact same ViewData dictionary, so ViewBag.Title and ViewData[\"Title\"] are literally the same value. TempData, backed by ITempDataDictionary using session state or cookies, is specifically built to survive one additional request — most commonly a redirect — which is why the Post-Redirect-Get flash-message pattern uses TempData[\"Success\"] = \"Saved!\" right before RedirectToAction(\"Index\"): ViewData/ViewBag would have been wiped by the redirect, but TempData persists to the next request. TempData is read-once — accessing a key marks it for removal after the current request — so Keep() explicitly preserves an already-read value for one more request, and Peek() reads without marking for deletion at all. Best practice: use a strongly-typed ViewModel with @model for the view's real data, and reserve ViewBag/ViewData for small incidentals and TempData strictly for cross-redirect flash messages.",
+  "challenge": "Implement a multi-step form wizard across three redirects where step 2's validation error message must survive to be shown after redirecting back to step 1. Explain exactly which storage mechanism you'd use and why a single TempData read wouldn't be enough if the user could navigate back and forth.",
+  "related": [
+   "session-and-cookies",
+   "aspnet-core-mvc-lifecycle",
+   "aspnet-vs-aspnet-core"
+  ],
+  "summary": "ViewData and ViewBag are two syntaxes over the same request-scoped dictionary, while TempData persists across exactly one redirect via session/cookies and is read-once unless explicitly kept or peeked."
+ },
+ {
+  "id": "aspnet-13",
+  "title": "What are Session and Cookies?",
+  "slug": "session-and-cookies",
+  "category": "aspnet",
+  "difficulty": "Beginner",
+  "estimatedTime": 6,
+  "emoji": "🍪",
+  "icon": "Database",
+  "tags": [
+   "session",
+   "cookies",
+   "state-management",
+   "aspnet-core"
+  ],
+  "keywords": [
+   "Session",
+   "Cookies",
+   "HttpOnly",
+   "SameSite",
+   "distributed cache",
+   "sticky session",
+   "Redis",
+   "web farm"
+  ],
+  "companies": [
+   "Infosys",
+   "TCS",
+   "Accenture",
+   "Cognizant",
+   "HCL"
+  ],
+  "interviewQuestion": "What are Session and Cookies in ASP.NET Core, and how do they differ?",
+  "story": {
+   "setup": "Think of checking into a hotel: a cookie is the small keycard you carry in your pocket, while a session is the actual room and its contents, sitting inside the hotel.",
+   "scenes": [
+    "The keycard (cookie) is small — it can't hold much more than a room number — and you, the guest, can see it and even read what's printed on it. That's why cookies max out around 4 KB and are visible to the client.",
+    "The room itself (session data) can hold as much luggage as the hotel allows — far more than the keycard could ever encode — and guests can't see inside it directly; the hotel (server) manages what's stored there.",
+    "The keycard is actually how the room is found: Response.Cookies.Append writes the session ID into a cookie, and every time you swipe it (send a request), the hotel looks up which room (session) it maps to.",
+    "Now imagine a hotel CHAIN with five separate buildings sharing one guest database, but each building keeps its own in-memory room ledger — if you check in at Building A (server A) but your next request lands at Building B (server B), Building B has never heard of your room, and your session is 'gone.' That's exactly why in-memory session breaks on a web farm, fixed either by sticky sessions (always routing you back to Building A) or a shared distributed ledger (Redis) all buildings can read."
+   ],
+   "moral": "A cookie is a small, client-visible token — often just an ID — while a session is server-side storage the cookie's ID points to; sessions need extra infrastructure (sticky routing or a distributed cache) the moment you scale beyond one server."
+  },
+  "analogy": "A cookie is the hotel keycard in your pocket — small and visible to you; a session is the actual hotel room and its contents — larger, server-managed, and found via the keycard's room number.",
+  "animation": "compare",
+  "explanation": "A cookie is a small piece of data (roughly 4 KB) stored on the client and sent back to the server with every matching request; it's visible to the user/client and the app itself scales statelessly since nothing is stored server-side per cookie. Session state is server-side storage, unlimited in practical size, invisible to the client directly, but requiring a distributed store to scale across multiple servers. Session itself actually relies on a cookie under the hood — the server generates a session ID, stores it in a cookie via that mechanism, and uses that ID on each request to look up the corresponding server-side session data via HttpContext.Session. The major scaling caveat is that in-memory session breaks on a web farm: if request 1 hits server A (which stored the session in its own memory) and request 2 hits server B (which knows nothing about it), the session appears to vanish. This is fixed either with sticky sessions (a load balancer always routing the same client to the same server) or a distributed cache like Redis via AddStackExchangeRedisCache, so every server shares the same session store. This scaling headache is a major reason modern APIs increasingly prefer stateless JWT-based authentication instead of server-side sessions.",
+  "interviewAnswerShort": "Cookies are small (~4KB), client-stored, and client-visible; sessions are server-side storage of unlimited practical size, located via a session-ID cookie — and because in-memory session doesn't scale across a web farm, it needs sticky sessions or a distributed cache like Redis, which is a major reason modern APIs prefer stateless JWT instead.",
+  "interviewAnswerDetailed": "A cookie is a small (roughly 4 KB) key-value pair stored on the client's browser and automatically sent back to the server on every matching request; because it lives client-side, the user can see and even inspect its contents, which is why sensitive cookies should be marked HttpOnly (JavaScript can't read it), Secure (HTTPS only), and SameSite (limits cross-site sending, mitigating CSRF). Session state, by contrast, is stored server-side and can hold effectively unlimited data since it isn't constrained by cookie size limits, and its contents are never directly visible to the client. Under the hood, session relies entirely on a cookie: the server generates a unique session ID, sends it to the client in a cookie, and on each subsequent request reads that cookie to look up the matching server-side session data through HttpContext.Session. The critical scaling caveat is that in-memory session (the default provider) breaks the moment you run more than one server instance — request 1 might hit server A, which stores the session in its own process memory, while request 2 hits server B behind a load balancer, which has no idea that session ever existed, so from the user's perspective their session data simply vanished. The two standard fixes are sticky sessions, where the load balancer is configured to always route a given client back to the same server, or moving to a distributed cache like Redis via AddStackExchangeRedisCache(), so every server instance reads and writes the same shared session store. This operational complexity — needing sticky routing or an external cache just to keep sessions consistent — is a major reason modern APIs, especially ones deployed as stateless microservices, favor JWT-based authentication instead, since a JWT carries its own state and needs no server-side session lookup at all.",
+  "codeExample": {
+   "language": "csharp",
+   "code": "// Writing a cookie directly\nResponse.Cookies.Append(\"Theme\", \"Dark\", new CookieOptions\n{\n    HttpOnly = true,\n    Secure = true,\n    SameSite = SameSiteMode.Strict\n});\n\n// Session (Program.cs setup)\nbuilder.Services.AddDistributedMemoryCache(); // or AddStackExchangeRedisCache for a web farm\nbuilder.Services.AddSession(o => o.IdleTimeout = TimeSpan.FromMinutes(20));\n\nvar app = builder.Build();\napp.UseSession();\n\n// In a controller/endpoint\nHttpContext.Session.SetString(\"UserName\", \"Raj\");\nvar name = HttpContext.Session.GetString(\"UserName\");",
+   "explanation": "A cookie is written directly with security flags; session state is configured with a cache provider and accessed via HttpContext.Session, which is itself backed by a cookie holding the session ID."
+  },
+  "mistakes": [
+   "Storing sensitive data (like a session ID or auth token) in a cookie without HttpOnly/Secure/SameSite flags, exposing it to XSS or transmitting it over plain HTTP.",
+   "Using the default in-memory session provider in a load-balanced, multi-server deployment and being confused when sessions randomly disappear.",
+   "Trying to store more than ~4KB in a single cookie, which browsers will reject or truncate.",
+   "Assuming session data is visible to or tamperable by the client, when it's actually stored entirely server-side.",
+   "Forgetting to call app.UseSession() before accessing HttpContext.Session, causing a runtime exception."
+  ],
+  "followUps": [
+   {
+    "question": "Why does session rely on a cookie even though session data is server-side?",
+    "answer": "The server needs some way to know which client is making a request, so it generates a session ID and stores it in a cookie on the client. Every subsequent request sends that cookie back, letting the server look up the matching server-side session data by that ID."
+   },
+   {
+    "question": "Why does in-memory session break on a web farm, and how do you fix it?",
+    "answer": "Each server instance keeps its own in-memory session store; if a load balancer routes different requests from the same client to different servers, only the server that originally created the session actually has it, so other servers see the session as empty. Fix with sticky sessions (always route the client to the same server) or a distributed cache like Redis (AddStackExchangeRedisCache) shared by every server instance."
+   },
+   {
+    "question": "Why do modern APIs often prefer JWT over server-side sessions?",
+    "answer": "JWT is self-contained and stateless — the server verifies it and reads claims with no external session store lookup needed, so it scales horizontally without sticky sessions or a distributed cache. Server-side sessions require that extra infrastructure specifically to remain consistent across multiple server instances."
+   }
+  ],
+  "memoryHack": {
+   "emoji": "🏨",
+   "oneLiner": "Cookie = keycard in your pocket; Session = the actual hotel room.",
+   "mnemonic": "4KB keycard, unlimited room — but the room ledger must be shared across hotel buildings.",
+   "memoryPalace": "Picture checking into a hotel chain: your keycard (cookie) is small and you can read its room number; the room itself (session) holds unlimited luggage, but if you're routed to a different building next time, only a shared ledger between buildings (Redis) or the same building every time (sticky sessions) keeps your room findable."
+  },
+  "bestPractices": [
+   "Always set HttpOnly, Secure, and SameSite on cookies carrying sensitive data like session or auth identifiers.",
+   "Use a distributed cache (Redis) for session state in any multi-server or cloud deployment, not the default in-memory provider.",
+   "Keep cookie payloads small and simple — use them primarily as pointers (like a session ID), not as a data store themselves.",
+   "Consider stateless JWT authentication instead of server-side sessions for APIs that need to scale horizontally without sticky routing."
+  ],
+  "performanceTips": [
+   "In-memory session is fastest for a single-server deployment but doesn't survive an app restart or scale across instances.",
+   "A distributed cache (Redis) adds network latency per session read/write compared to in-memory, but is required correctness-wise once you have more than one server instance."
+  ],
+  "quiz": [
+   {
+    "question": "Where is session data actually stored?",
+    "options": [
+     "On the client, in a cookie",
+     "On the server",
+     "In the URL query string",
+     "In local storage"
+    ],
+    "answer": 1,
+    "explanation": "Session data is stored server-side; only the session ID (used to look up that data) travels to the client, typically in a cookie."
+   },
+   {
+    "question": "Why does the default in-memory session provider fail on a load-balanced web farm?",
+    "options": [
+     "Cookies are disabled on web farms",
+     "Each server keeps its own separate in-memory session store, so other servers don't see a session created elsewhere",
+     "Session data exceeds 4KB automatically",
+     "HTTPS is required for sessions"
+    ],
+    "answer": 1,
+    "explanation": "Without a shared/distributed store, each server instance only knows about sessions created on itself, so a request landing on a different server sees the session as missing."
+   }
+  ],
+  "flashcards": [
+   {
+    "front": "Where are cookies stored?",
+    "back": "On the client."
+   },
+   {
+    "front": "Where is session data stored?",
+    "back": "On the server; the client only holds a session ID cookie."
+   },
+   {
+    "front": "Max practical cookie size?",
+    "back": "About 4 KB."
+   },
+   {
+    "front": "Fix for session breaking on a web farm?",
+    "back": "Sticky sessions or a distributed cache like Redis."
+   }
+  ],
+  "revision30": "Cookies are small (~4KB), client-stored, client-visible. Session is server-side, larger, and located via a session-ID cookie. In-memory session breaks on multi-server deployments unless you use sticky sessions or a distributed cache (Redis) — a big reason APIs favor stateless JWT instead.",
+  "revision2min": "A cookie is a small (~4KB) piece of data stored on the client and automatically sent back on matching requests; it's visible to the client, so sensitive cookies need HttpOnly, Secure, and SameSite flags. Session is server-side storage with effectively unlimited practical size, invisible to the client directly — under the hood it relies on a cookie holding a unique session ID, which the server uses via HttpContext.Session to look up the matching server-side data on each request. The major scaling caveat is that the default in-memory session provider breaks on a web farm: if a load balancer sends different requests from the same client to different server instances, only the originating server actually has that session in memory, so the session appears to vanish elsewhere. The fixes are sticky sessions (always routing a client to the same server) or moving session storage to a distributed cache like Redis via AddStackExchangeRedisCache, shared by every server instance. This extra operational complexity — needing sticky routing or an external cache just for correctness — is a major reason modern, horizontally-scaled APIs favor stateless JWT-based authentication instead, since a JWT is self-contained and needs no server-side session lookup at all.",
+  "challenge": "Your app is deployed across 4 auto-scaling server instances behind a load balancer with no sticky sessions configured. Diagnose why users report being randomly logged out mid-session, and propose two different fixes with their trade-offs.",
+  "related": [
+   "jwt-authentication-storage",
+   "viewdata-viewbag-tempdata",
+   "cors-explained"
+  ],
+  "summary": "Cookies are small, client-side, client-visible tokens, while session is larger server-side storage located via a session-ID cookie — and scaling session across multiple servers requires sticky sessions or a distributed cache, which is exactly why many modern APIs prefer stateless JWT instead."
+ },
+ {
+  "id": "aspnet-14",
+  "title": "SOAP vs REST",
+  "slug": "soap-vs-rest",
+  "category": "aspnet",
+  "difficulty": "Intermediate",
+  "estimatedTime": 8,
+  "emoji": "📡",
+  "icon": "Network",
+  "tags": [
+   "soap",
+   "rest",
+   "wcf",
+   "web-services",
+   "api-design"
+  ],
+  "keywords": [
+   "SOAP",
+   "REST",
+   "WSDL",
+   "WCF",
+   "ServiceContract",
+   "OperationContract",
+   "basicHttpBinding",
+   "CoreWCF",
+   "WS-Security"
+  ],
+  "companies": [
+   "Accenture",
+   "TCS",
+   "Infosys",
+   "Deloitte",
+   "Capgemini"
+  ],
+  "interviewQuestion": "What's the difference between SOAP and REST, and what is WCF?",
+  "story": {
+   "setup": "Imagine two ways of shipping goods internationally: SOAP is a heavily regulated freight container with a mandatory customs form in one fixed format; REST is a flexible courier service that just needs a clear address and a standard package.",
+   "scenes": [
+    "The SOAP freight container only accepts one paperwork format — XML, stamped inside a rigid envelope — and travels over several possible routes (HTTP, SMTP, TCP), while the REST courier just needs any standard package (JSON, XML, whatever) and only travels by road (HTTP).",
+    "Every SOAP shipment comes with a formal, notarized manifest (WSDL) describing exactly what's inside, down to the last detail — REST couriers can optionally attach a lighter description (OpenAPI), but it's not mandatory.",
+    "SOAP freight has built-in armed security (WS-Security) and can even guarantee a multi-leg shipment either fully arrives or fully reverses (WS-AtomicTransaction) — REST couriers just rely on the road's own lock (HTTPS) plus a badge check at the door (JWT/OAuth), with no built-in multi-leg guarantee.",
+    "A bank still insists on the fully regulated freight container for its most sensitive shipments — legacy enterprise integration, healthcare, telecom — where a formal, auditable contract matters more than speed, while a startup's public API just uses the lightweight courier.",
+    "The old freight company's dispatch system (WCF) organized every shipment with an ABC label: the Address (URI — where), Binding (protocol/security — how), and Contract (operations — what) — but WCF itself doesn't run on the modern highway (.NET Core), so companies migrate service by service, strangler-fig style, onto REST-based couriers instead of shutting the whole freight yard down overnight."
+   ],
+   "moral": "SOAP is a strict, heavily-regulated protocol with formal contracts and built-in enterprise features; REST is a lighter, flexible architectural style — and the right choice depends on whether formal contracts and WS-* guarantees matter more than simplicity and speed."
+  },
+  "analogy": "SOAP is regulated international freight with a mandatory XML customs form and armed security built in; REST is a flexible courier service needing just a clear address and a standard package.",
+  "animation": "compare",
+  "explanation": "SOAP (Simple Object Access Protocol) is a strict, formal messaging protocol using XML exclusively, transportable over HTTP, SMTP, or TCP, with a formal WSDL contract describing every operation, and built-in enterprise features like WS-Security and WS-AtomicTransaction for distributed transactions. REST (Representational State Transfer) is an architectural style, not a protocol — it works only over HTTP, supports any payload format (JSON, XML, etc.), uses an optional lightweight OpenAPI contract instead of a mandatory formal one, has no built-in transaction support, and relies on HTTPS plus JWT/OAuth for security rather than a built-in standard. SOAP still wins for banking, telecom, healthcare, and legacy enterprise integration where a formal contract and WS-* standards are mandated; REST is preferred for web/mobile APIs, microservices, and public APIs where simplicity and flexibility matter more. WCF (Windows Communication Foundation) was .NET Framework's unified service framework supporting multiple protocols and formats, organized around the 'ABC' — Address (the URI, where the service is), Binding (protocol, encoding, and security, how it communicates), and Contract (the operations, what it does), defined via [ServiceContract]/[OperationContract] and [DataContract]/[DataMember] attributes, with common bindings like basicHttpBinding (interoperable SOAP 1.1), wsHttpBinding (WS-* security), netTcpBinding (fastest, .NET-to-.NET intranet only), and netMsmqBinding (queued messaging). WCF isn't supported natively in .NET Core; modernizing typically means migrating service contracts to ASP.NET Core Web API controllers (with CoreWCF as an interim bridge if needed), replacing service references with HttpClient via IHttpClientFactory, and migrating service by service using a strangler-fig approach rather than a big-bang rewrite.",
+  "interviewAnswerShort": "SOAP is a strict, XML-only protocol with a formal WSDL contract and built-in WS-Security/transactions, still used in banking/telecom/healthcare; REST is a lighter, flexible architectural style over HTTP with any payload format, preferred for web/mobile/microservices — WCF was .NET's SOAP-era service framework, organized around Address/Binding/Contract, and modernizes onto ASP.NET Core Web API.",
+  "interviewAnswerDetailed": "SOAP is a formal, strict messaging protocol: every message is XML wrapped in a defined envelope, it can travel over multiple transports (HTTP, SMTP, TCP), and it requires a WSDL — a formal, machine-readable contract describing every operation, parameter, and return type. It also has built-in enterprise-grade features standardized under WS-*, notably WS-Security for message-level security and WS-AtomicTransaction for distributed transactions spanning multiple services. REST, by contrast, isn't a protocol at all but an architectural style: it works exclusively over HTTP, accepts any payload format (JSON is the modern default, but XML or anything else works), has only an optional lightweight contract via OpenAPI/Swagger rather than a mandatory formal one, carries no built-in transaction support, and relies on HTTPS transport security plus token-based auth like JWT or OAuth rather than a standardized security envelope. Given these trade-offs, SOAP still dominates in banking, telecom, healthcare, and legacy enterprise integration, where formal contracts, guaranteed delivery, and WS-* standards are often mandated by regulation or existing infrastructure; REST is the standard choice for web and mobile APIs, microservices, and public-facing APIs, where simplicity, flexibility, and developer ergonomics matter more than formal guarantees. On the .NET side, WCF (Windows Communication Foundation) was the .NET Framework's unified answer to building these services, capable of speaking SOAP, REST, and other protocols depending on configuration, and organized around what's called the ABC: Address (the URI — where the service lives), Binding (the protocol, encoding, and security — how messages are exchanged), and Contract (the operations exposed — what the service does), expressed in code via [ServiceContract]/[OperationContract] interfaces and [DataContract]/[DataMember] data classes. Common bindings included basicHttpBinding for interoperable SOAP 1.1, wsHttpBinding for WS-* security features, netTcpBinding for the fastest .NET-to-.NET intranet communication, and netMsmqBinding for queued, disconnected messaging. Since WCF isn't supported in .NET Core, modernizing a WCF-based system typically means migrating its service contracts to ASP.NET Core Web API controllers (using CoreWCF only as an interim compatibility bridge if a hard cutover isn't feasible), replacing WCF service references on consuming clients with HttpClient created via IHttpClientFactory, and doing this migration incrementally, service by service, in a strangler-fig pattern rather than attempting a risky big-bang rewrite of the whole system at once.",
+  "codeExample": {
+   "language": "csharp",
+   "code": "// WCF service contract (classic .NET Framework)\n[ServiceContract]\npublic interface IWarehouseService\n{\n    [OperationContract]\n    List<BinDto> GetAvailableBins(int warehouseId);\n}\n\n[DataContract]\npublic class BinDto\n{\n    [DataMember] public int BinId { get; set; }\n}\n\n// Modernized equivalent: ASP.NET Core Web API controller\n[ApiController]\n[Route(\"api/[controller]\")]\npublic class WarehouseController : ControllerBase\n{\n    [HttpGet(\"{warehouseId:int}/bins\")]\n    public async Task<IActionResult> GetAvailableBins(int warehouseId)\n        => Ok(await _svc.GetAvailableBinsAsync(warehouseId));\n}",
+   "explanation": "The WCF [ServiceContract]/[OperationContract]/[DataContract] pattern (Address/Binding/Contract's 'C') maps naturally onto a plain ASP.NET Core Web API controller with attribute routing during modernization."
+  },
+  "mistakes": [
+   "Assuming REST is strictly 'better' than SOAP in every context, ignoring regulated industries where formal WS-* contracts and guarantees are still required.",
+   "Forgetting SOAP can run over transports other than HTTP (SMTP, TCP), unlike REST which is HTTP-only.",
+   "Confusing WCF (a .NET Framework technology) with being available in .NET Core, when it actually requires migration or the CoreWCF bridge.",
+   "Not knowing the ABC of WCF (Address, Binding, Contract) when asked about it in an interview.",
+   "Treating REST's optional OpenAPI contract as equivalent in strictness to SOAP's mandatory WSDL."
+  ],
+  "followUps": [
+   {
+    "question": "What is WCF and what does its ABC stand for?",
+    "answer": "Windows Communication Foundation is .NET Framework's service framework supporting multiple protocols and formats. Its ABC: Address (where — the URI), Binding (how — protocol, encoding, security), Contract (what — the operations), typically expressed via [ServiceContract]/[OperationContract] interfaces and [DataContract]/[DataMember] data classes."
+   },
+   {
+    "question": "Name the common WCF bindings and when you'd use each.",
+    "answer": "basicHttpBinding for interoperable SOAP 1.1 (works with non-.NET clients), wsHttpBinding when WS-* security features are needed, netTcpBinding for the fastest option on .NET-to-.NET intranet communication, and netMsmqBinding for queued, disconnected messaging scenarios."
+   },
+   {
+    "question": "How would you modernize a legacy WCF system to run on .NET Core?",
+    "answer": "Migrate service contracts to ASP.NET Core Web API controllers, since WCF isn't natively supported in .NET Core (CoreWCF exists as an interim compatibility bridge). Replace WCF client service references with HttpClient via IHttpClientFactory, and migrate the front end and each service incrementally — strangler-fig style — rather than attempting a single big-bang rewrite."
+   }
+  ],
+  "memoryHack": {
+   "emoji": "📡",
+   "oneLiner": "SOAP is regulated freight with a mandatory customs form; REST is a flexible courier that just needs an address.",
+   "mnemonic": "WCF's ABC: Address, Binding, Contract.",
+   "memoryPalace": "Picture a heavily regulated freight yard (SOAP/WCF) with a mandatory notarized manifest (WSDL), armed guards (WS-Security), and multi-leg shipment guarantees (WS-AtomicTransaction), next to a lightweight courier depot (REST) that just needs a clear address and any standard package — and remember the freight yard's dispatch label always reads Address, Binding, Contract."
+  },
+  "bestPractices": [
+   "Choose REST by default for new web/mobile APIs and microservices unless a formal contract or WS-* standard is externally mandated.",
+   "Reserve SOAP for integrations with legacy enterprise systems, banking/telecom/healthcare partners, or where WS-Security/WS-AtomicTransaction is a hard requirement.",
+   "When modernizing WCF, migrate incrementally service-by-service rather than attempting a big-bang rewrite.",
+   "Use CoreWCF only as a temporary bridge during migration, not as a permanent long-term architecture on .NET Core."
+  ],
+  "performanceTips": [
+   "SOAP's XML envelope and strict schema validation add noticeable overhead per message compared to REST's typically lighter JSON payloads.",
+   "netTcpBinding in WCF is significantly faster than HTTP-based bindings for .NET-to-.NET intranet communication, but sacrifices interoperability with non-.NET clients."
+  ],
+  "quiz": [
+   {
+    "question": "Which of these is a defining trait of SOAP but not REST?",
+    "options": [
+     "Works only over HTTP",
+     "Supports JSON payloads",
+     "Requires a formal WSDL contract",
+     "Is an architectural style rather than a protocol"
+    ],
+    "answer": 2,
+    "explanation": "SOAP mandates a formal WSDL contract describing every operation; REST's OpenAPI contract is optional and REST itself is an architectural style, not a strict protocol."
+   },
+   {
+    "question": "In WCF's ABC, what does the 'B' stand for?",
+    "options": [
+     "Base URL",
+     "Binding — protocol, encoding, and security",
+     "Backend service",
+     "Broker"
+    ],
+    "answer": 1,
+    "explanation": "The 'B' in WCF's Address-Binding-Contract stands for Binding, which defines how the service communicates: protocol, encoding, and security."
+   }
+  ],
+  "flashcards": [
+   {
+    "front": "SOAP payload format?",
+    "back": "XML only."
+   },
+   {
+    "front": "REST payload format?",
+    "back": "Any — commonly JSON, but XML or others work too."
+   },
+   {
+    "front": "What does WCF's ABC stand for?",
+    "back": "Address, Binding, Contract."
+   },
+   {
+    "front": "Which still dominates in banking/healthcare/telecom?",
+    "back": "SOAP, for formal contracts and WS-* standards."
+   }
+  ],
+  "revision30": "SOAP is a strict XML-only protocol with a mandatory WSDL contract, multi-transport support, and built-in WS-Security/transactions — still used in banking/telecom/healthcare. REST is a lighter architectural style over HTTP with any payload format, preferred for web/mobile/microservices. WCF was .NET's SOAP-era framework, organized as Address/Binding/Contract.",
+  "revision2min": "SOAP is a strict messaging protocol using XML exclusively, transportable over HTTP, SMTP, or TCP, backed by a formal WSDL contract and built-in enterprise features like WS-Security and WS-AtomicTransaction for distributed transactions. REST is an architectural style rather than a protocol: HTTP-only, any payload format, an optional lightweight OpenAPI contract instead of a mandatory one, no built-in transaction support, and HTTPS plus JWT/OAuth for security. SOAP still wins for banking, telecom, healthcare, and legacy enterprise integration where formal contracts and WS-* guarantees are required; REST dominates web/mobile APIs, microservices, and public APIs. WCF (Windows Communication Foundation) was .NET Framework's unified service framework, organized around the ABC — Address (the URI), Binding (protocol/encoding/security), Contract (the operations) — defined with [ServiceContract]/[OperationContract] and [DataContract]/[DataMember], using bindings like basicHttpBinding (interoperable SOAP 1.1), wsHttpBinding (WS-* security), netTcpBinding (fastest, .NET-to-.NET intranet), and netMsmqBinding (queued). WCF isn't supported in .NET Core, so modernizing means migrating service contracts to ASP.NET Core Web API controllers (with CoreWCF as an interim bridge), replacing service references with HttpClient via IHttpClientFactory, and migrating incrementally, service by service, strangler-fig style.",
+  "challenge": "A legacy WCF service using wsHttpBinding with WS-Security needs to be exposed to a modern React frontend. Design the modernization path, including how you'd replace WS-Security's message-level security with an equivalent REST-friendly approach.",
+  "related": [
+   "rest-api-design-http-status-codes",
+   "jwt-authentication-storage",
+   "aspnet-vs-aspnet-core"
+  ],
+  "summary": "SOAP is a strict, XML-only, formally-contracted protocol still favored in regulated enterprise integration, while REST is a lighter, flexible architectural style that dominates modern web/mobile APIs — with WCF as .NET's Address/Binding/Contract-based bridge between the two eras."
+ }
+]

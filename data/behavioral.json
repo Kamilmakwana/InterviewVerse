@@ -1,0 +1,488 @@
+[
+ {
+  "id": "behavioral-01",
+  "title": "Agile/Scrum Ceremonies and Your Role",
+  "slug": "agile-scrum-ceremonies-and-role",
+  "category": "behavioral",
+  "difficulty": "Intermediate",
+  "estimatedTime": 8,
+  "emoji": "🔄",
+  "icon": "GitBranch",
+  "tags": [
+   "agile",
+   "scrum",
+   "process",
+   "teamwork",
+   "behavioral"
+  ],
+  "keywords": [
+   "scrum",
+   "agile",
+   "sprint planning",
+   "daily standup",
+   "sprint review",
+   "retrospective",
+   "backlog grooming",
+   "story points",
+   "velocity",
+   "product owner",
+   "scrum master"
+  ],
+  "companies": [
+   "Infosys",
+   "TCS",
+   "Accenture",
+   "Cognizant",
+   "Capgemini"
+  ],
+  "interviewQuestion": "Explain Agile/Scrum and your role in it.",
+  "story": {
+   "setup": "Picture a restaurant kitchen running a two-week 'tasting season' instead of cooking one giant banquet in the dark for six months.",
+   "scenes": [
+    "Monday morning, the head chef (Product Owner) and the cooks (Dev Team) sit down and agree which dishes go on this season's menu — that's Sprint Planning, committing to backlog items.",
+    "Every day at 9am the cooks huddle for 15 minutes: what I plated yesterday, what I'm plating today, what's blocking me (we're out of saffron) — that's the Daily Standup.",
+    "Midway through the season, the sous chef pulls ingredients for next season's dishes and estimates how long each will take to prep — that's Backlog Grooming.",
+    "At the end of the two weeks, the kitchen invites diners in to actually taste the finished dishes, not a description of them — that's the Sprint Review demo.",
+    "After the diners leave, the kitchen staff meet alone: what slowed us down, what do we fix next season — that's the Retrospective."
+   ],
+   "moral": "Scrum isn't paperwork — it's a fixed rhythm of small, honest checkpoints so nobody discovers a disaster on the last day."
+  },
+  "analogy": "Scrum is a restaurant running short 'tasting seasons' instead of one long banquet cooked blind for six months.",
+  "animation": "timeline",
+  "explanation": "Scrum organizes work into fixed-length iterations called sprints (commonly 2 weeks), each bookended by a small set of ceremonies: Sprint Planning (team commits to backlog items for the sprint), Daily Standup (15-minute sync on yesterday/today/blockers), Backlog Grooming/Refinement (mid-sprint, refine and estimate upcoming items), Sprint Review (demo working software to stakeholders at sprint end), and Retrospective (team reflects on what to improve). Three roles keep it running: the Product Owner owns the backlog and priority (the 'what' and 'why'), the Scrum Master facilitates and removes blockers (the 'how, smoothly'), and the Development Team builds the increment (the 'how, technically'). Key artifacts are the Product Backlog (everything that could be built), the Sprint Backlog (what's committed this sprint), and the Increment (the working, shippable result) — tracked via burndown charts, velocity, and a shared Definition of Done. As a developer, my role spans all of it: I estimate and commit in planning, report status and blockers daily, help groom and split stories mid-sprint, demo my work at review, and raise process friction honestly at retro.",
+  "interviewAnswerShort": "Scrum breaks work into fixed sprints with five ceremonies — Planning, Standup, Grooming, Review, Retro — run by a Product Owner (priority), Scrum Master (process), and Dev Team (delivery), producing a working increment every sprint.",
+  "interviewAnswerDetailed": "Scrum is an Agile framework that delivers software in short, fixed-length sprints instead of one long release. Each sprint starts with Sprint Planning, where the team commits to backlog items it believes it can finish. Every day we run a 15-minute Daily Standup covering what I did yesterday, what I'm doing today, and any blockers. Mid-sprint we do Backlog Grooming to refine and estimate upcoming stories so planning is smoother next time. The sprint ends with a Sprint Review, where we demo actual working software to stakeholders, followed by a Retrospective where the team privately discusses what to improve. Three roles make this work: the Product Owner owns the backlog and prioritization, the Scrum Master facilitates ceremonies and clears blockers, and the Development Team estimates and delivers the increment. In practice, my role is to give honest estimates, flag blockers the moment I see them rather than at sprint end, keep my stories updated on the board, and treat the retro as a real feedback loop, not a formality.",
+  "codeExample": {
+   "language": "text",
+   "code": "Q: How do you estimate work?\n\nS (Situation): Our team was starting sprint planning for a new module and had no shared sense of story size.\nT (Task): I needed a consistent way to estimate stories so our sprint commitments were realistic.\nA (Action): I used story points with Fibonacci numbers (1, 2, 3, 5, 8, 13) in planning poker, sizing complexity, effort, and uncertainty rather than raw hours. For each story I broke it into technical tasks -- API endpoint, business logic, DB changes, unit tests, code review, QA support -- and estimated as a team so outliers surfaced as discussion, not silent disagreement. Anything estimated above 8 points I pushed to split further, because that size usually means we don't understand the story yet.\nR (Result): Over 3-4 sprints our velocity stabilized, so we could tell the Product Owner what we could realistically commit to instead of guessing -- sprint commitments became predictable and we stopped overcommitting.",
+   "explanation": "A STAR-formatted answer to the common Scrum follow-up 'How do you estimate work?', tying story points and planning poker to a measurable outcome."
+  },
+  "mistakes": [
+   "Treating standup as a status report to the manager instead of a sync between teammates.",
+   "Estimating in hours instead of relative story points, which breaks down as team composition changes.",
+   "Skipping retrospectives or treating them as a blame session instead of a process improvement loop.",
+   "Letting the Scrum Master set priorities — that's the Product Owner's job, not the facilitator's.",
+   "Staying silent when a sprint item is at risk instead of raising it at the next standup."
+  ],
+  "followUps": [
+   {
+    "question": "How do you estimate work?",
+    "answer": "Story points with Fibonacci numbers (1, 2, 3, 5, 8, 13) in planning poker, sizing complexity and uncertainty rather than hours. I break a story into technical tasks and split anything above 8 points because that size usually means we don't understand it yet. Velocity over a few sprints tells us what we can realistically commit to."
+   },
+   {
+    "question": "What if you realize mid-sprint you can't finish a story?",
+    "answer": "I raise it in the very next standup, not at the end of the sprint — late information is the real failure. I explain what's blocking me and propose options: descope to the core, get help, or move it to the next sprint, and let the Product Owner decide priority."
+   },
+   {
+    "question": "What's the difference between the Product Backlog and the Sprint Backlog?",
+    "answer": "The Product Backlog is the full, ever-evolving list of everything that could be built for the product, owned and prioritized by the Product Owner. The Sprint Backlog is the small subset the team commits to and pulls into the current sprint."
+   },
+   {
+    "question": "What does 'Definition of Done' mean and why does it matter?",
+    "answer": "It's the team's shared checklist for when a story is truly complete — e.g., code reviewed, unit tests passing, deployed to staging, documentation updated. Without it, 'done' means something different to everyone and creates false confidence in the sprint review."
+   }
+  ],
+  "memoryHack": {
+   "emoji": "🍽️",
+   "oneLiner": "Scrum is five checkpoints around one two-week tasting season.",
+   "mnemonic": "PSGRR — Plan, Standup, Groom, Review, Retro (in sprint order).",
+   "memoryPalace": "Walk a restaurant floor plan: the planning table at the door (Sprint Planning), the daily huddle by the pass (Standup), the pantry mid-way where ingredients get prepped (Grooming), the dining room at the end (Review), and the empty kitchen after close where the staff debrief (Retrospective)."
+  },
+  "bestPractices": [
+   "Keep standups to 15 minutes and truly about blockers, not detailed problem-solving — take deep dives offline.",
+   "Groom the backlog continuously so Sprint Planning starts from already-refined, estimated stories.",
+   "Flag risk to the Product Owner the moment you see it, not on the last day of the sprint.",
+   "Bring only working, demoable software to Sprint Review — not slides describing what would have worked.",
+   "Turn at least one retro action item into an actual change before the next retro, or the ritual loses trust."
+  ],
+  "performanceTips": [
+   "Track velocity over 3+ sprints, not one — a single sprint's number is too noisy to plan against.",
+   "Split any story estimated above 8 points; oversized stories are usually a sign of hidden unknowns, not just more work.",
+   "Watch for scope creep sneaking into 'done' stories after the sprint review — that's a Definition of Done problem, not a testing problem."
+  ],
+  "quiz": [
+   {
+    "question": "Who owns the Product Backlog and its priority order?",
+    "options": [
+     "The Scrum Master",
+     "The Product Owner",
+     "The Development Team as a group vote",
+     "Whoever raised the ticket"
+    ],
+    "answer": 1,
+    "explanation": "The Product Owner owns the backlog and decides priority; the Scrum Master facilitates process, and the Dev Team estimates and builds."
+   },
+   {
+    "question": "You realize on day 3 of a 10-day sprint that a committed story is at serious risk. What should you do?",
+    "options": [
+     "Wait until sprint review and explain then",
+     "Quietly work overtime to fix it alone",
+     "Raise it at the next daily standup with options for the PO to decide",
+     "Remove the story from the board without telling anyone"
+    ],
+    "answer": 2,
+    "explanation": "Early, transparent flagging with concrete options (descope, get help, move to next sprint) lets the Product Owner make an informed call — late information is the real failure."
+   },
+   {
+    "question": "In planning poker, why use Fibonacci-like story points instead of estimating in hours?",
+    "options": [
+     "Fibonacci numbers are required by the Scrum Guide",
+     "They size relative complexity/uncertainty and force explicit discussion on outliers, rather than pretending false hour-precision",
+     "Hours are illegal to use in Agile",
+     "It makes stories easier to assign to individuals"
+    ],
+    "answer": 1,
+    "explanation": "Story points capture relative effort, complexity, and uncertainty; the coarse Fibonacci scale discourages false precision and surfaces disagreement for discussion."
+   }
+  ],
+  "flashcards": [
+   {
+    "front": "Five core Scrum ceremonies",
+    "back": "Sprint Planning, Daily Standup, Backlog Grooming, Sprint Review, Retrospective"
+   },
+   {
+    "front": "Three Scrum roles",
+    "back": "Product Owner (backlog/priority), Scrum Master (facilitation/unblocking), Development Team (builds the increment)"
+   },
+   {
+    "front": "Three Scrum artifacts",
+    "back": "Product Backlog, Sprint Backlog, Increment"
+   },
+   {
+    "front": "What to do when a story is at risk mid-sprint",
+    "back": "Flag it at the next standup immediately with options, not on the last day"
+   },
+   {
+    "front": "Story point scale used in planning poker",
+    "back": "Fibonacci-like sequence: 1, 2, 3, 5, 8, 13 — sizes complexity/uncertainty, not hours"
+   }
+  ],
+  "revision30": "Scrum runs work in fixed sprints with five ceremonies: Planning, Standup, Grooming, Review, Retro. Product Owner owns priority, Scrum Master owns process, Dev Team delivers the increment. Estimate with Fibonacci story points; flag risk early, never late.",
+  "revision2min": "Scrum organizes delivery into short, fixed sprints instead of one long release. Sprint Planning commits the team to backlog items; Daily Standup is a 15-minute sync on yesterday/today/blockers; Backlog Grooming mid-sprint refines and estimates upcoming work; Sprint Review demos actual working software to stakeholders; Retrospective is the team's private improvement loop. Three roles keep it honest: Product Owner owns the backlog and priority, Scrum Master facilitates and removes blockers, Development Team estimates and builds. Artifacts are the Product Backlog, Sprint Backlog, and Increment, tracked via burndown and velocity against a shared Definition of Done. Estimation typically uses story points on a Fibonacci scale via planning poker, sizing complexity and uncertainty rather than hours, and splitting anything above 8 points because that size usually hides unknowns. The single biggest behavioral signal interviewers look for: do you flag a struggling story at the next standup, or do you sit on it until the sprint review? Early flagging is always the right answer.",
+  "challenge": "A teammate says standups are a waste of time because 'we just repeat what's on the board.' How would you fix the standup itself, and what would you say to the Scrum Master to change the format without skipping the ceremony?",
+  "related": [
+   "star-method-behavioral-answers",
+   "questions-to-ask-the-interviewer"
+  ],
+  "summary": "Scrum is a fixed rhythm of five ceremonies and three roles that turns big, risky releases into small, demoable, honestly-tracked increments."
+ },
+ {
+  "id": "behavioral-02",
+  "title": "Answering Behavioral Questions with STAR",
+  "slug": "star-method-behavioral-answers",
+  "category": "behavioral",
+  "difficulty": "Intermediate",
+  "estimatedTime": 9,
+  "emoji": "⭐",
+  "icon": "MessageSquare",
+  "tags": [
+   "behavioral",
+   "star-method",
+   "interview-skills",
+   "communication",
+   "soft-skills"
+  ],
+  "keywords": [
+   "star method",
+   "situation task action result",
+   "behavioral interview",
+   "why are you leaving",
+   "toughest bug",
+   "conflict with teammate",
+   "tight deadline",
+   "weakness question",
+   "five year plan"
+  ],
+  "companies": [
+   "Microsoft",
+   "Amazon",
+   "Accenture",
+   "Deloitte",
+   "Wipro"
+  ],
+  "interviewQuestion": "Tell me about a time you faced a tough situation at work. (Behavioral — use STAR)",
+  "story": {
+   "setup": "Imagine a courtroom where every answer you give is judged not on how confident you sound, but on whether you can produce hard evidence.",
+   "scenes": [
+    "The judge (interviewer) doesn't want a general opinion of your character — they want a specific case file: Situation, the exact circumstances.",
+    "Next they want to know your assignment in that case: Task, what you were actually responsible for.",
+    "Then the evidence of what you personally did: Action — not what 'the team' did, but your specific decisions and steps.",
+    "Finally, the verdict: Result — a measurable outcome, ideally a number, like a bug fix that dropped response time from 4 seconds to 300 milliseconds.",
+    "A witness who rambles about feelings loses credibility; a witness who gives Situation → Task → Action → Result, ending in a verifiable outcome, wins the case every time."
+   ],
+   "moral": "Behavioral interviews reward evidence, not adjectives — every story needs a Result you can measure."
+  },
+  "analogy": "STAR is a courtroom testimony structure: set the scene, state your assignment, show your specific actions, and close with a verifiable verdict.",
+  "animation": "flow",
+  "explanation": "STAR stands for Situation, Task, Action, Result — a structure for answering behavioral questions so they land as concrete evidence instead of vague self-description. Situation gives just enough context to understand the stakes; Task states what you specifically were responsible for; Action is the bulk of the answer — the specific decisions and steps you took (use 'I', not just 'we'); Result closes with a measurable, ideally quantified outcome. Common prompts map to specific angles: 'Why are you leaving?' should focus on growth and larger-scale systems, never criticizing a past employer; 'toughest bug' should end in a measurable fix (e.g., 4s to 300ms); 'conflict with a teammate' should show disagree → discuss trade-offs with data → align → move on; 'tight deadline' should show prioritizing with the Product Owner and flagging risk early while still delivering the core; 'weakness' should be a real one plus a concrete corrective action (e.g., 'I used to over-engineer; I now apply YAGNI'); 'where in 5 years' should show technical depth trending toward lead/architect with a mention of mentoring. The unifying rule across every one of these: every answer ends with a Result.",
+  "interviewAnswerShort": "I structure behavioral answers as Situation, Task, Action, Result — brief context, my specific responsibility, the concrete steps I took, and a measurable outcome at the end.",
+  "interviewAnswerDetailed": "For behavioral questions I use the STAR method: Situation sets brief context, Task states what I was specifically responsible for, Action covers the concrete steps I personally took, and Result closes with a measurable outcome. I keep Action as the longest part since that's what the interviewer is really evaluating, and I always speak in 'I' rather than only 'we' so my individual contribution is clear. For sensitive questions like 'why are you leaving,' I frame it around growth and wanting larger-scale systems rather than criticizing my current employer. For conflict questions, I show that I disagreed, discussed trade-offs with data, reached alignment, and moved on professionally. For the weakness question, I give something real along with the concrete action I've taken to address it, rather than a disguised strength. Across every one of these, I make sure the answer actually ends with a Result — a number, an outcome, or a changed process — because that's what separates a story from a resume line.",
+  "codeExample": {
+   "language": "text",
+   "code": "Q: Tell me about the toughest bug you fixed.\n\nS (Situation): A production API endpoint used by our checkout page started timing out under peak load, and customer complaints started coming in during a sale event.\nT (Task): As the developer on call, I needed to diagnose the root cause and restore acceptable response times without a full redeploy, since the sale was still live.\nA (Action): I pulled the APM traces and found the endpoint was doing a lazy-loaded EF Core query that triggered N+1 lookups per item in the cart. I reproduced it locally with a large cart, confirmed the query count exploded from 1 to over 200, then rewrote the query to eager-load with .Include() and project only the needed columns instead of full entities. I also added an index on the foreign key that was missing, and added a lightweight response-time alert so we'd catch regressions like this earlier next time.\nR (Result): Average response time on that endpoint dropped from about 4 seconds to roughly 300 milliseconds, checkout errors during the sale dropped to zero, and the alert we added caught a similar issue in a different service two months later before it reached customers.",
+   "explanation": "A full STAR example for the classic 'toughest bug' question, ending in a measurable, quantified result as the schema recommends."
+  },
+  "mistakes": [
+   "Answering with a general opinion ('I'm good under pressure') instead of a specific, concrete story.",
+   "Spending most of the answer on Situation/Task and rushing or skipping the Action, which is what's actually being evaluated.",
+   "Ending without a Result — a story with no measurable outcome sounds unfinished and unconvincing.",
+   "Criticizing a past employer or teammate by name when answering 'why are you leaving' or 'conflict' questions.",
+   "Giving a fake weakness disguised as a strength (e.g., 'I work too hard') instead of a real one with a genuine corrective action."
+  ],
+  "followUps": [
+   {
+    "question": "Why are you leaving your current role?",
+    "answer": "I frame it around growth and wanting to work on larger-scale systems, and I never criticize my current employer — even if the real reasons are more complicated, the interview isn't the place to air them."
+   },
+   {
+    "question": "How do you handle conflict with a teammate?",
+    "answer": "I disagree openly, discuss the trade-offs with data rather than opinion, reach alignment, and then move on without letting it linger — I keep the disagreement about the technical decision, not the person."
+   },
+   {
+    "question": "What's a real weakness of yours?",
+    "answer": "I give something genuine along with the concrete step I've taken to address it — for example, 'I used to over-engineer solutions; I now consciously apply YAGNI and ask whether the simplest version solves the actual problem first.'"
+   },
+   {
+    "question": "Where do you see yourself in 5 years?",
+    "answer": "I talk about growing technical depth toward a lead or architect track, and I mention mentoring — showing I want to multiply my impact through others, not just accumulate seniority."
+   }
+  ],
+  "memoryHack": {
+   "emoji": "⚖️",
+   "oneLiner": "Every behavioral answer is courtroom testimony: set the scene, state the charge, show the evidence, deliver the verdict.",
+   "mnemonic": "STAR: Situation, Task, Action, Result — and Result is never optional.",
+   "memoryPalace": "Picture a courtroom: the judge's bench is the Situation (context), the case file on the table is the Task (your assignment), the witness stand where you testify in detail is the Action, and the jury's verdict slip pinned to the door on the way out is the Result."
+  },
+  "bestPractices": [
+   "Prepare 5-6 STAR stories in advance that can flex across multiple common prompts (bug fix, conflict, deadline, leadership).",
+   "Always end with a Result — quantify it with a number, percentage, or time saved whenever possible.",
+   "Use 'I' for your specific actions even when describing team efforts, so your individual contribution is visible.",
+   "Keep Situation and Task brief (a sentence or two each) and let Action be the bulk of the answer.",
+   "Rehearse out loud, not just mentally — STAR answers that sound natural spoken are usually too long when only read silently."
+  ],
+  "performanceTips": [
+   "A 60-90 second spoken answer is usually the right length — much longer and you lose the interviewer's attention.",
+   "If you can't quantify the Result, use a qualitative but specific outcome ('the team adopted the new pattern going forward') rather than nothing at all.",
+   "Watch for interviewers redirecting mid-story to probe the Action in more depth — that's a sign they're evaluating your technical decision-making, not just your storytelling."
+  ],
+  "quiz": [
+   {
+    "question": "In the STAR method, which part should typically be the longest and most detailed?",
+    "options": [
+     "Situation",
+     "Task",
+     "Action",
+     "Result"
+    ],
+    "answer": 2,
+    "explanation": "Action is what's actually being evaluated — the specific steps and decisions you personally made — so it should carry the bulk of the answer."
+   },
+   {
+    "question": "When answering 'why are you leaving your job,' what's the safest framing?",
+    "options": [
+     "Detail everything wrong with the current employer",
+     "Focus on growth and wanting larger-scale systems, without criticizing the employer",
+     "Say you're only leaving for more money",
+     "Avoid answering directly"
+    ],
+    "answer": 1,
+    "explanation": "Framing around growth keeps the answer positive and forward-looking, and criticizing a past employer is a common red flag for interviewers."
+   },
+   {
+    "question": "What makes a STAR answer feel incomplete to an interviewer?",
+    "options": [
+     "Using the word 'I' too often",
+     "Skipping or omitting a measurable Result at the end",
+     "Describing the Situation in one sentence",
+     "Mentioning a teammate by role, not name"
+    ],
+    "answer": 1,
+    "explanation": "A story without a Result reads as unfinished — interviewers are specifically listening for a measurable or concrete outcome to know the story actually resolved."
+   }
+  ],
+  "flashcards": [
+   {
+    "front": "STAR stands for",
+    "back": "Situation, Task, Action, Result"
+   },
+   {
+    "front": "Which STAR component should be longest?",
+    "back": "Action — the specific steps and decisions you personally took"
+   },
+   {
+    "front": "How to answer 'why are you leaving'",
+    "back": "Focus on growth and larger-scale systems; never criticize your employer"
+   },
+   {
+    "front": "How to answer a conflict-with-teammate question",
+    "back": "Disagreed, discussed trade-offs with data, aligned, moved on"
+   },
+   {
+    "front": "Rule that applies to every behavioral answer",
+    "back": "Every answer ends with a Result"
+   }
+  ],
+  "revision30": "Structure behavioral answers as Situation, Task, Action, Result, with Action as the longest part and a measurable Result at the end. Never criticize past employers; give a real weakness plus a fix; every answer must end with a Result.",
+  "revision2min": "STAR — Situation, Task, Action, Result — is the standard structure for behavioral interview answers. Situation and Task are brief context and responsibility; Action is the substantial middle where you describe your specific decisions using 'I'; Result closes with a measurable, ideally quantified outcome. Common prompts map to specific safe framings: 'why leaving' focuses on growth and larger-scale systems without criticizing the current employer; 'toughest bug' ends in a measurable fix like 4 seconds down to 300 milliseconds; 'conflict with a teammate' shows disagreeing, discussing trade-offs with data, aligning, and moving on professionally; 'tight deadline' shows prioritizing with the Product Owner, flagging risk early, and delivering the core scope; 'weakness' is a real limitation paired with a concrete corrective action, like moving from over-engineering to applying YAGNI; and 'where in 5 years' shows technical depth trending toward lead or architect with a mention of mentoring others. The single rule that ties all of these together is that every STAR answer must end with a Result — without it, the story reads as unresolved.",
+  "challenge": "Take a real situation from your own experience where a deadline was at risk. Write a full STAR answer for it, then cut it down to under 90 seconds of natural spoken language while keeping the Result intact.",
+  "related": [
+   "agile-scrum-ceremonies-and-role",
+   "questions-to-ask-the-interviewer"
+  ],
+  "summary": "STAR turns a vague behavioral answer into evidence: brief context, your specific responsibility, your concrete actions, and a measurable result every single time."
+ },
+ {
+  "id": "behavioral-03",
+  "title": "Smart Questions to Ask the Interviewer",
+  "slug": "questions-to-ask-the-interviewer",
+  "category": "behavioral",
+  "difficulty": "Beginner",
+  "estimatedTime": 6,
+  "emoji": "🎯",
+  "icon": "HelpCircle",
+  "tags": [
+   "behavioral",
+   "interview-skills",
+   "communication",
+   "career"
+  ],
+  "keywords": [
+   "questions to ask interviewer",
+   "tech stack question",
+   "team structure",
+   "release cycle",
+   "legacy vs greenfield",
+   "reverse interview",
+   "first three months"
+  ],
+  "companies": [
+   "Microsoft",
+   "Amazon",
+   "Google",
+   "Accenture",
+   "Cognizant"
+  ],
+  "interviewQuestion": "Do you have any questions for us?",
+  "story": {
+   "setup": "Think of the end of the interview as a house tour before you sign a lease — the landlord has shown you the living room; now it's your turn to check the plumbing.",
+   "scenes": [
+    "You ask about the pipes behind the walls: 'What does the stack look like — legacy .NET Framework, .NET Core, or a mix?' You're checking what you'd actually be plumbing into, not just the paint job.",
+    "You ask if the house is finished or a fixer-upper: 'Is the team maintaining an existing product or building something new?' — this tells you if you'll be firefighting or founding.",
+    "You ask who else lives on the street: 'How is the team structured, and what would my first three months look like?' — this is you checking the neighborhood before moving in.",
+    "You ask how often the landlord repaints: 'What does the release cycle look like — how often do you ship?' — this tells you the pace you're signing up for.",
+    "Asking none of this and just nodding along is how people end up in a house with a leaking roof they only discover after the lease is signed."
+   ],
+   "moral": "The questions you ask at the end are a house inspection, not small talk — skipping them means signing up blind."
+  },
+  "analogy": "Asking the interviewer questions is a house inspection before signing the lease — check the plumbing, the neighborhood, and the maintenance schedule before you commit.",
+  "animation": "generic",
+  "explanation": "The 'do you have questions for us' moment is a genuine two-way evaluation, not a formality — asking nothing signals disinterest, and asking generic questions ('what's the culture like?') signals you didn't prepare. Strong questions target real signal about the day-to-day: the technology stack ('What does the stack look like — .NET Framework legacy, .NET Core, or a mix?') tells you what you'd actually be working with and how much legacy debt exists; the nature of the work ('Is the team maintaining an existing product or building something new?') tells you whether you'd mostly be firefighting or building greenfield features; team structure and onboarding ('How is the team structured, and what would my first three months look like?') reveals whether there's a real ramp-up plan or you'd be thrown in unsupported; and release cadence ('What does the release cycle look like — how often do you ship?') tells you the operational pace, from continuous deployment to quarterly releases. Each of these questions also subtly signals to the interviewer that you think about maintainability, team dynamics, and delivery rhythm — the same things a senior engineer cares about.",
+  "interviewAnswerShort": "I ask about the actual tech stack, whether the work is legacy maintenance or greenfield, team structure and onboarding for my first three months, and the release cadence — because those answers tell me what day-to-day work would really look like.",
+  "interviewAnswerDetailed": "At the end of an interview I always ask a few targeted questions rather than generic ones. First, I ask what the stack actually looks like — .NET Framework legacy, .NET Core, or a mix — because that tells me about technical debt and modernization work I'd be doing. Second, I ask whether the team is maintaining an existing product or building something new, since that changes whether my day-to-day would be mostly firefighting and refactoring versus greenfield feature work. Third, I ask about team structure and what my first three months would look like, because a thoughtful answer usually means there's a real onboarding plan, and a vague answer is itself useful information. Finally, I ask about the release cycle — how often they actually ship — since that tells me the operational rhythm and how much CI/CD maturity exists. I avoid asking things I could easily find on the company website, and I avoid asking about compensation or benefits at this stage unless the interviewer brings it up first.",
+  "codeExample": {
+   "language": "text",
+   "code": "S (Situation): Interviewer asks, 'Do you have any questions for us?' at the end of a technical interview.\nT (Task): Use this moment to genuinely evaluate the role while also signaling I think like a senior engineer.\nA (Action): I ask four targeted questions in order of what most affects day-to-day work:\n  1. \"What does the stack look like -- .NET Framework legacy, .NET Core, or a mix?\"\n  2. \"Is the team maintaining an existing product or building something new?\"\n  3. \"How is the team structured, and what would my first three months look like?\"\n  4. \"What does the release cycle look like -- how often do you ship?\"\nI listen closely to specificity in the answers -- a vague answer to question 3 tells me as much as a detailed one.\nR (Result): I walk away with a real picture of the day-to-day (legacy modernization work, small cross-functional team, bi-weekly releases), which lets me make an informed decision if an offer comes -- and interviewers have told me directly these were 'good questions' that showed I'd thought about the role seriously.",
+   "explanation": "A STAR-style framing of the closing 'any questions for us' moment, showing both the questions and why asking them is itself a signal to the interviewer."
+  },
+  "mistakes": [
+   "Saying 'No, I think you've covered everything' — this reads as lack of genuine interest.",
+   "Asking questions easily answered by the company website or job posting, which signals you didn't prepare.",
+   "Asking about salary, PTO, or benefits before an offer is on the table, unless the interviewer raises it first.",
+   "Asking only surface-level culture questions ('is it a fun place to work?') instead of questions with real signal.",
+   "Treating this moment as over once the technical interview ends, instead of as an active part of your own evaluation."
+  ],
+  "followUps": [
+   {
+    "question": "Why ask about the tech stack specifically ('.NET Framework legacy, .NET Core, or a mix')?",
+    "answer": "It tells you how much of the codebase is modern versus legacy, which directly predicts whether your day-to-day will include modernization/migration work and how much technical debt you'd be inheriting."
+   },
+   {
+    "question": "Why does asking about your first three months matter?",
+    "answer": "A specific, thoughtful answer usually means there's a real onboarding process and mentorship in place; a vague or improvised-sounding answer is itself a signal that support may be thin."
+   },
+   {
+    "question": "Should you ask different questions for a startup vs. an enterprise interview?",
+    "answer": "The core four questions still apply, but at a startup I'd add questions about runway/stability and decision-making speed, while at an enterprise I'd add questions about cross-team dependencies and how architectural decisions get approved."
+   }
+  ],
+  "memoryHack": {
+   "emoji": "🏠",
+   "oneLiner": "Treat the closing question as a house inspection, not small talk.",
+   "mnemonic": "STOR — Stack, Type of work (new vs legacy), Onboarding/team, Release cycle.",
+   "memoryPalace": "Walk through the house you're about to lease: check behind the walls for the pipes (Stack), check whether it's move-in ready or a fixer-upper (New vs legacy), meet the neighbors and ask about the welcome committee (Onboarding/team), and ask the landlord how often they repaint (Release cycle)."
+  },
+  "bestPractices": [
+   "Prepare 4-6 questions in advance so you have options if some get answered naturally during the interview.",
+   "Prioritize questions that reveal day-to-day reality (stack, cadence, team structure) over generic culture questions.",
+   "Take the interviewer's answers seriously as data — a vague answer about onboarding is itself useful information.",
+   "Save compensation and benefits questions for a recruiter conversation or after an offer, not the technical interview.",
+   "Tailor at least one question to something specific the interviewer mentioned earlier in the conversation."
+  ],
+  "performanceTips": [
+   "Two or three well-chosen questions asked with real curiosity beat six rushed-through generic ones.",
+   "If time is short, prioritize the release-cycle and team-structure questions — they carry the most day-to-day signal.",
+   "Note down the interviewer's answers after the call; they're valuable evidence for comparing multiple offers later."
+  ],
+  "quiz": [
+   {
+    "question": "Which of these is the strongest closing question to ask an interviewer?",
+    "options": [
+     "\"Is this a fun place to work?\"",
+     "\"What does the release cycle look like -- how often do you ship?\"",
+     "\"What's your PTO policy?\"",
+     "\"Do you think I did well in this interview?\""
+    ],
+    "answer": 1,
+    "explanation": "Asking about release cadence reveals real operational information (CI/CD maturity, deployment pace) rather than inviting a vague or premature response."
+   },
+   {
+    "question": "Why is asking about legacy vs. new work useful?",
+    "options": [
+     "It has no real signal, it's just polite small talk",
+     "It reveals whether day-to-day work is mostly maintenance/firefighting or greenfield building",
+     "It's the only question interviewers expect",
+     "It replaces the need to ask about the tech stack"
+    ],
+    "answer": 1,
+    "explanation": "Whether a team maintains an existing product or builds new features materially changes the nature of daily work, so it's one of the highest-signal questions to ask."
+   },
+   {
+    "question": "What's the best time to ask about salary and benefits?",
+    "options": [
+     "First question in the very first interview",
+     "Only after an offer is made, or when the interviewer/recruiter raises it first",
+     "Never ask at all",
+     "Only in the technical round"
+    ],
+    "answer": 1,
+    "explanation": "Compensation questions are best deferred to a recruiter conversation or after an offer, unless the interviewer initiates that topic earlier."
+   }
+  ],
+  "flashcards": [
+   {
+    "front": "Four high-signal closing questions",
+    "back": "Tech stack (legacy vs Core/mix), new vs existing product, team structure/first 3 months, release cycle"
+   },
+   {
+    "front": "Why avoid 'No, you've covered everything'",
+    "back": "It signals lack of genuine interest in the role"
+   },
+   {
+    "front": "When to ask about salary/benefits",
+    "back": "After an offer, or when the interviewer/recruiter raises it first"
+   },
+   {
+    "front": "What a vague answer about onboarding tells you",
+    "back": "There likely isn't a real ramp-up/mentorship plan in place"
+   }
+  ],
+  "revision30": "Ask about the tech stack, whether work is legacy or greenfield, team structure and your first three months, and the release cycle. These reveal real day-to-day signal and show you think like a senior engineer. Save compensation questions for after an offer.",
+  "revision2min": "The closing 'any questions for us' moment is a genuine two-way evaluation, not a courtesy. Four questions carry the most signal: what the stack actually looks like (.NET Framework legacy, .NET Core, or a mix) reveals technical debt; whether the team maintains an existing product or builds something new reveals whether you'd mostly firefight or build; how the team is structured and what your first three months would look like reveals whether there's a real onboarding plan; and how often they actually ship reveals operational maturity and pace. Avoid asking things answerable from the company website, avoid generic culture-only questions, and avoid compensation/benefits questions until an offer is on the table or the interviewer raises it first. Listen as closely to the specificity of the answers as to their content — a vague answer about your first three months is itself useful data about how supported you'd actually be.",
+  "challenge": "Draft two additional questions beyond the standard four that you'd ask specifically for a senior/lead-level .NET role, and explain what signal each one is designed to surface.",
+  "related": [
+   "star-method-behavioral-answers",
+   "agile-scrum-ceremonies-and-role"
+  ],
+  "summary": "The best closing interview questions target real day-to-day signal — tech stack, type of work, onboarding, and release cadence — turning the moment into a genuine evaluation, not small talk."
+ }
+]

@@ -1,0 +1,1180 @@
+[
+ {
+  "id": "coding-01",
+  "title": "Two Sum",
+  "slug": "two-sum",
+  "category": "coding",
+  "difficulty": "Beginner",
+  "estimatedTime": 6,
+  "emoji": "🎯",
+  "icon": "Braces",
+  "tags": ["arrays", "hashmap", "coding", "leetcode", "interview"],
+  "keywords": ["two sum", "dictionary", "hashmap", "complement", "O(n)", "brute force"],
+  "companies": ["Microsoft", "Amazon", "Google", "Infosys", "TCS"],
+  "interviewQuestion": "Given an array of integers and a target, return the indices of the two numbers that add up to the target.",
+  "story": {
+   "setup": "You're a cashier and a customer hands you a target bill amount. You need to find two coins from a pile that add up exactly to it, without checking every possible pair.",
+   "scenes": [
+    "The naive cashier checks every coin against every other coin — two nested loops, O(n²), slow when the pile is huge.",
+    "A smarter cashier keeps a notebook: as each coin comes in, she writes down its value and where she put it.",
+    "Before writing a new coin down, she first asks the notebook: 'do I already have a coin worth (target - this coin)?' — a Dictionary lookup, O(1).",
+    "The moment the notebook says yes, she has her pair and stops immediately — one pass, no need to look twice."
+   ],
+   "moral": "Trade a second loop for a hashmap lookup — remembering what you've seen is cheaper than re-scanning for it."
+  },
+  "analogy": "Two Sum is like a cashier who remembers every coin she's seen so far instead of re-checking the whole pile each time.",
+  "animation": "array",
+  "explanation": "Brute force checks every pair with nested loops, giving O(n²) time and O(1) space. The optimal approach uses a Dictionary<int,int> mapping value to index: for each element, compute the complement (target - current), and check if it's already in the dictionary before inserting the current element. If found, you've located both indices in a single pass.\nThis achieves O(n) time and O(n) space by trading memory for speed. The key insight is inserting AFTER checking, so you never match an element with itself, and the check-then-insert order naturally returns the earlier index first.",
+  "interviewAnswerShort": "Use a Dictionary to store value-to-index as you iterate once; for each number check if target minus that number was already seen — O(n) time, O(n) space instead of brute force O(n²).",
+  "interviewAnswerDetailed": "The brute-force solution compares every pair of numbers with two nested loops, which is O(n²) time and O(1) space — fine for small arrays but slow at scale. The optimized solution uses a single pass with a Dictionary<int,int> that maps each seen value to its index. For every number, I compute what I 'need' (target minus the current number) and check if that need already exists in the dictionary. If it does, I immediately return the stored index and the current index. If not, I add the current number and its index to the dictionary and move on. This turns the problem into O(n) time at the cost of O(n) extra space, which is almost always the right tradeoff since memory is cheaper than repeated computation. I'd also mention edge cases: no valid pair (return empty array), duplicate values (the dictionary correctly keeps the most recent index which still works since we check before inserting), and negative numbers (work fine since subtraction handles them naturally).",
+  "codeExample": {
+   "language": "csharp",
+   "code": "public static int[] TwoSum(int[] nums, int target)\n{\n    var seen = new Dictionary<int, int>(); // value -> index\n    for (int i = 0; i < nums.Length; i++)\n    {\n        int need = target - nums[i];\n        if (seen.ContainsKey(need))\n            return new[] { seen[need], i };\n        seen[nums[i]] = i;\n    }\n    return new int[0];\n}\n\n// TwoSum(new[] {3, 2, 4}, 6) -> [1, 2]  (2 + 4 = 6)",
+   "explanation": "A single forward pass with a Dictionary lookup turns Two Sum into O(n) time by checking for the needed complement before inserting the current value."
+  },
+  "mistakes": [
+   "Inserting the current number into the dictionary before checking for its complement, which can wrongly match a number with itself",
+   "Using nested loops (O(n²)) when a hashmap solves it in O(n)",
+   "Forgetting that the problem usually guarantees exactly one solution, so returning early is safe",
+   "Not handling duplicate values correctly (e.g., nums = [3,3], target = 6)"
+  ],
+  "followUps": [
+   {"question": "What if the array is sorted?", "answer": "Use two pointers from both ends: move left pointer up if sum is too small, right pointer down if too large — O(n) time, O(1) space, no extra memory needed."},
+   {"question": "What if you need ALL pairs, not just one?", "answer": "Iterate and store counts of each value; for each unique value check if its complement exists, being careful to avoid double-counting and to handle the case where a number pairs with itself."},
+   {"question": "Why not sort the array first?", "answer": "Sorting is O(n log n) and you'd lose the original indices unless you track them separately, so it's usually slower and more complex than the hashmap approach unless the array is already sorted."}
+  ],
+  "memoryHack": {
+   "emoji": "🧾",
+   "oneLiner": "Check before you insert — the receipt trick.",
+   "mnemonic": "\"Need it? Check the notebook. Not there? Write it down.\"",
+   "memoryPalace": "Picture a cashier's notebook: each new coin first asks 'is my missing half already written here?' before adding itself to the page."
+  },
+  "bestPractices": [
+   "Always check the dictionary for the complement before adding the current element",
+   "Use Dictionary<int,int> for O(1) average lookup instead of List.Contains which is O(n)",
+   "State the brute-force complexity first in interviews, then optimize — shows structured thinking",
+   "Handle the no-solution case explicitly (return empty array or throw, per requirements)"
+  ],
+  "performanceTips": [
+   "O(n) time, O(n) space beats brute-force O(n²) time, O(1) space for large inputs",
+   "If the array is already sorted, two pointers gives O(n) time with O(1) space — better than the hashmap when sorting is free",
+   "Dictionary lookups are O(1) average but O(n) worst case with hash collisions — rarely an issue in practice"
+  ],
+  "quiz": [
+   {"question": "What is the time complexity of the hashmap-based Two Sum solution?", "options": ["O(1)", "O(n)", "O(n log n)", "O(n²)"], "answer": 1, "explanation": "A single pass with O(1) average dictionary lookups gives O(n) overall time."},
+   {"question": "Why check the dictionary BEFORE inserting the current number?", "options": ["It's faster", "To avoid matching a number with itself", "To save memory", "It doesn't matter"], "answer": 1, "explanation": "Checking first ensures you never pair an element with itself when target equals 2 * nums[i]."},
+   {"question": "What is the space complexity of the optimized solution?", "options": ["O(1)", "O(log n)", "O(n)", "O(n²)"], "answer": 2, "explanation": "The dictionary can store up to n entries in the worst case, giving O(n) space."}
+  ],
+  "flashcards": [
+   {"front": "Two Sum optimal approach?", "back": "Dictionary<int,int> mapping value to index; check for complement before inserting."},
+   {"front": "Two Sum time/space complexity?", "back": "O(n) time, O(n) space (vs O(n²)/O(1) brute force)."},
+   {"front": "Two Sum on a sorted array?", "back": "Two pointers from both ends, O(n) time, O(1) space."},
+   {"front": "Two Sum: check or insert first?", "back": "Always check for the complement first, then insert."}
+  ],
+  "revision30": "Two Sum: use a Dictionary<int,int> of value-to-index, checking for target-minus-current before inserting each number. One pass, O(n) time, O(n) space — beats the O(n²) brute force.",
+  "revision2min": "Two Sum asks for the indices of two numbers that sum to a target. The brute force nests two loops to check every pair, costing O(n²) time but no extra space. The optimal solution trades space for speed: walk the array once, and for each number compute its 'need' (target minus current value). Check a Dictionary<int,int> for that need — if found, return the stored index and current index immediately. If not found, insert the current value and index into the dictionary and continue. Checking before inserting avoids accidentally pairing a number with itself. This runs in O(n) time and O(n) space. If the array is already sorted, a two-pointer approach from both ends achieves O(n) time with only O(1) space, since you don't need to track original positions separately. In interviews, always state the brute force first, then justify the optimization with the complexity tradeoff.",
+  "challenge": "Modify Two Sum to return ALL unique pairs (not just indices) that sum to the target, without duplicate pairs in the output, in O(n) time.",
+  "related": ["contains-duplicate-find-duplicates", "dictionary-hashset-classics", "valid-anagram-group-anagrams"],
+  "summary": "Two Sum is the canonical lesson in trading memory for speed: a Dictionary lookup turns an O(n²) brute force into O(n)."
+ },
+ {
+  "id": "coding-02",
+  "title": "Contains Duplicate / Find Duplicates in an Array",
+  "slug": "contains-duplicate-find-duplicates",
+  "category": "coding",
+  "difficulty": "Beginner",
+  "estimatedTime": 5,
+  "emoji": "🔁",
+  "icon": "Braces",
+  "tags": ["arrays", "hashset", "coding", "leetcode", "interview"],
+  "keywords": ["contains duplicate", "hashset", "find duplicates", "GroupBy", "LINQ", "set"],
+  "companies": ["Amazon", "Microsoft", "TCS", "Accenture", "Wipro"],
+  "interviewQuestion": "Given an array, determine if it contains any duplicate values, and separately, return the list of values that appear more than once.",
+  "story": {
+   "setup": "You're a bouncer at a VIP event with a guest list. Every guest who walks in gets checked against the list you've already recorded.",
+   "scenes": [
+    "Each guest hands you their name; you try to ADD it to your VIP set.",
+    "HashSet.Add() itself tells you whether it succeeded — if it returns false, that name was already there.",
+    "The moment Add() fails, you've caught your duplicate on the spot, no need to scan the whole guest list again.",
+    "For 'who are ALL the repeat guests', you keep two sets: one for everyone seen, one for confirmed repeats."
+   ],
+   "moral": "HashSet.Add returning a bool is a free duplicate detector — no need for a separate Contains check first."
+  },
+  "analogy": "Checking for duplicates is like a bouncer whose guest-list app tells him instantly if a name is already checked in.",
+  "animation": "array",
+  "explanation": "HashSet<T>.Add(item) returns false if the item already exists in the set, making it a natural one-line duplicate check without a separate Contains lookup. For a simple boolean answer, iterate once and return true the moment Add fails.\nTo collect ALL duplicated values, use two sets: one tracking everything seen, and one collecting items that fail to be added to the first (i.e., are duplicates). This is O(n) time and O(n) space. LINQ offers a more declarative one-liner: arr.GroupBy(x => x).Where(g => g.Count() > 1).Select(g => g.Key), though it's less efficient since GroupBy materializes all groups before filtering.",
+  "interviewAnswerShort": "Use a HashSet and rely on Add() returning false when an item already exists — that single call both checks and inserts, giving O(n) time and O(n) space.",
+  "interviewAnswerDetailed": "For a simple contains-duplicate check, I iterate through the array once and call HashSet.Add(n) for each element. Add returns false if the element was already present, so the moment it returns false I can immediately return true — meaning I don't need a separate ContainsKey check followed by an Add call, which would double the lookups. This is O(n) time and O(n) worst-case space. If the interviewer wants ALL duplicated values rather than a yes/no, I use two sets: a 'seen' set for everything encountered, and a 'duplicates' set that collects any value that fails to be added to 'seen'. I'd also mention the LINQ one-liner using GroupBy and filtering groups with Count() > 1, which reads cleanly but is less efficient since it must build and hold all groups in memory before filtering, versus the single-pass HashSet approach which can short-circuit.",
+  "codeExample": {
+   "language": "csharp",
+   "code": "public static bool ContainsDuplicate(int[] nums)\n{\n    var set = new HashSet<int>();\n    foreach (int n in nums)\n        if (!set.Add(n)) return true; // Add returns false if already present\n    return false;\n}\n\npublic static List<int> FindDuplicates(int[] arr)\n{\n    var seen = new HashSet<int>();\n    var dups = new HashSet<int>();\n    foreach (int n in arr)\n        if (!seen.Add(n)) dups.Add(n);\n    return dups.ToList();\n}\n\n// LINQ alternative:\n// arr.GroupBy(x => x).Where(g => g.Count() > 1).Select(g => g.Key);",
+   "explanation": "HashSet.Add's boolean return value doubles as a duplicate check, avoiding a separate Contains call."
+  },
+  "mistakes": [
+   "Calling Contains() then Add() separately, doing two lookups instead of one",
+   "Using a List instead of a HashSet, making Contains an O(n) scan each time (O(n²) overall)",
+   "Forgetting FindDuplicates needs a second set to avoid reporting the same duplicate multiple times",
+   "Using GroupBy for a simple boolean check when a HashSet short-circuits faster"
+  ],
+  "followUps": [
+   {"question": "How would you find duplicates using O(1) extra space?", "answer": "If values are guaranteed to be in range [1, n], you can negate the value at index |nums[i]|-1 as a marker; if you land on an already-negative value, that index+1 is a duplicate — sorts-in-place style trick."},
+   {"question": "What if the array is already sorted?", "answer": "Just compare each element to its neighbor in one pass — no extra space needed at all, O(n) time O(1) space."},
+   {"question": "Is HashSet.Add thread-safe?", "answer": "No — HashSet<T> is not thread-safe for concurrent writes; use ConcurrentDictionary or lock around it if accessed from multiple threads."}
+  ],
+  "memoryHack": {
+   "emoji": "🚪",
+   "oneLiner": "Add() IS the check — don't check twice.",
+   "mnemonic": "\"Add() lies only once — false means you've met before.\"",
+   "memoryPalace": "Picture a bouncer's tablet where tapping 'Add Guest' itself flashes red if that guest is already inside — no separate lookup screen needed."
+  },
+  "bestPractices": [
+   "Use HashSet<T>.Add's return value instead of Contains+Add for a single O(1) operation",
+   "For duplicate collection, keep a separate 'seen' and 'duplicates' set to avoid double-reporting",
+   "Prefer the iterative HashSet approach over LINQ GroupBy when performance matters (single pass vs full materialization)",
+   "If value range is bounded, consider the in-place negation trick to save space"
+  ],
+  "performanceTips": [
+   "HashSet operations are O(1) average, making the whole algorithm O(n) time, O(n) space",
+   "GroupBy allocates a group per unique key plus lists of members — heavier than a HashSet for a pure duplicate check",
+   "Sorting first gives O(n log n) time but O(1) extra space if you can't use a hash structure"
+  ],
+  "quiz": [
+   {"question": "What does HashSet<T>.Add(item) return if item already exists?", "options": ["true", "false", "throws an exception", "null"], "answer": 1, "explanation": "Add returns false when the item is already in the set and does not add a duplicate."},
+   {"question": "What is the time complexity of ContainsDuplicate using a HashSet?", "options": ["O(1)", "O(n)", "O(n log n)", "O(n²)"], "answer": 1, "explanation": "A single pass with O(1) average HashSet operations gives O(n) overall."},
+   {"question": "For FindDuplicates, why use two HashSets instead of one?", "options": ["To improve time complexity", "To avoid adding the same duplicate value multiple times to the result", "It's required by the HashSet API", "To sort the results"], "answer": 1, "explanation": "A single 'seen' set alone would let a value that appears 3+ times get added to the result multiple times without a separate 'dups' set enforcing uniqueness."}
+  ],
+  "flashcards": [
+   {"front": "Fastest way to check for a duplicate in C#?", "back": "HashSet<T>.Add — returns false if already present, one operation does check+insert."},
+   {"front": "ContainsDuplicate complexity?", "back": "O(n) time, O(n) space."},
+   {"front": "LINQ one-liner for duplicates?", "back": "arr.GroupBy(x => x).Where(g => g.Count() > 1).Select(g => g.Key)"},
+   {"front": "O(1) space duplicate trick?", "back": "Negate value at index |nums[i]|-1 when values are bounded to [1,n]; landing on negative = duplicate."}
+  ],
+  "revision30": "HashSet.Add returns false when an item already exists — that single call replaces a separate Contains+Add, giving O(n) time duplicate detection. For collecting all duplicates, use two sets: 'seen' and 'dups'.",
+  "revision2min": "Contains Duplicate asks whether any value repeats in an array. The elegant C# trick is that HashSet<T>.Add returns a bool: false means the item was already present. So a single foreach loop calling set.Add(n) and checking its return value both inserts and checks in one operation — O(n) time, O(n) space, and you can return true immediately on the first collision. When the ask is to return ALL duplicated values rather than a yes/no, use two sets: 'seen' tracks everything encountered, and 'dups' collects any value that fails to be added to 'seen' (guaranteeing each duplicate value is reported only once even if it appears many times). LINQ offers arr.GroupBy(x => x).Where(g => g.Count() > 1).Select(g => g.Key) as a declarative alternative, though it builds full groups in memory rather than short-circuiting. If the array is sorted, you can skip the hash structure entirely and just compare neighbors for O(1) space.",
+  "challenge": "Given an array where values are known to be in range [1, n] and exactly one value appears twice, find that value in O(n) time and O(1) extra space (no HashSet allowed).",
+  "related": ["two-sum", "dictionary-hashset-classics", "find-duplicate-characters-in-a-word"],
+  "summary": "HashSet.Add's boolean return value is a free, single-pass duplicate detector — no separate Contains check needed."
+ },
+ {
+  "id": "coding-03",
+  "title": "Find Duplicate Characters in a Word (with Counts)",
+  "slug": "find-duplicate-characters-in-a-word",
+  "category": "coding",
+  "difficulty": "Beginner",
+  "estimatedTime": 5,
+  "emoji": "🔤",
+  "icon": "Braces",
+  "tags": ["strings", "hashmap", "coding", "counting", "interview"],
+  "keywords": ["duplicate characters", "character frequency", "GetValueOrDefault", "GroupBy", "counting"],
+  "companies": ["TCS", "Infosys", "Cognizant", "HCL", "Capgemini"],
+  "interviewQuestion": "Given a word, find every character that repeats and how many times each one occurs.",
+  "story": {
+   "setup": "You're a librarian tallying how many times each letter tile appears in a Scrabble bag pulled from one word.",
+   "scenes": [
+    "First pass: for every letter tile drawn, you tick a mark next to that letter on your tally sheet — a Dictionary<char,int>.",
+    "GetValueOrDefault(c) means you never have to check 'is this letter's row even on my sheet yet' — it just returns 0 for a new letter.",
+    "Second pass: you read your tally sheet and read out loud every letter with a count greater than one.",
+    "Two clean passes — one to count, one to report — beats trying to do both at once and getting confused."
+   ],
+   "moral": "Separate 'counting' from 'reporting' into two clear passes — it's easier to reason about and just as fast, O(n)."
+  },
+  "analogy": "Counting duplicate letters is like a librarian's two-pass tally: first count every tile, then read back only the ones you counted more than once.",
+  "animation": "array",
+  "explanation": "The approach uses a Dictionary<char,int> to count character frequencies in a first pass over the string, using GetValueOrDefault(c) to default missing keys to 0 without a separate existence check. A second pass over the dictionary entries prints every character whose count exceeds 1.\nThis is O(n) time (n = string length) and O(k) space where k is the number of distinct characters (bounded by alphabet size, so effectively O(1) for typical text). The LINQ equivalent — GroupBy(c => c).Where(g => g.Count() > 1) — expresses the same two-phase logic declaratively but at the cost of building full groups upfront.",
+  "interviewAnswerShort": "Build a Dictionary<char,int> frequency map in one pass using GetValueOrDefault to accumulate counts, then iterate the dictionary and report any character with count greater than 1 — O(n) time, O(k) space.",
+  "interviewAnswerDetailed": "I use a two-pass approach: pass one builds a Dictionary<char,int> where I increment each character's count using counts[c] = counts.GetValueOrDefault(c) + 1, which cleanly handles both new and existing characters without a manual ContainsKey check. Pass two iterates the dictionary entries and prints any character whose count is greater than 1. This runs in O(n) time where n is the string length, and O(k) space where k is the number of distinct characters — bounded and effectively constant for a fixed alphabet like ASCII or Unicode letters. I'd also mention the LINQ equivalent: input.GroupBy(c => c).Where(g => g.Count() > 1).Select(g => new { g.Key, Count = g.Count() }), which is more declarative but materializes all groups before filtering, so it's a bit heavier than the manual dictionary approach for very large inputs. If case-insensitivity matters, I'd normalize with ToLower() before counting.",
+  "codeExample": {
+   "language": "csharp",
+   "code": "public static void FindDuplicateCharacters(string input)\n{\n    var counts = new Dictionary<char, int>();\n    foreach (char c in input)\n        counts[c] = counts.GetValueOrDefault(c) + 1; // pass 1: count\n\n    foreach (var p in counts)\n        if (p.Value > 1)\n            Console.WriteLine($\"{p.Key} : {p.Value}\"); // pass 2: report\n}\n\n// FindDuplicateCharacters(\"programming\") -> r:2, g:2, m:2\n\n// LINQ:\n// input.GroupBy(c => c).Where(g => g.Count() > 1)\n//      .Select(g => new { g.Key, Count = g.Count() });",
+   "explanation": "GetValueOrDefault avoids a manual ContainsKey check while accumulating character counts in a single pass, then a second pass filters for counts greater than one."
+  },
+  "mistakes": [
+   "Manually checking ContainsKey before incrementing instead of using GetValueOrDefault, which is more verbose and error-prone",
+   "Forgetting case sensitivity — 'A' and 'a' are different dictionary keys unless normalized",
+   "Trying to report duplicates in the same pass as counting, before you know the final count of a later-appearing character",
+   "Not handling non-letter characters (spaces, punctuation) if the requirement is letters only"
+  ],
+  "followUps": [
+   {"question": "How would you find the character with the HIGHEST count?", "answer": "Track a running max while building the dictionary, or after building it use counts.OrderByDescending(p => p.Value).First()."},
+   {"question": "How would you make this case-insensitive?", "answer": "Normalize each character with char.ToLower(c) before using it as the dictionary key."},
+   {"question": "Can you do this without a dictionary, e.g., for lowercase-only ASCII?", "answer": "Yes — use an int[26] array indexed by c - 'a' as counts, which avoids hashing overhead and uses fixed O(1) space."}
+  ],
+  "memoryHack": {
+   "emoji": "📇",
+   "oneLiner": "Count first, report second — two clean passes.",
+   "mnemonic": "\"GetValueOrDefault: ask forgiveness, not permission.\"",
+   "memoryPalace": "Picture a librarian's tally sheet: pass one taps a tick mark for every letter tile (defaulting new letters to zero), pass two reads back only the rows with more than one tick."
+  },
+  "bestPractices": [
+   "Use GetValueOrDefault(key, 0) or GetValueOrDefault(key) to avoid manual existence checks",
+   "Separate counting and reporting into two clear passes for readability",
+   "Use a fixed-size array instead of a Dictionary when the character set is small and known (e.g., lowercase a-z)",
+   "Normalize case explicitly if the problem doesn't specify case sensitivity"
+  ],
+  "performanceTips": [
+   "O(n) time, O(k) space where k is distinct character count — effectively O(1) for bounded alphabets",
+   "An int[26] array beats a Dictionary<char,int> for pure lowercase-letter counting — no hashing overhead",
+   "LINQ GroupBy is convenient but allocates more than a manual dictionary loop"
+  ],
+  "quiz": [
+   {"question": "What does counts.GetValueOrDefault(c) return if c is not yet a key?", "options": ["throws KeyNotFoundException", "null", "0 (default value for int)", "-1"], "answer": 2, "explanation": "GetValueOrDefault returns the type's default value (0 for int) when the key is absent, avoiding a manual check."},
+   {"question": "What is the space complexity of the duplicate-character counter?", "options": ["O(1) always", "O(n)", "O(k) where k is distinct character count", "O(n²)"], "answer": 2, "explanation": "Space is bounded by the number of distinct characters, not the string length."},
+   {"question": "Why use two passes instead of one?", "options": ["Two passes are always faster", "You need the final count before deciding a character is duplicated", "Dictionary requires two passes by design", "It's not actually necessary, one pass works fine"], "answer": 1, "explanation": "A character's total count isn't known until the whole string is scanned, so reporting must happen after counting completes."}
+  ],
+  "flashcards": [
+   {"front": "How to count characters without ContainsKey?", "back": "counts[c] = counts.GetValueOrDefault(c) + 1"},
+   {"front": "Duplicate character finder complexity?", "back": "O(n) time, O(k) space (k = distinct chars)."},
+   {"front": "Faster alternative to Dictionary<char,int> for a-z only?", "back": "int[26] array indexed by c - 'a'"},
+   {"front": "LINQ for duplicate characters?", "back": "input.GroupBy(c => c).Where(g => g.Count() > 1)"}
+  ],
+  "revision30": "Count characters with a Dictionary<char,int> using GetValueOrDefault to avoid ContainsKey checks, then a second pass reports any character with count > 1. O(n) time, O(k) space.",
+  "revision2min": "Finding duplicate characters with counts is a two-pass problem. Pass one builds a Dictionary<char,int> frequency map, using counts[c] = counts.GetValueOrDefault(c) + 1 to increment cleanly whether or not the character has been seen before — this avoids a separate ContainsKey check. Pass two walks the dictionary's entries and prints any character whose count exceeds 1. This is O(n) time (string length) and O(k) space (distinct character count, effectively constant for a bounded alphabet). You can't report duplicates in a single pass because you don't know a character's final count until the string is fully scanned. For lowercase-only inputs, an int[26] array indexed by c - 'a' beats a Dictionary since it avoids hashing overhead entirely. LINQ's GroupBy(c => c).Where(g => g.Count() > 1) expresses the same logic declaratively but materializes all groups before filtering.",
+  "challenge": "Extend the solution to find the first character that appears exactly twice (not more, not less), scanning the string only once.",
+  "related": ["first-non-repeated-character", "contains-duplicate-find-duplicates", "dictionary-hashset-classics"],
+  "summary": "GetValueOrDefault turns character counting into a one-line accumulate, and a second pass over the map reports the duplicates."
+ },
+ {
+  "id": "coding-04",
+  "title": "First Non-Repeated Character",
+  "slug": "first-non-repeated-character",
+  "category": "coding",
+  "difficulty": "Beginner",
+  "estimatedTime": 5,
+  "emoji": "🥇",
+  "icon": "Braces",
+  "tags": ["strings", "hashmap", "coding", "counting", "interview"],
+  "keywords": ["first unique character", "frequency map", "two pass", "order preserving"],
+  "companies": ["Amazon", "Microsoft", "TCS", "Wipro", "Deloitte"],
+  "interviewQuestion": "Find the first character in a string that does not repeat.",
+  "story": {
+   "setup": "You're judging a talent show where every act performs once or twice. You need to announce, in the ORDER they first walked on stage, who was the first act to perform only once.",
+   "scenes": [
+    "Round one: you tally how many times each act performed, without caring about order yet.",
+    "Round two: you walk through the program in the original order the acts appeared.",
+    "The moment you hit an act whose tally is exactly 1, that's your answer — first appearance order matters, not tally order.",
+    "A Dictionary alone can't preserve 'first in original order' — you need to re-walk the original sequence in round two."
+   ],
+   "moral": "Counting doesn't remember order — you need a second pass over the ORIGINAL sequence to find the first unique one."
+  },
+  "analogy": "Finding the first non-repeated character is like re-reading the show program in order after tallying performances, to find the first act to perform exactly once.",
+  "animation": "array",
+  "explanation": "This requires two passes: the first builds a Dictionary<char,int> frequency count for every character (order doesn't matter here). The second pass re-iterates the ORIGINAL string in its original order, returning the first character whose count equals exactly 1.\nThe second pass is necessary because a dictionary doesn't preserve insertion or original order reliably for this purpose — you must walk the source string again to respect its original sequence. This is O(n) time and O(k) space, two linear passes rather than one, since the count of a character isn't final until the whole string has been scanned.",
+  "interviewAnswerShort": "Count all characters into a Dictionary<char,int> in one pass, then re-scan the original string in order and return the first character whose count is exactly 1 — O(n) time, O(k) space.",
+  "interviewAnswerDetailed": "I build a Dictionary<char,int> frequency map in a first pass over the string, incrementing each character's count. Then, critically, I do a SECOND pass — this time over the original string again, in its original order — and return the first character whose count in the dictionary equals 1. The second pass is required because the order characters were counted in a dictionary doesn't reliably reflect the string's original order for this purpose; you need to check candidates in the sequence they actually appeared. This is O(n) time overall (two linear passes) and O(k) space for the frequency map, where k is the number of distinct characters. A classic example is 'swiss', where 's' and 'i' each repeat, but 'w' is the first character with count 1, so the answer is 'w'. If no such character exists, I'd return a sentinel like '\\0' or throw, depending on the contract.",
+  "codeExample": {
+   "language": "csharp",
+   "code": "public static char FirstNonRepeatedCharacter(string input)\n{\n    var counts = new Dictionary<char, int>();\n    foreach (char c in input)\n        counts[c] = counts.GetValueOrDefault(c) + 1; // pass 1: count\n\n    foreach (char c in input) // pass 2: original order\n        if (counts[c] == 1)\n            return c;\n\n    return '\\0'; // no non-repeated character found\n}\n\n// FirstNonRepeatedCharacter(\"swiss\") -> 'w'",
+   "explanation": "Two passes: count frequencies first, then re-walk the ORIGINAL string order to find the first character with a count of exactly 1."
+  },
+  "mistakes": [
+   "Trying to find the answer in a single pass, which is impossible since a character's total count isn't known until the string ends",
+   "Iterating the Dictionary in pass two instead of re-iterating the original string — dictionaries don't guarantee the original character order",
+   "Forgetting to handle the case where no character is unique (empty result)",
+   "Not accounting for case sensitivity if the problem expects case-insensitive comparison"
+  ],
+  "followUps": [
+   {"question": "How would you find the LAST non-repeated character?", "answer": "Same two-pass approach, but iterate the original string backwards in pass two, or track the last index of each count-1 character."},
+   {"question": "Can you solve this in one pass?", "answer": "Not with a simple count-and-check, but you can use an ordered structure like a LinkedHashMap-equivalent (Dictionary + a separate insertion-order list) to track candidates as you go and remove them when they repeat — still effectively O(n) but more complex."},
+   {"question": "How does this relate to LeetCode's 'First Unique Character in a String'?", "answer": "It's the exact same problem, just returning the index instead of the character; use int[26] for lowercase-only inputs for a performance boost."}
+  ],
+  "memoryHack": {
+   "emoji": "🎤",
+   "oneLiner": "Count once, re-walk in order to find 'first'.",
+   "mnemonic": "\"Tally, then re-read the program.\"",
+   "memoryPalace": "Picture the talent show program: first you tally every act's performances backstage, then you re-read the printed program top to bottom to find the first act with exactly one showing."
+  },
+  "bestPractices": [
+   "Always re-scan the ORIGINAL sequence in pass two — never rely on dictionary iteration order for 'first appearance'",
+   "Use GetValueOrDefault for clean, concise counting",
+   "For lowercase-only ASCII, use int[26] instead of Dictionary<char,int> for speed",
+   "Clarify with the interviewer what to return when no unique character exists"
+  ],
+  "performanceTips": [
+   "O(n) time (two linear passes), O(k) space for the frequency map",
+   "int[26] array avoids hashing overhead versus Dictionary<char,int> for lowercase letters",
+   "Early-exit in pass two the moment you find count == 1 — no need to scan the rest"
+  ],
+  "quiz": [
+   {"question": "Why does this problem need two passes over the string?", "options": ["To sort the characters", "Because a character's final count isn't known until the string is fully scanned", "Dictionary requires two passes to build", "It doesn't need two passes"], "answer": 1, "explanation": "You can't know if a character repeats later in the string until you've scanned the whole thing, so counting must finish before checking."},
+   {"question": "What does FirstNonRepeatedCharacter(\"swiss\") return?", "options": ["'s'", "'w'", "'i'", "'\\0'"], "answer": 1, "explanation": "'s' and 'i' both repeat; 'w' is the first character in original order with count exactly 1."},
+   {"question": "Why re-iterate the original string in pass two instead of the dictionary?", "options": ["Dictionaries are slower to iterate", "Dictionary iteration order doesn't reliably reflect the string's original character order", "It uses less memory", "It's not actually necessary"], "answer": 1, "explanation": "You need the FIRST character in the original sequence with count 1, which requires checking candidates in original order, not dictionary order."}
+  ],
+  "flashcards": [
+   {"front": "First non-repeated character approach?", "back": "Count all chars in a Dictionary, then re-scan the ORIGINAL string for the first with count == 1."},
+   {"front": "Why two passes?", "back": "A character's count isn't final until the whole string is scanned."},
+   {"front": "\"swiss\" -> ?", "back": "'w' (first char with count exactly 1)."},
+   {"front": "Faster structure for lowercase-only?", "back": "int[26] array indexed by c - 'a'."}
+  ],
+  "revision30": "First Non-Repeated Character: count all characters into a Dictionary in pass one, then re-scan the ORIGINAL string in pass two and return the first character whose count equals 1. O(n) time, O(k) space.",
+  "revision2min": "This problem finds the first character in a string that appears exactly once. It requires two passes: pass one builds a frequency Dictionary<char,int> over the whole string (order doesn't matter here, just totals). Pass two re-walks the ORIGINAL string, in its original order, and returns the first character whose count in the dictionary is exactly 1. The second pass over the original sequence — not the dictionary — is essential, because dictionary iteration order doesn't reliably preserve the string's character order, and you need the first such character positionally. Classic example: 'swiss' has 's' and 'i' repeating, so the answer is 'w', the first character with count 1. This is O(n) time (two linear passes) and O(k) space for the frequency map, where k is bounded by the alphabet size. For lowercase-only inputs, an int[26] array beats a Dictionary for raw speed by avoiding hashing.",
+  "challenge": "Given a stream of characters (not a fixed string), design a data structure that can report the first non-repeating character seen so far after each new character arrives, efficiently.",
+  "related": ["find-duplicate-characters-in-a-word", "reverse-a-string", "dictionary-hashset-classics"],
+  "summary": "Finding the first unique character needs two passes: count everything first, then re-walk the ORIGINAL order to find the first count-of-1."
+ },
+ {
+  "id": "coding-05",
+  "title": "Reverse a String (with a Loop)",
+  "slug": "reverse-a-string",
+  "category": "coding",
+  "difficulty": "Beginner",
+  "estimatedTime": 5,
+  "emoji": "🔄",
+  "icon": "Braces",
+  "tags": ["strings", "two-pointers", "coding", "arrays", "interview"],
+  "keywords": ["reverse string", "two pointers", "char array", "immutable strings", "reverse words"],
+  "companies": ["TCS", "Infosys", "Accenture", "Cognizant", "HCL"],
+  "interviewQuestion": "Reverse a string without using a built-in Reverse method, and also handle reversing the words in a sentence.",
+  "story": {
+   "setup": "Picture two people standing at opposite ends of a line of chairs, each holding a name tag. They swap tags and both step one chair inward, again and again, until they meet in the middle.",
+   "scenes": [
+    "Because C# strings are immutable, you first copy the string into a char array — you need mutable chairs to swap tags on.",
+    "Left pointer starts at index 0, right pointer starts at the last index.",
+    "Each step: swap the characters at left and right, then move left forward and right backward.",
+    "When left meets or passes right, everyone has swapped — the array is reversed in place, O(n) time, O(1) extra space beyond the array copy."
+   ],
+   "moral": "Two pointers walking toward each other from both ends is the go-to pattern for in-place reversal."
+  },
+  "analogy": "Reversing a string is like two people at opposite ends of a row of chairs swapping name tags and stepping inward until they meet.",
+  "animation": "array",
+  "explanation": "Since C# strings are immutable, you must first convert to a char[] with ToCharArray() to mutate in place. Two pointers start at opposite ends (l=0, r=length-1); each iteration swaps arr[l] and arr[r], then increments l and decrements r, stopping when l >= r.\nThis is O(n) time and O(n) space (for the char array copy, since the original string can't be mutated). A common follow-up is reversing WORDS in a sentence rather than characters: split on spaces, reverse the array of words with Array.Reverse, and rejoin with string.Join — a different granularity of the same two-pointer/reversal idea.",
+  "interviewAnswerShort": "Convert the string to a char array (since strings are immutable), then use two pointers from both ends swapping characters and moving inward until they meet — O(n) time, O(n) space.",
+  "interviewAnswerDetailed": "Strings in C# are immutable, so the first step is always ToCharArray() to get a mutable copy. Then I use the classic two-pointer technique: left starts at index 0, right starts at the last index. In a while loop that continues while left is less than right, I swap arr[left] and arr[right] using tuple deconstruction, then increment left and decrement right. When they meet or cross, the array is fully reversed, and I construct a new string from it. This is O(n) time and O(n) space, since we can't avoid the copy given string immutability. A very common follow-up is reversing the WORDS in a sentence rather than the characters — for that, I split the string on spaces (using StringSplitOptions.RemoveEmptyEntries to handle multiple spaces), call Array.Reverse on the resulting word array, and rejoin with string.Join(' ', words). So 'the sky is blue' becomes 'blue is sky the'. Same underlying idea — reversal — but applied at word granularity instead of character granularity.",
+  "codeExample": {
+   "language": "csharp",
+   "code": "public static string Reverse(string input)\n{\n    char[] arr = input.ToCharArray(); // strings are immutable\n    int l = 0, r = arr.Length - 1;\n    while (l < r)\n    {\n        (arr[l], arr[r]) = (arr[r], arr[l]);\n        l++;\n        r--;\n    }\n    return new string(arr);\n}\n\n// Reverse WORDS (common follow-up)\npublic static string ReverseWords(string s)\n{\n    var words = s.Split(' ', StringSplitOptions.RemoveEmptyEntries);\n    Array.Reverse(words);\n    return string.Join(\" \", words);\n}\n\n// ReverseWords(\"the sky is blue\") -> \"blue is sky the\"",
+   "explanation": "Two pointers swap characters from both ends toward the middle for character reversal; the same reversal idea applies at word granularity for sentence reversal."
+  },
+  "mistakes": [
+   "Trying to mutate a string directly (e.g., input[l] = ...), which fails to compile since strings are immutable in C#",
+   "Off-by-one errors in the pointer loop condition (using <= instead of < can cause a redundant self-swap at the middle for odd-length strings, which is harmless but wasteful; using the wrong bound can cause an IndexOutOfRangeException)",
+   "Forgetting StringSplitOptions.RemoveEmptyEntries when reversing words, leading to extra empty strings from consecutive spaces",
+   "Using string concatenation in a loop (string += char) instead of a char array or StringBuilder — O(n²) due to repeated allocations"
+  ],
+  "followUps": [
+   {"question": "How would you reverse a string using recursion instead of a loop?", "answer": "Reverse(s) = Reverse(s.Substring(1)) + s[0] for the base case of length <= 1 return s — but this is O(n²) due to substring copies and uses O(n) stack depth, so iterative is preferred in interviews."},
+   {"question": "How would you reverse only the vowels in a string, leaving other characters in place?", "answer": "Same two-pointer scaffold, but only swap and advance both pointers when both arr[l] and arr[r] are vowels; otherwise advance just the pointer(s) pointing at non-vowels."},
+   {"question": "Why is StringBuilder recommended over string concatenation for building strings in a loop?", "answer": "Strings are immutable, so += allocates a new string every iteration (O(n) per append, O(n²) total); StringBuilder maintains a mutable internal buffer for O(1) amortized appends."}
+  ],
+  "memoryHack": {
+   "emoji": "🪑",
+   "oneLiner": "Two pointers, walk inward, swap as you go.",
+   "mnemonic": "\"Left and right shake hands in the middle.\"",
+   "memoryPalace": "Picture two people at opposite ends of a row of chairs swapping name tags and stepping one chair inward each time, until they meet in the middle."
+  },
+  "bestPractices": [
+   "Always convert to char[] first since C# strings are immutable",
+   "Use the two-pointer pattern for O(n) in-place-style reversal instead of building a new string character by character",
+   "Use StringSplitOptions.RemoveEmptyEntries when splitting on spaces to avoid empty-word artifacts",
+   "Use StringBuilder, not string concatenation, whenever building a string incrementally in a loop"
+  ],
+  "performanceTips": [
+   "Two-pointer char array swap: O(n) time, O(n) space (unavoidable copy due to immutability)",
+   "Avoid string += char in a loop — it's O(n²) due to repeated full-string allocation",
+   "Array.Reverse is an in-place O(n) operation, ideal for the reverse-words follow-up once split into an array"
+  ],
+  "quiz": [
+   {"question": "Why must you call ToCharArray() before reversing a C# string in place?", "options": ["It's faster", "Strings in C# are immutable and can't be mutated directly", "ToCharArray sorts the string", "It's not actually necessary"], "answer": 1, "explanation": "C# strings are immutable reference types; you need a mutable char[] to swap characters in place."},
+   {"question": "What is the time complexity of the two-pointer string reversal?", "options": ["O(1)", "O(log n)", "O(n)", "O(n²)"], "answer": 2, "explanation": "Each character is visited once via the converging pointers, giving O(n) time."},
+   {"question": "ReverseWords(\"the sky is blue\") returns?", "options": ["\"eulb si yks eht\"", "\"blue is sky the\"", "\"the sky is blue\"", "\"blue sky is the\""], "answer": 1, "explanation": "Splitting on spaces, reversing the word array, and rejoining gives 'blue is sky the' — words reversed, not characters."}
+  ],
+  "flashcards": [
+   {"front": "Why convert string to char[] before reversing?", "back": "C# strings are immutable — you need a mutable array to swap in place."},
+   {"front": "Reverse string pattern?", "back": "Two pointers from both ends, swap and move inward until they meet."},
+   {"front": "String reversal complexity?", "back": "O(n) time, O(n) space."},
+   {"front": "Reverse WORDS approach?", "back": "Split on spaces, Array.Reverse the word array, string.Join back together."}
+  ],
+  "revision30": "Reverse a string: convert to char[] (strings are immutable), then use two pointers from both ends, swapping and moving inward until they meet. O(n) time, O(n) space. Reversing words: split, Array.Reverse, join.",
+  "revision2min": "Reversing a string in C# starts with ToCharArray() since strings are immutable and can't be mutated in place. Then a classic two-pointer loop runs: left at index 0, right at the last index, swapping arr[left] and arr[right] each iteration and moving both pointers inward (left++, right--) until they cross. This is O(n) time and O(n) space, the space cost being unavoidable given immutability. A very common interview follow-up is reversing the WORDS of a sentence instead of characters — split the string on spaces with StringSplitOptions.RemoveEmptyEntries to handle multiple spaces gracefully, call Array.Reverse on the resulting word array, then string.Join(' ', words) to rebuild. So 'the sky is blue' becomes 'blue is sky the'. Watch for the anti-pattern of building a reversed string with += in a loop, which is O(n²) due to repeated immutable string allocations — always prefer a char array or StringBuilder for in-loop mutation.",
+  "challenge": "Reverse a string in place while preserving the position of all non-alphabetic characters (e.g., \"a,b$c\" -> \"c,b$a\"), using the two-pointer technique.",
+  "related": ["palindrome-string-and-number", "first-non-repeated-character", "array-classics"],
+  "summary": "String immutability forces a char-array copy, but the two-pointer swap-and-converge pattern reverses it in O(n) time."
+ },
+ {
+  "id": "coding-06",
+  "title": "Palindrome — String and Number",
+  "slug": "palindrome-string-and-number",
+  "category": "coding",
+  "difficulty": "Beginner",
+  "estimatedTime": 6,
+  "emoji": "🪞",
+  "icon": "Braces",
+  "tags": ["strings", "two-pointers", "math", "coding", "interview"],
+  "keywords": ["palindrome", "two pointers", "reverse half", "overflow", "number palindrome"],
+  "companies": ["Amazon", "Microsoft", "TCS", "Infosys", "Deloitte"],
+  "interviewQuestion": "Determine whether a string is a palindrome, and separately, whether an integer is a palindrome without converting it to a string.",
+  "story": {
+   "setup": "You're checking if a word looks the same in a mirror. For a NUMBER version, you're not allowed to write it on paper (convert to string) — you must fold it in your head using only arithmetic.",
+   "scenes": [
+    "For a string, two people stand at opposite ends and compare letters, walking inward — if any pair mismatches, it's not a mirror image.",
+    "For a number, you peel off the last digit with x % 10 and build a 'reversed' number digit by digit, like rebuilding the mirror image from the tail.",
+    "You stop HALFWAY — once your rebuilt reversed number is >= the shrinking original, you've covered half the digits, no need to fully reverse (which risks overflow anyway).",
+    "Compare the two halves: for even-length numbers they should be equal; for odd-length, drop the reversed number's last digit (the middle one) before comparing."
+   ],
+   "moral": "You don't need to fully reverse a number to check symmetry — reversing HALF avoids overflow and does half the work."
+  },
+  "analogy": "Checking a numeric palindrome is like folding a number in half using arithmetic instead of writing it out and reading it backward.",
+  "animation": "compare",
+  "explanation": "For a string palindrome, use two pointers from both ends comparing characters, moving inward, returning false on any mismatch — O(n) time, O(1) extra space.\nFor a number palindrome without converting to a string, negative numbers are never palindromes, and numbers ending in 0 (except 0 itself) can't be palindromes either (since a palindrome can't start with 0). The trick is to reverse only HALF the digits: repeatedly do rev = rev*10 + x%10 and x /= 10 until x <= rev, meaning you've processed at least half the digits. Then compare: for even digit counts, x == rev; for odd digit counts, the middle digit is in rev's last position, so compare x == rev/10. This avoids overflow risk from fully reversing a large number (e.g., reversing int.MaxValue would overflow) and is O(d) time, O(1) space where d is the digit count.",
+  "interviewAnswerShort": "For strings, use two pointers comparing from both ends. For numbers, reverse only HALF the digits using arithmetic (no string conversion) to avoid overflow, then compare the two halves.",
+  "interviewAnswerDetailed": "For a string palindrome check, I use two pointers — left at 0, right at length-1 — comparing characters and moving inward, returning false immediately on any mismatch. That's O(n) time, O(1) extra space. For the numeric version — often asked as a harder follow-up specifically to avoid converting to a string — I first rule out negative numbers (never palindromes due to the minus sign) and numbers ending in 0 unless the number itself is 0 (since a palindrome can't have a leading zero after reversal). Then I reverse only HALF the digits: in a loop, I do rev = rev * 10 + x % 10 and x /= 10, continuing while x > rev. Once x <= rev, I've processed at least half the digits. For an even number of digits, the two halves should be exactly equal (x == rev); for an odd number of digits, the middle digit ends up as the last digit of rev, so I compare x == rev / 10 to drop it before comparing. This is deliberately more clever than fully reversing the number: reversing all the digits of a large int risks integer overflow, and stopping at the halfway point avoids that risk entirely while doing half the work.",
+  "codeExample": {
+   "language": "csharp",
+   "code": "public static bool IsPalindrome(string s)\n{\n    int l = 0, r = s.Length - 1;\n    while (l < r)\n    {\n        if (s[l] != s[r]) return false;\n        l++;\n        r--;\n    }\n    return true;\n}\n\n// Number, no string conversion, reverse only half (avoids overflow)\npublic static bool IsPalindrome(int x)\n{\n    if (x < 0 || (x % 10 == 0 && x != 0)) return false;\n    int rev = 0;\n    while (x > rev)\n    {\n        rev = rev * 10 + x % 10;\n        x /= 10;\n    }\n    return x == rev || x == rev / 10;\n}\n\n// IsPalindrome(121) -> true, IsPalindrome(-121) -> false, IsPalindrome(10) -> false",
+   "explanation": "String palindrome uses two converging pointers; numeric palindrome reverses only half the digits arithmetically to avoid overflow and unnecessary work."
+  },
+  "mistakes": [
+   "Converting an int to a string to check palindrome-ness when the interviewer explicitly disallows it",
+   "Fully reversing a large integer, which can overflow int (e.g., reversing 1534236469 overflows int.MaxValue)",
+   "Forgetting the edge case that negative numbers and non-zero numbers ending in 0 can never be palindromes",
+   "Using x == rev for odd-digit numbers instead of x == rev / 10, incorrectly excluding the valid odd-length case"
+  ],
+  "followUps": [
+   {"question": "Why can't a non-zero number ending in 0 be a palindrome?", "answer": "Because a palindrome read backward would then need to start with 0, which isn't a valid leading digit for any positive integer representation (e.g., 120 reversed would be '021', not a valid number)."},
+   {"question": "How would you check a palindrome ignoring spaces and punctuation (e.g., 'A man a plan a canal Panama')?", "answer": "Preprocess: filter to only alphanumeric characters and normalize case, then apply the same two-pointer comparison."},
+   {"question": "What's the time/space complexity difference between the string and number approaches?", "answer": "String approach: O(n) time, O(1) extra space (input already an array-like structure). Number approach: O(d) time where d is digit count, O(1) space, and correctly avoids overflow by not reversing fully."}
+  ],
+  "memoryHack": {
+   "emoji": "🪞",
+   "oneLiner": "Only reverse HALF the number — meet in the middle.",
+   "mnemonic": "\"Stop when x <= rev — you've folded it in half.\"",
+   "memoryPalace": "Picture folding a number like a strip of paper: you only need to fold it to the midpoint to see if both halves match, and folding all the way past the middle risks tearing (overflow)."
+  },
+  "bestPractices": [
+   "Rule out negative numbers and trailing-zero numbers (except 0) immediately as early exits",
+   "Reverse only half the digits for numeric palindromes to avoid overflow risk",
+   "Use two pointers for string palindromes instead of reversing and comparing the whole string (saves the extra allocation)",
+   "Clarify with the interviewer whether spaces/punctuation/case should be ignored for string palindromes"
+  ],
+  "performanceTips": [
+   "String two-pointer check: O(n) time, O(1) extra space, short-circuits on first mismatch",
+   "Numeric half-reversal: O(d) time (d = digit count), O(1) space, and avoids the overflow risk of a full reversal",
+   "Avoid ToString() + Reverse() + comparison for numbers when the interviewer wants the arithmetic-only solution"
+  ],
+  "quiz": [
+   {"question": "Why does the numeric IsPalindrome only reverse half the digits?", "options": ["It's simpler to code", "To avoid integer overflow from reversing all digits of a large number, and to do half the work", "Reversing all digits is impossible", "It doesn't actually only reverse half"], "answer": 1, "explanation": "Reversing all digits of a large int can overflow; stopping when x <= rev means you've covered at least half the digits."},
+   {"question": "For an ODD-digit-count number, how do you compare after the half-reversal loop?", "options": ["x == rev", "x == rev / 10", "x == rev * 10", "x != rev"], "answer": 1, "explanation": "The middle digit ends up as rev's last digit; dividing by 10 drops it before comparing the two halves."},
+   {"question": "Why is a non-zero number ending in 0, like 120, never a palindrome?", "options": ["It's too large", "Its reverse would need a leading zero, which isn't valid", "0 is not a digit", "It actually can be a palindrome"], "answer": 1, "explanation": "A palindrome's reverse must equal itself; a trailing 0 would require a leading 0 in the reversed form, which isn't a valid number."}
+  ],
+  "flashcards": [
+   {"front": "String palindrome check approach?", "back": "Two pointers from both ends, compare and move inward, false on any mismatch."},
+   {"front": "Number palindrome without string conversion?", "back": "Reverse only half the digits with rev = rev*10 + x%10, x /= 10, until x <= rev."},
+   {"front": "Why reverse only half for numbers?", "back": "Avoids integer overflow from fully reversing a large number."},
+   {"front": "Odd-length number comparison after half-reversal?", "back": "x == rev / 10 (drops the middle digit from rev)."}
+  ],
+  "revision30": "String palindrome: two pointers from both ends comparing characters. Number palindrome (no string): reverse only half the digits via arithmetic (rev = rev*10 + x%10), stopping when x <= rev, to avoid overflow and cut work in half.",
+  "revision2min": "Checking if a string is a palindrome uses the classic two-pointer pattern: compare characters from both ends moving inward, returning false on the first mismatch — O(n) time, O(1) extra space. The more interesting variant is checking if a NUMBER is a palindrome without converting it to a string. First, rule out negative numbers (the minus sign breaks symmetry) and numbers ending in 0 except 0 itself (since the reverse would need an invalid leading zero). Then reverse only HALF the digits arithmetically: rev = rev * 10 + x % 10, x /= 10, looping while x > rev. Once x <= rev, at least half the digits are processed. For even digit counts, compare x == rev directly; for odd digit counts, the middle digit ends up as rev's last digit, so compare x == rev / 10 to exclude it. This half-reversal trick is deliberately chosen over a full reversal because fully reversing a large int can overflow — for instance reversing 1534236469 would exceed int.MaxValue — so stopping at the midpoint sidesteps that risk while also doing less work.",
+  "challenge": "Write IsPalindrome for a string that should ignore spaces, punctuation, and case (e.g., \"A man, a plan, a canal: Panama\" should return true), using the same two-pointer approach.",
+  "related": ["reverse-a-string", "roman-to-integer", "prime-number"],
+  "summary": "String palindromes use converging two pointers; numeric palindromes reverse only half the digits arithmetically to dodge overflow."
+ },
+ {
+  "id": "coding-07",
+  "title": "Prime Number Check",
+  "slug": "prime-number",
+  "category": "coding",
+  "difficulty": "Beginner",
+  "estimatedTime": 5,
+  "emoji": "🔢",
+  "icon": "Cpu",
+  "tags": ["math", "algorithms", "coding", "optimization", "interview"],
+  "keywords": ["prime number", "sqrt optimization", "square root", "factor pairs", "O(sqrt n)"],
+  "companies": ["Infosys", "TCS", "Accenture", "Cognizant", "Wipro"],
+  "interviewQuestion": "Write a function to check whether a given number is prime, and explain why you only loop up to its square root.",
+  "story": {
+   "setup": "You're a detective checking if a number has any 'partners' (factors) other than 1 and itself. You realize you don't need to interrogate every suspect up to n — only up to √n.",
+   "scenes": [
+    "You start checking factors from 2 upward: does 2 divide n? Does 3? Does 4?",
+    "Then you notice: factors always come in PAIRS that multiply to n — like 2 and 50 for n=100.",
+    "If one factor of a pair is bigger than √n, its partner MUST be smaller than √n — you'd have already caught it.",
+    "So checking past √n is pointless — you've already met every possible 'partner' by then. Stop at i*i <= n."
+   ],
+   "moral": "Factors pair up around the square root — checking beyond √n is redundant work that finds nothing new."
+  },
+  "analogy": "Checking primality is like verifying a number's factor pairs — you only need to check up to its square root because factor partners mirror around it.",
+  "animation": "generic",
+  "explanation": "A number n is prime if it has no divisors other than 1 and itself. The naive check loops from 2 to n-1, which is O(n). The key optimization: factors come in pairs (a, b) where a*b = n; if a > √n, then b must be < √n, meaning any factor pair has at least one member <= √n. So you only need to check divisors up to and including √n.\nThe implementation checks n <= 1 (not prime), n == 2 (prime, the only even prime), then even numbers > 2 (not prime), then loops i from 3 to i*i <= n, incrementing by 2 (skipping even numbers since they're already ruled out). This reduces time complexity from O(n) to O(√n), which is what interviewers are specifically testing when they ask 'why i*i <= n'.",
+  "interviewAnswerShort": "Loop divisors only up to √n instead of n, because if n has a factor larger than √n, it must also have a paired factor smaller than √n — so you'd have already found it. This cuts time from O(n) to O(√n).",
+  "interviewAnswerDetailed": "To check if n is prime, I first handle edge cases: numbers <= 1 are not prime, 2 is prime (the only even prime), and any other even number is not prime. Then I loop odd divisors i starting from 3, checking if n % i == 0, but only while i*i <= n — this is the key optimization interviewers want to hear explained. The reasoning is that factors of n always come in pairs (a, b) such that a * b = n. If a is greater than √n, then b must be less than √n (otherwise a*b would exceed n). So if n has ANY factor greater than √n, it necessarily has a paired factor smaller than √n, which my loop would have already caught. This means checking divisors beyond √n is provably redundant — there's nothing left to find. This optimization brings time complexity from O(n) down to O(√n), and I increment by 2 instead of 1 since even divisors are already ruled out by the earlier even check, halving the remaining work again.",
+  "codeExample": {
+   "language": "csharp",
+   "code": "public static bool IsPrime(int n)\n{\n    if (n <= 1) return false;\n    if (n == 2) return true;\n    if (n % 2 == 0) return false;\n    for (int i = 3; i * i <= n; i += 2)\n        if (n % i == 0) return false;\n    return true;\n}\n\n// IsPrime(17) -> true, IsPrime(18) -> false, IsPrime(2) -> true, IsPrime(1) -> false",
+   "explanation": "Loop bound i*i <= n is equivalent to i <= sqrt(n) but avoids floating-point sqrt calls; skipping even i values halves the remaining checks."
+  },
+  "mistakes": [
+   "Looping all the way to n instead of √n, missing the key optimization interviewers ask about",
+   "Using i <= Math.Sqrt(n) with repeated floating-point sqrt calls in the loop condition instead of the equivalent, cheaper i*i <= n integer comparison",
+   "Forgetting that 2 is prime while treating 'even numbers aren't prime' as a blanket rule",
+   "Not handling n <= 1 explicitly (0, 1, and negative numbers are not prime by definition)"
+  ],
+  "followUps": [
+   {"question": "How would you find all primes up to n efficiently?", "answer": "Use the Sieve of Eratosthenes: mark multiples of each prime starting from 2 as non-prime in a boolean array, achieving O(n log log n) for finding all primes up to n, much faster than checking each number individually."},
+   {"question": "Why increment i by 2 instead of 1 in the loop?", "answer": "Because the n % 2 == 0 check already ruled out all even divisors, so only odd numbers 3, 5, 7... can possibly be factors, halving the remaining iterations."},
+   {"question": "Is i*i <= n safe from overflow for large int n?", "answer": "For int n up to int.MaxValue (~2.1 billion), i can be up to ~46341, and i*i could overflow if using int for i without care near the boundary; using long for the i*i computation, or i <= n / i, avoids that risk."}
+  ],
+  "memoryHack": {
+   "emoji": "🕵️",
+   "oneLiner": "Factors mirror around √n — stop checking there.",
+   "mnemonic": "\"i*i <= n — the detective's stopping rule.\"",
+   "memoryPalace": "Picture a detective's board of factor pairs meeting in the middle at √n like two suspects walking toward each other — past that point, you'd just be re-interviewing people you've already met."
+  },
+  "bestPractices": [
+   "Loop only up to √n (via i*i <= n) instead of n for O(√n) instead of O(n)",
+   "Handle n <= 1, n == 2, and even n > 2 as explicit early-exit cases before the main loop",
+   "Increment by 2 after ruling out evens, skipping half the candidate divisors",
+   "Avoid repeated Math.Sqrt(n) calls in a loop condition — use i*i <= n or precompute the sqrt once"
+  ],
+  "performanceTips": [
+   "i*i <= n reduces time complexity from O(n) to O(√n) — the core optimization interviewers test for",
+   "For checking many numbers' primality repeatedly, precompute with a Sieve of Eratosthenes instead of calling IsPrime per number",
+   "Use long for i*i if n approaches int.MaxValue to avoid overflow edge cases"
+  ],
+  "quiz": [
+   {"question": "Why is it sufficient to check divisors only up to √n?", "options": ["It's a mathematical convention with no real reason", "Any factor pair of n has at least one member <= √n, so factors beyond √n would already have been found via their pair", "Numbers larger than √n are never divisors", "It's an approximation, not exact"], "answer": 1, "explanation": "Factor pairs (a,b) with a*b=n mean if a > √n then b < √n, so checking up to √n catches every possible factor pair."},
+   {"question": "What is the time complexity of the optimized IsPrime function?", "options": ["O(1)", "O(log n)", "O(√n)", "O(n)"], "answer": 2, "explanation": "The loop runs while i*i <= n, i.e., roughly √n iterations."},
+   {"question": "Why does the code check n % 2 == 0 separately before the main loop?", "options": ["It's unnecessary", "To handle the only even prime (2) correctly and then allow the loop to skip all even divisors by incrementing by 2", "Because odd numbers can't be prime", "To improve readability only, no performance benefit"], "answer": 1, "explanation": "Separating out evens lets the loop start at 3 and step by 2, checking only odd candidates and roughly halving the work."}
+  ],
+  "flashcards": [
+   {"front": "Prime check loop bound?", "back": "i*i <= n (equivalent to i <= √n, avoids floating-point sqrt)."},
+   {"front": "Why check up to √n only?", "back": "Factor pairs mirror around √n; any factor > √n has a partner < √n already found."},
+   {"front": "IsPrime complexity?", "back": "O(√n) time, O(1) space."},
+   {"front": "Fast way to find ALL primes up to n?", "back": "Sieve of Eratosthenes, O(n log log n)."}
+  ],
+  "revision30": "Prime check loops divisors only up to √n (via i*i <= n) instead of n, because factor pairs mirror around the square root — any factor beyond √n would already have a smaller partner found. This is O(√n) time instead of O(n).",
+  "revision2min": "To check if n is prime, handle edge cases first: n <= 1 is never prime, n == 2 is prime (the only even prime), and any other even n is not prime. Then loop odd divisors i from 3 upward, checking n % i == 0, but only while i*i <= n. This bound is the key insight interviewers probe for: since factors of n come in pairs (a,b) where a*b=n, if one factor exceeds √n its partner must be less than √n — meaning any factor beyond √n would already have been caught via its smaller partner. So checking past √n finds nothing new; it's provably wasted work. This turns an O(n) brute force into O(√n). Incrementing i by 2 instead of 1 is a further halving, since even divisors are already ruled out. A common follow-up is finding ALL primes up to n efficiently, which calls for the Sieve of Eratosthenes (O(n log log n)) rather than calling IsPrime repeatedly.",
+  "challenge": "Implement the Sieve of Eratosthenes to return all prime numbers up to n, and explain why its time complexity is O(n log log n).",
+  "related": ["complexity-revision-table", "palindrome-string-and-number", "array-classics"],
+  "summary": "Prime checking only needs to test divisors up to √n, since factor pairs always mirror around the square root — O(√n) instead of O(n)."
+ },
+ {
+  "id": "coding-08",
+  "title": "Best Time to Buy and Sell Stock",
+  "slug": "best-time-buy-sell-stock",
+  "category": "coding",
+  "difficulty": "Intermediate",
+  "estimatedTime": 6,
+  "emoji": "📈",
+  "icon": "Zap",
+  "tags": ["arrays", "greedy", "coding", "leetcode", "interview"],
+  "keywords": ["max profit", "single pass", "track minimum", "greedy algorithm", "buy sell stock"],
+  "companies": ["Amazon", "Google", "Microsoft", "Accenture", "Deloitte"],
+  "interviewQuestion": "Given an array of stock prices by day, find the maximum profit from a single buy and a single sell (buy must occur before sell).",
+  "story": {
+   "setup": "You're a trader watching a stock's price tick by every day. You can only buy once and sell once — and you must buy BEFORE you sell.",
+   "scenes": [
+    "You walk through the days one at a time, always remembering the LOWEST price you've seen SO FAR — your best possible buy point up to now.",
+    "At each new day, you ask: 'if I sell today, having bought at my lowest-so-far, what's my profit?'",
+    "If that hypothetical profit beats your best profit recorded so far, you update your record.",
+    "You never need to look backward or try every pair — the lowest price so far is always your best available buy, updated as you walk forward."
+   ],
+   "moral": "Track the running minimum as you go — you never need to revisit the past to know your best buy point."
+  },
+  "analogy": "Buy-sell-stock is like a trader who only remembers the lowest price seen so far and checks daily if selling now beats their record profit.",
+  "animation": "array",
+  "explanation": "The naive approach checks every buy-sell pair, giving O(n²) time. The optimal greedy approach makes a single pass, tracking two running values: minPrice (the lowest price seen so far) and maxProfit (the best profit found so far).\nFor each price, first update minPrice if the current price is lower; otherwise, check if selling today (current price - minPrice) beats maxProfit and update if so. Because minPrice always reflects a day BEFORE the current one (or the current day itself, which yields 0 profit — never negative), the buy-before-sell constraint is automatically satisfied. This is O(n) time and O(1) space.",
+  "interviewAnswerShort": "Track the minimum price seen so far in a single pass; at each day, compute profit as current price minus that minimum, and keep the maximum such profit — O(n) time, O(1) space.",
+  "interviewAnswerDetailed": "The brute force tries every pair of buy day and later sell day, which is O(n²). The optimal solution is a single-pass greedy algorithm using two variables: minPrice, initialized to int.MaxValue, and maxProfit, initialized to 0. As I iterate through the prices array, for each price I check: if it's lower than minPrice, update minPrice — this day becomes the new best possible buy point. Otherwise, I compute the hypothetical profit if I sold today having bought at minPrice, and if that profit exceeds maxProfit, I update maxProfit. Because minPrice is always a price from a day at or before the current day, this naturally enforces buy-before-sell without extra bookkeeping. If prices only decrease across the whole array, maxProfit correctly stays 0 since no positive profit is ever possible. This is O(n) time and O(1) space — a single pass, constant extra memory.",
+  "codeExample": {
+   "language": "csharp",
+   "code": "public static int MaxProfit(int[] prices)\n{\n    int minPrice = int.MaxValue, maxProfit = 0;\n    foreach (int p in prices)\n    {\n        if (p < minPrice) minPrice = p;\n        else if (p - minPrice > maxProfit) maxProfit = p - minPrice;\n    }\n    return maxProfit;\n}\n\n// [7,1,5,3,6,4] -> 5 (buy at 1, sell at 6)\n// [7,6,4,3,1]   -> 0 (prices only fall, never sell)",
+   "explanation": "A single pass tracks the running minimum price and the best profit achievable by selling at each subsequent day."
+  },
+  "mistakes": [
+   "Using nested loops to check every buy/sell pair — O(n²) when O(n) is achievable",
+   "Forgetting to initialize minPrice to int.MaxValue (or the first price), causing incorrect comparisons on day one",
+   "Allowing a 'sell before buy' scenario by not correctly tracking that minPrice always represents an earlier or equal day",
+   "Confusing this with the 'multiple transactions allowed' variant, which uses a different (sum of all positive deltas) approach"
+  ],
+  "followUps": [
+   {"question": "What if you're allowed multiple buy/sell transactions (Stock II)?", "answer": "Sum every positive day-over-day price increase: profit += Math.Max(0, prices[i] - prices[i-1]) for each day — this captures all upward movements without needing to track specific buy/sell points."},
+   {"question": "What if there's a transaction fee per trade (Stock with Transaction Fee)?", "answer": "Use dynamic programming with two states per day: 'holding stock' and 'not holding stock', updating each based on the previous day's states minus the fee when selling."},
+   {"question": "What if you're limited to at most 2 transactions (Stock III)?", "answer": "Track four variables: buy1, sell1, buy2, sell2, representing the best profit achievable after each stage, updated greedily in a single pass — a classic DP-with-constant-state pattern."}
+  ],
+  "memoryHack": {
+   "emoji": "📉",
+   "oneLiner": "Track the lowest valley, measure every peak against it.",
+   "mnemonic": "\"minPrice never looks back, maxProfit never forgets.\"",
+   "memoryPalace": "Picture a trader with a sticky note that only ever gets updated to a LOWER buy price, while a separate note tracks the biggest profit spotted so far — both updated in a single walk down the price chart."
+  },
+  "bestPractices": [
+   "Use a single pass with running minPrice and maxProfit instead of nested loops",
+   "Initialize minPrice to int.MaxValue (or prices[0]) to correctly seed the first comparison",
+   "Recognize this as the base case of a family of stock problems (multiple transactions, transaction fees, cooldown, k transactions)",
+   "Return 0 explicitly when no profitable transaction exists (prices strictly decreasing)"
+  ],
+  "performanceTips": [
+   "O(n) time, O(1) space — a single forward pass beats the O(n²) brute-force pair check",
+   "No sorting or extra data structures needed — pure greedy tracking",
+   "For the multi-transaction variant, summing positive deltas is also O(n)/O(1), just a different greedy rule"
+  ],
+  "quiz": [
+   {"question": "What does minPrice represent at any point during the single-pass algorithm?", "options": ["The average price so far", "The lowest price seen up to and including the current day", "The lowest price in the entire array", "The price on the previous day only"], "answer": 1, "explanation": "minPrice is updated as a running minimum across all days processed so far, always representing the best possible buy point up to the current day."},
+   {"question": "For prices = [7,6,4,3,1], what does MaxProfit return?", "options": ["6", "1", "0", "-6"], "answer": 2, "explanation": "Prices only decrease, so no positive profit is possible; maxProfit stays at its initial value of 0."},
+   {"question": "What is the time complexity of the single-pass MaxProfit solution?", "options": ["O(1)", "O(n)", "O(n log n)", "O(n²)"], "answer": 1, "explanation": "A single forward loop through the prices array gives O(n) time."}
+  ],
+  "flashcards": [
+   {"front": "Best Time to Buy/Sell Stock approach?", "back": "Single pass tracking running minPrice and maxProfit (price - minPrice)."},
+   {"front": "Complexity of the greedy solution?", "back": "O(n) time, O(1) space."},
+   {"front": "[7,1,5,3,6,4] max profit?", "back": "5 (buy at 1, sell at 6)."},
+   {"front": "Multiple transactions variant (Stock II)?", "back": "Sum all positive day-over-day price increases."}
+  ],
+  "revision30": "Best Time to Buy/Sell Stock: single pass tracking minPrice (lowest seen so far) and maxProfit (best price - minPrice found so far). Buy-before-sell is automatically enforced since minPrice always comes from an earlier or same day. O(n) time, O(1) space.",
+  "revision2min": "This is the single-transaction stock profit problem: find the max profit from one buy and one later sell. The greedy single-pass solution tracks two running values: minPrice (lowest price encountered so far, starting at int.MaxValue) and maxProfit (best profit found so far, starting at 0). For each price in the array, first check if it's a new low — if so, update minPrice. Otherwise, compute the profit from selling today at this price having bought at minPrice, and update maxProfit if it's better. Because minPrice always reflects a day at or before the current one, the buy-before-sell rule is automatically satisfied without extra tracking. If prices only decline throughout, maxProfit correctly remains 0. This runs in O(n) time and O(1) space, versus an O(n²) brute force checking every pair. It's the foundational case in a family of stock problems — allowing multiple transactions changes the strategy to summing every positive day-over-day delta, while adding transaction fees or a cooldown period requires dynamic programming with explicit 'holding' and 'not holding' states.",
+  "challenge": "Extend this to allow at most k transactions (buy/sell pairs), where transactions cannot overlap, using dynamic programming with O(n*k) time.",
+  "related": ["array-classics", "complexity-revision-table", "kadane-max-subarray"],
+  "summary": "A single pass tracking the running minimum price turns an O(n²) pair search into an O(n) greedy scan."
+ },
+ {
+  "id": "coding-09",
+  "title": "Plus One (Big Number as Digit Array)",
+  "slug": "plus-one-digit-array",
+  "category": "coding",
+  "difficulty": "Beginner",
+  "estimatedTime": 5,
+  "emoji": "➕",
+  "icon": "Braces",
+  "tags": ["arrays", "math", "coding", "carry", "interview"],
+  "keywords": ["plus one", "digit array", "carry propagation", "overflow", "big number arithmetic"],
+  "companies": ["Amazon", "Microsoft", "TCS", "Wipro", "Capgemini"],
+  "interviewQuestion": "Given a non-negative integer represented as an array of its digits, add one to it and return the new array of digits.",
+  "story": {
+   "setup": "You're an old-fashioned accountant adding 1 to a number so large it's written across a whole ledger row, one digit per cell — too big to fit in any calculator.",
+   "scenes": [
+    "You start at the RIGHTMOST cell, the ones place, and add 1.",
+    "If the digit is less than 9, you simply increment it and you're done instantly — no other cell changes.",
+    "If it's a 9, it rolls over to 0 and you carry the +1 to the cell on its LEFT, repeating the same check.",
+    "If the carry rolls all the way past the leftmost cell (all 9s, like 999), you need a brand NEW cell at the front — the array grows by one, becoming 1000."
+   ],
+   "moral": "Simulate carry propagation from the right, just like manual addition on paper — and be ready to grow the array by one digit for the all-9s edge case."
+  },
+  "analogy": "Plus One on a digit array is like an accountant adding 1 to a number too large for any calculator, carrying by hand from the rightmost column.",
+  "animation": "array",
+  "explanation": "The digits array represents a number too large for standard numeric types (a 100-digit number would overflow int, long, and even decimal), so the addition must be simulated digit by digit from the rightmost (least significant) position.\nIterate from the last index backward: if the current digit is less than 9, increment it and return immediately — no further carry needed. If it's 9, set it to 0 (the carry rolls over) and continue to the next digit leftward. If the loop completes without an early return, every digit was 9 (e.g., 999), meaning the result needs one more digit than the input — allocate a new array of length+1, set its first element to 1 (the rest default to 0), and return that. This is O(n) time and O(1) extra space in the common case, O(n) space only in the all-9s edge case.",
+  "interviewAnswerShort": "Walk the digits array from right to left, incrementing and returning immediately if a digit is less than 9; if it's 9, set it to 0 and carry left. If every digit was 9, allocate a new array one digit longer with a leading 1.",
+  "interviewAnswerDetailed": "The digits array represents a number that could be arbitrarily large — far beyond what int, long, or even decimal can hold, which is exactly why it's represented as an array in the first place rather than converted to a numeric type. I simulate manual addition: starting from the last index (the ones place) and moving left, if digits[i] is less than 9, I simply increment it and return the array immediately, since no carry is needed further left. If digits[i] equals 9, incrementing it would roll over to 10, so I set it to 0 and let the loop continue to carry into the next digit to the left. If the loop finishes without returning — meaning every digit was a 9, like [9,9,9] — the result must grow by one digit: I allocate a new int array of length digits.Length + 1, leave it zero-initialized except for setting index 0 to 1, giving [1,0,0,0] for the [9,9,9] input, correctly representing 1000. This is O(n) time; space is O(1) in the common case and O(n) only for the all-9s edge case where a new array must be allocated.",
+  "codeExample": {
+   "language": "csharp",
+   "code": "public static int[] PlusOne(int[] digits)\n{\n    for (int i = digits.Length - 1; i >= 0; i--)\n    {\n        if (digits[i] < 9)\n        {\n            digits[i]++;\n            return digits;\n        }\n        digits[i] = 0; // 9 -> 0, carry left\n    }\n    // All digits were 9 (e.g., 999 -> 1000)\n    var result = new int[digits.Length + 1];\n    result[0] = 1;\n    return result;\n}\n\n// PlusOne([1,2,3]) -> [1,2,4]\n// PlusOne([9,9,9]) -> [1,0,0,0]",
+   "explanation": "Carry propagates right-to-left like manual addition; the all-9s case requires allocating a new, longer array with a leading 1."
+  },
+  "mistakes": [
+   "Trying to convert the digit array to an actual numeric type (int/long), which overflows for large digit counts — defeating the purpose of the array representation",
+   "Forgetting the all-9s edge case, which requires the result array to be one element LONGER than the input",
+   "Iterating left-to-right instead of right-to-left, which doesn't match how carries actually propagate in addition",
+   "Not returning immediately once a non-9 digit is found and incremented, doing unnecessary extra work"
+  ],
+  "followUps": [
+   {"question": "Why not just convert digits to a number, add 1, and convert back?", "answer": "The whole point of the array representation is to support numbers larger than any built-in numeric type can hold — a 100-digit number overflows int, long, and decimal, so the array must be manipulated directly."},
+   {"question": "How would you solve 'Add Two Numbers' represented as digit arrays or linked lists?", "answer": "Same carry-propagation idea but processing both numbers simultaneously, digit by digit, tracking a running carry variable and combining corresponding digits (padding the shorter number with zeros conceptually)."},
+   {"question": "What if the array represented digits in the OPPOSITE order (least significant digit first)?", "answer": "Then you'd iterate left-to-right (index 0 first) since index 0 would already be the ones place, simplifying the carry direction to match array iteration order."}
+  ],
+  "memoryHack": {
+   "emoji": "🧮",
+   "oneLiner": "9 carries, anything else just stops.",
+   "mnemonic": "\"9 rolls to 0 and carries; anything under 9 just ++ and quit.\"",
+   "memoryPalace": "Picture an old abacus row: adding a bead to a full column (9) flips it back to empty and pushes a bead to the next column left; any column not full just gains one bead and you stop."
+  },
+  "bestPractices": [
+   "Always process digit arrays from the least significant (rightmost) position when simulating arithmetic",
+   "Return early the moment a digit increments without needing to carry — avoids unnecessary iteration",
+   "Explicitly handle the array-growth edge case (all digits are 9) by allocating length+1",
+   "Never attempt to convert an arbitrary-precision digit array to a fixed-size numeric type"
+  ],
+  "performanceTips": [
+   "O(n) time in all cases; O(1) extra space unless a carry overflows all digits, then O(n) for the new array",
+   "Early return on the first non-9 digit avoids scanning the rest of the array unnecessarily",
+   "In-place mutation of the input array (except the all-9s case) avoids unnecessary allocation"
+  ],
+  "quiz": [
+   {"question": "Why can't PlusOne simply convert the digit array to an int and add 1?", "options": ["It would be slower", "The number could have far more digits than any numeric type can represent (overflow)", "int doesn't support addition", "It's actually fine to do this"], "answer": 1, "explanation": "The array representation exists specifically to support numbers too large for int/long/decimal, so conversion would overflow for large inputs."},
+   {"question": "What does PlusOne([9,9,9]) return?", "options": ["[9,9,9,1]", "[0,0,0]", "[1,0,0,0]", "throws an exception"], "answer": 2, "explanation": "All 9s carry all the way through, requiring a new leading digit: [1,0,0,0] represents 1000."},
+   {"question": "In which direction should the digits array be processed?", "options": ["Left to right (most significant first)", "Right to left (least significant first)", "It doesn't matter", "From the middle outward"], "answer": 1, "explanation": "Addition and carry propagation naturally start at the ones place, which is the rightmost (last index) element."}
+  ],
+  "flashcards": [
+   {"front": "Plus One digit array approach?", "back": "Iterate right to left; if digit < 9, increment and return; if 9, set to 0 and carry left."},
+   {"front": "PlusOne([9,9,9]) result?", "back": "[1,0,0,0] — new array, one digit longer."},
+   {"front": "Why not convert to int and add 1?", "back": "The number could exceed int/long/decimal capacity — that's the whole point of the array form."},
+   {"front": "Plus One complexity?", "back": "O(n) time; O(1) space normally, O(n) space for the all-9s growth case."}
+  ],
+  "revision30": "Plus One: walk the digit array right to left. If a digit is under 9, increment and return immediately. If it's 9, set to 0 and carry left. If everything was 9, allocate a new array one digit longer with a leading 1 (e.g., 999 -> 1000).",
+  "revision2min": "Plus One takes a number represented as an array of digits (because it may be too large for int, long, or decimal to hold) and adds one to it. The simulation mirrors manual addition: start from the rightmost digit (the ones place) and move left. If the current digit is less than 9, incrementing it is enough — no carry propagates further, so return immediately. If the digit is 9, incrementing would roll it to 10, so set it to 0 and let the carry continue into the next digit to the left. If the loop finishes without an early return, every digit was 9 (e.g., [9,9,9]), which means the number rolls over completely and needs one MORE digit than the input array had — allocate a new array of length+1, set index 0 to 1 (rest default to 0), giving [1,0,0,0] for 999 -> 1000. This runs in O(n) time; space is O(1) in the typical case and O(n) only in the rare all-9s growth case. The core lesson interviewers are checking for is recognizing WHY the array representation exists at all — to support numbers beyond any fixed-width numeric type's range.",
+  "challenge": "Implement AddTwoDigitArrays(int[] a, int[] b) that adds two arbitrary-precision numbers represented as digit arrays (most significant digit first), handling different lengths and carry propagation.",
+  "related": ["array-classics", "roman-to-integer", "prime-number"],
+  "summary": "Plus One simulates manual carry propagation from the rightmost digit, growing the array by one only in the all-9s edge case."
+ },
+ {
+  "id": "coding-10",
+  "title": "Roman to Integer",
+  "slug": "roman-to-integer",
+  "category": "coding",
+  "difficulty": "Intermediate",
+  "estimatedTime": 6,
+  "emoji": "🏛️",
+  "icon": "Braces",
+  "tags": ["strings", "hashmap", "coding", "parsing", "interview"],
+  "keywords": ["roman numerals", "subtractive notation", "dictionary lookup", "MCMXCIV"],
+  "companies": ["Amazon", "Microsoft", "TCS", "Infosys", "Deloitte"],
+  "interviewQuestion": "Convert a Roman numeral string (e.g., \"MCMXCIV\") to its integer value.",
+  "story": {
+   "setup": "You're reading an ancient Roman inscription, symbol by symbol, adding up values — but the Romans had a clever trick: putting a smaller symbol BEFORE a bigger one means SUBTRACT, not add.",
+   "scenes": [
+    "Normally, you just add each symbol's value as you read left to right: V + I + I = VII = 7.",
+    "But sometimes a smaller symbol sits just before a bigger one, like IV — that's their shorthand for 'one less than five', i.e., 4, not 5+1=6.",
+    "So before adding a symbol's value, you peek at the NEXT symbol: if it's bigger, you SUBTRACT the current one instead of adding it.",
+    "\"MCMXCIV\" reads as M(1000) + CM(900, since C<M) + XC(90, since X<C) + IV(4, since I<V) = 1994."
+   ],
+   "moral": "One lookahead comparison — smaller before bigger means subtract — decodes the entire subtractive notation trick."
+  },
+  "analogy": "Roman numeral parsing is like reading an inscription where a smaller symbol placed just before a bigger one flips it into a subtraction.",
+  "animation": "generic",
+  "explanation": "Map each Roman character to its value using a Dictionary<char,int>. Iterate through the string left to right; for each character, compare its value to the NEXT character's value (if one exists). If the current value is less than the next value (e.g., 'I' before 'V'), subtract the current value from the total (handling the subtractive pairs IV, IX, XL, XC, CD, CM); otherwise, add it.\nThis single-pass lookahead approach correctly decodes both additive notation (VII = 5+1+1=7) and subtractive notation (IV = 5-1=4) without needing special-case string matching for each of the six subtractive pairs. It's O(n) time and O(1) space (the dictionary has a fixed 7 entries).",
+  "interviewAnswerShort": "Map each symbol to its value in a Dictionary, then iterate left to right comparing each symbol's value to the next: if current is less than next, subtract it; otherwise add it — O(n) time, O(1) space.",
+  "interviewAnswerDetailed": "I use a Dictionary<char,int> mapping each Roman numeral character (I, V, X, L, C, D, M) to its value. Then I iterate through the string from left to right with an index i, and for each character I look ahead to the next character (if i+1 is within bounds). If the current character's value is LESS than the next character's value — like I before V in 'IV' — that indicates subtractive notation, so I subtract the current value from the running total instead of adding it. Otherwise, I add it normally. This single lookahead comparison elegantly handles all six subtractive pairs (IV=4, IX=9, XL=40, XC=90, CD=400, CM=900) without needing to special-case-match each pair as a substring. Walking through 'MCMXCIV': M(1000, added since next is C which is smaller) + C(subtracted since next M is bigger, contributing -100) + M(added, +1000, giving CM=900 total) + X(subtracted since next C is bigger) + C(added, giving XC=90) + I(subtracted since next V is bigger) + V(added, giving IV=4) = 1000+900+90+4 = 1994. This is O(n) time and O(1) space.",
+  "codeExample": {
+   "language": "csharp",
+   "code": "public static int RomanToInt(string s)\n{\n    var map = new Dictionary<char, int>\n    {\n        ['I'] = 1, ['V'] = 5, ['X'] = 10, ['L'] = 50,\n        ['C'] = 100, ['D'] = 500, ['M'] = 1000\n    };\n    int total = 0;\n    for (int i = 0; i < s.Length; i++)\n    {\n        int cur = map[s[i]];\n        if (i + 1 < s.Length && cur < map[s[i + 1]])\n            total -= cur; // e.g. I before V means subtract: IV = 4\n        else\n            total += cur;\n    }\n    return total;\n}\n\n// RomanToInt(\"MCMXCIV\") -> 1994",
+   "explanation": "A single lookahead comparison against the next character decides whether the current value is added or subtracted, cleanly handling subtractive notation."
+  },
+  "mistakes": [
+   "Hardcoding checks for each of the six subtractive pairs (IV, IX, XL, XC, CD, CM) as substring matches instead of using the general lookahead comparison rule",
+   "Forgetting the bounds check (i + 1 < s.Length) before looking at the next character, causing an IndexOutOfRangeException on the last character",
+   "Not validating input for malformed Roman numerals (e.g., 'IIII' or 'VV') if the problem requires strict validation",
+   "Using a switch statement per character instead of a Dictionary, making the code more verbose without benefit"
+  ],
+  "followUps": [
+   {"question": "How would you convert an integer TO a Roman numeral (the reverse problem)?", "answer": "Use a greedy approach with a sorted list of value-symbol pairs including subtractive combinations (1000,'M'),(900,'CM'),(500,'D'),(400,'CD')...(1,'I'), repeatedly subtracting the largest fitting value and appending its symbol until the number reaches 0."},
+   {"question": "How would you validate that a Roman numeral string is well-formed?", "answer": "Check constraints like: no more than 3 consecutive identical symbols (except via subtractive pairs), subtractive pairs only use specific combinations (I before V/X, X before L/C, C before D/M), and symbols must appear in non-increasing value order except for valid subtractive pairs."},
+   {"question": "What's the maximum value a standard Roman numeral can represent?", "answer": "3999 (MMMCMXCIX), since standard notation has no symbol for 5000+ without special overline notation, which isn't typically part of these coding problems."}
+  ],
+  "memoryHack": {
+   "emoji": "🏛️",
+   "oneLiner": "Peek right: smaller-before-bigger means subtract.",
+   "mnemonic": "\"IV, IX, XL, XC, CD, CM — small peeks ahead, sees big, flips to minus.\"",
+   "memoryPalace": "Picture reading a Roman inscription left to right, always glancing one symbol ahead — if the next carved numeral outranks the current one, you mentally flip your current symbol to negative before moving on."
+  },
+  "bestPractices": [
+   "Use a Dictionary<char,int> for symbol-to-value lookup instead of a switch or if-chain",
+   "Use the general lookahead comparison rule (current < next means subtract) rather than special-casing each of the six subtractive pairs",
+   "Always bounds-check before accessing s[i+1]",
+   "For the reverse conversion (int to Roman), use a greedy value-symbol table including the subtractive combinations"
+  ],
+  "performanceTips": [
+   "O(n) time, O(1) space (the symbol dictionary has a fixed, small size)",
+   "Single pass with lookahead avoids any substring searching or backtracking",
+   "Dictionary lookups are O(1) average, keeping the per-character cost constant"
+  ],
+  "quiz": [
+   {"question": "In RomanToInt, what triggers subtracting the current symbol's value instead of adding it?", "options": ["The current symbol is 'I'", "The current symbol's value is less than the NEXT symbol's value", "The current symbol appears more than once", "The string length is even"], "answer": 1, "explanation": "The lookahead comparison (cur < map[s[i+1]]) is what identifies subtractive notation like IV or XC."},
+   {"question": "What does RomanToInt(\"MCMXCIV\") return?", "options": ["1994", "1904", "1984", "2994"], "answer": 0, "explanation": "M(1000) + CM(900) + XC(90) + IV(4) = 1994."},
+   {"question": "What is the time complexity of RomanToInt?", "options": ["O(1)", "O(n)", "O(n log n)", "O(n²)"], "answer": 1, "explanation": "A single pass through the string with O(1) dictionary lookups per character gives O(n) time."}
+  ],
+  "flashcards": [
+   {"front": "Roman to Integer core trick?", "back": "Compare each symbol's value to the NEXT symbol's; if current < next, subtract, else add."},
+   {"front": "\"MCMXCIV\" -> ?", "back": "1994 (M + CM + XC + IV)"},
+   {"front": "Roman to Integer complexity?", "back": "O(n) time, O(1) space."},
+   {"front": "Max value of standard Roman numeral?", "back": "3999 (MMMCMXCIX)"}
+  ],
+  "revision30": "Roman to Integer: map symbols to values with a Dictionary, then walk left to right comparing each symbol to the NEXT one — if current is smaller, subtract it (subtractive notation like IV); otherwise add it. O(n) time, O(1) space.",
+  "revision2min": "Roman to Integer converts strings like 'MCMXCIV' into their numeric value (1994). The approach maps each of the seven Roman symbols (I,V,X,L,C,D,M) to its integer value via a Dictionary<char,int>. Then, walking the string left to right, for each character I look one symbol ahead: if the current symbol's value is LESS than the next symbol's value, that signals subtractive notation (like I before V meaning 'one less than five'), so I subtract the current value from the running total instead of adding it. Otherwise, I add it normally. This single lookahead rule elegantly generalizes across all six subtractive pairs — IV, IX, XL, XC, CD, CM — without needing to special-case-match each one as a substring. Tracing 'MCMXCIV': M adds 1000, C is followed by a bigger M so it subtracts 100 (net CM=900), X is followed by bigger C so it subtracts 10 (net XC=90), I is followed by bigger V so it subtracts 1 (net IV=4); total 1000+900+90+4=1994. This runs in O(n) time and O(1) space. The reverse problem — integer to Roman — uses a greedy algorithm against a sorted value-symbol table that already includes the subtractive combinations as single entries.",
+  "challenge": "Write IntToRoman(int num) that converts an integer (1 to 3999) into its Roman numeral string representation using a greedy approach.",
+  "related": ["palindrome-string-and-number", "prime-number", "complexity-revision-table"],
+  "summary": "A single lookahead comparison — current value less than next means subtract — decodes Roman numeral subtractive notation in one linear pass."
+ },
+ {
+  "id": "coding-11",
+  "title": "Linked List — The Five Classics",
+  "slug": "linked-list-five-classics",
+  "category": "coding",
+  "difficulty": "Intermediate",
+  "estimatedTime": 10,
+  "emoji": "🔗",
+  "icon": "GitBranch",
+  "tags": ["linked-list", "two-pointers", "coding", "algorithms", "interview"],
+  "keywords": ["reverse linked list", "cycle detection", "floyd's algorithm", "merge sorted lists", "remove nth node", "middle node"],
+  "companies": ["Amazon", "Microsoft", "Google", "TCS", "Infosys"],
+  "interviewQuestion": "Solve the five most-asked linked list problems: reverse a list, detect a cycle, find the middle node, merge two sorted lists, and remove the Nth node from the end.",
+  "story": {
+   "setup": "Picture a treasure hunt with a chain of clue cards, each pointing to the next. Five classic challenges test how well you can manipulate that chain.",
+   "scenes": [
+    "REVERSE: you walk the chain holding three cards at once — previous, current, next — flipping each arrow to point backward before stepping forward.",
+    "CYCLE DETECTION: a tortoise and a hare walk the chain at different speeds; if the chain loops back on itself, the hare eventually LAPS the tortoise and they meet again.",
+    "MIDDLE NODE: same tortoise-and-hare trick — when the hare reaches the end, the tortoise (moving half as fast) is standing exactly at the middle.",
+    "MERGE TWO SORTED LISTS: two chains, each already sorted, get zipped together by always picking the smaller front card, using a dummy 'placeholder' card to simplify the start.",
+    "REMOVE NTH FROM END: send a scout N steps ahead first, then walk scout and a trailing pointer together — when scout falls off the end, the trailing pointer sits right before the node to remove."
+   ],
+   "moral": "Most linked list problems reduce to holding the right number of pointers (2 or 3) and moving them at the right relative speeds."
+  },
+  "analogy": "Linked list problems are a treasure-hunt chain of cards — reversal flips arrows with three hands, cycle/middle detection uses a tortoise and hare, merging zips two sorted chains, and removing the Nth-from-end uses a scout pointer running ahead.",
+  "animation": "stack",
+  "explanation": "Reverse: iteratively walk the list holding prev, cur, and next pointers; at each step save next, redirect cur.next to prev, then advance prev and cur — O(n) time, O(1) space.\nCycle detection (Floyd's algorithm): a slow pointer moves 1 step, a fast pointer moves 2 steps per iteration; if there's a cycle, fast eventually catches up to slow inside the loop (they can't both circle forever without meeting since fast gains one position on slow each iteration); if fast reaches null, there's no cycle. O(n) time, O(1) space.\nMiddle node: the same slow/fast pointer trick — when fast reaches the end (or one before it), slow is at the middle, since slow moves at half the speed.\nMerge two sorted lists: use a dummy head node to avoid special-casing the first insertion, then repeatedly attach the smaller of the two current nodes to the tail, advancing that list's pointer; at the end, attach whichever list has leftover nodes.\nRemove Nth from end: advance a fast pointer n steps ahead first, then move both fast and a trailing pointer together until fast reaches the end; the trailing pointer is now positioned just before the node to remove, allowing an O(n) single-pass solution without knowing the list's length upfront.",
+  "interviewAnswerShort": "Reverse uses prev/cur/next pointer rotation; cycle detection and finding the middle both use Floyd's slow/fast pointers; merging sorted lists uses a dummy head and picks the smaller front node each time; removing the Nth-from-end sends a pointer N steps ahead first, then moves both together.",
+  "interviewAnswerDetailed": "These five problems cover the core linked-list toolkit. Reversing a list iteratively holds three pointers — prev (starts null), cur (starts at head), and a temporary next — at each step you save cur.next before overwriting it to point backward at prev, then shift prev and cur forward by one; at the end, prev is the new head. This is O(n) time, O(1) space. Cycle detection uses Floyd's Tortoise and Hare: a slow pointer advances one node per step, a fast pointer advances two; if there's a cycle, fast will eventually lap slow and they'll meet at the same node inside the loop; if fast (or fast.next) hits null first, there's no cycle — also O(n)/O(1). Finding the middle node reuses the exact same slow/fast mechanism: since fast moves twice as fast as slow, by the time fast reaches the end, slow has covered exactly half the distance and sits at the middle. Merging two sorted lists uses a dummy sentinel head node so the loop logic doesn't need a special case for the very first node — I compare the current nodes of both lists, attach the smaller one to the tail, and advance that list's pointer; once one list is exhausted, I attach the remainder of the other list directly (since it's already sorted). Removing the Nth node from the end is a classic single-pass trick: advance a 'fast' pointer n steps ahead of a 'slow' pointer first, then move both together one step at a time; when fast reaches the end, slow is positioned exactly at the node before the one to remove, letting you unlink it in one pass without first counting the list's total length.",
+  "codeExample": {
+   "language": "csharp",
+   "code": "public class ListNode\n{\n    public int val;\n    public ListNode next;\n    public ListNode(int val = 0, ListNode next = null) { this.val = val; this.next = next; }\n}\n\n// Reverse (THE most asked)\npublic static ListNode Reverse(ListNode head)\n{\n    ListNode prev = null, cur = head;\n    while (cur != null)\n    {\n        var next = cur.next;\n        cur.next = prev;\n        prev = cur;\n        cur = next;\n    }\n    return prev;\n}\n\n// Detect a cycle -- Floyd's slow/fast\npublic static bool HasCycle(ListNode head)\n{\n    ListNode slow = head, fast = head;\n    while (fast?.next != null)\n    {\n        slow = slow.next;\n        fast = fast.next.next;\n        if (slow == fast) return true;\n    }\n    return false;\n}\n\n// Merge two sorted lists -- dummy head\npublic static ListNode MergeTwoLists(ListNode l1, ListNode l2)\n{\n    ListNode dummy = new ListNode(), tail = dummy;\n    while (l1 != null && l2 != null)\n    {\n        if (l1.val <= l2.val) { tail.next = l1; l1 = l1.next; }\n        else { tail.next = l2; l2 = l2.next; }\n        tail = tail.next;\n    }\n    tail.next = l1 ?? l2;\n    return dummy.next;\n}\n\n// Remove Nth from end -- fast pointer n steps ahead\npublic static ListNode RemoveNthFromEnd(ListNode head, int n)\n{\n    var dummy = new ListNode(0, head);\n    ListNode fast = dummy, slow = dummy;\n    for (int i = 0; i < n; i++) fast = fast.next;\n    while (fast.next != null) { fast = fast.next; slow = slow.next; }\n    slow.next = slow.next.next;\n    return dummy.next;\n}",
+   "explanation": "Reverse rotates three pointers; HasCycle and finding the middle use Floyd's slow/fast technique; MergeTwoLists zips with a dummy head; RemoveNthFromEnd uses a lead-then-follow two-pointer gap."
+  },
+  "mistakes": [
+   "Forgetting to save cur.next BEFORE overwriting cur.next = prev during reversal, which loses the rest of the list",
+   "Using fast.next.next without null-checking fast.next first, causing a NullReferenceException in cycle detection",
+   "Not using a dummy head in MergeTwoLists, forcing awkward special-casing of the first node",
+   "Off-by-one errors in RemoveNthFromEnd's initial fast-pointer advance, or forgetting the dummy head needed to handle removing the actual head node"
+  ],
+  "followUps": [
+   {"question": "How do you find the START of a cycle, not just detect one?", "answer": "After slow and fast meet inside the cycle, reset one pointer to head and advance both one step at a time; they'll meet exactly at the cycle's starting node — this works due to the mathematical relationship between the distances traveled."},
+   {"question": "How would you reverse a linked list recursively?", "answer": "Base case: if head is null or head.next is null, return head. Otherwise, recursively reverse the rest, then set head.next.next = head and head.next = null, returning the new head from the recursive call — O(n) time but O(n) stack space, versus O(1) space iteratively."},
+   {"question": "How do you merge K sorted linked lists, not just two?", "answer": "Use a min-heap (PriorityQueue in .NET) to always pull the smallest head among all K lists in O(log k) per extraction, giving O(n log k) total time, or divide-and-conquer pairwise merging."}
+  ],
+  "memoryHack": {
+   "emoji": "🐢🐇",
+   "oneLiner": "Tortoise and hare solve BOTH cycle detection and the middle node.",
+   "mnemonic": "\"prev-cur-next flips; slow-fast meets or ends; dummy zips; scout-then-follow trims.\"",
+   "memoryPalace": "Picture a treasure hunt chain: three hands flip arrows backward for reversal, a tortoise and hare either meet mid-loop (cycle) or the tortoise stops at the midpoint (middle), a dummy card zips two sorted chains, and a scout walking N cards ahead marks exactly where to cut."
+  },
+  "bestPractices": [
+   "Always save the next pointer before rewiring a node's next field during reversal",
+   "Use `fast?.next != null` (null-conditional) to safely guard against null in cycle/middle detection",
+   "Use a dummy/sentinel head node for merge and removal operations to eliminate first-node special cases",
+   "Prefer iterative solutions over recursive ones for reversal in production code to avoid O(n) stack depth on very long lists"
+  ],
+  "performanceTips": [
+   "All five classics run in O(n) time and O(1) extra space (except recursive reversal, which is O(n) stack space)",
+   "Floyd's cycle detection avoids the O(n) space cost of a HashSet-based 'visited nodes' approach",
+   "The lead-pointer trick for RemoveNthFromEnd avoids a first pass just to count the list length"
+  ],
+  "quiz": [
+   {"question": "In Floyd's cycle detection, why does the fast pointer eventually meet the slow pointer if a cycle exists?", "options": ["They meet by random chance", "Fast gains exactly one position on slow each iteration, so within one full loop of the cycle it must catch up", "The list is sorted", "It doesn't always work"], "answer": 1, "explanation": "Since fast moves 2 steps and slow moves 1, the gap between them shrinks by 1 each iteration inside a cycle, guaranteeing a meeting."},
+   {"question": "Why does MergeTwoLists use a dummy head node?", "options": ["It's required by the ListNode class", "To avoid special-casing which node becomes the first node of the result", "To make the algorithm O(n log n)", "It's not actually necessary"], "answer": 1, "explanation": "A dummy sentinel lets the loop uniformly attach nodes to 'tail.next' without extra logic for the very first attachment."},
+   {"question": "In RemoveNthFromEnd, why advance the fast pointer n steps before moving both pointers?", "options": ["To make the algorithm recursive", "To create a gap of n nodes so that when fast reaches the end, slow is exactly before the node to remove", "It's not necessary, any two pointers work", "To detect a cycle first"], "answer": 1, "explanation": "The n-node head start ensures that when fast reaches the list's end, slow has traveled exactly (length-n) nodes, landing right before the target."}
+  ],
+  "flashcards": [
+   {"front": "Reverse linked list pointers?", "back": "prev, cur, next — save next before rewiring cur.next = prev, then advance."},
+   {"front": "Cycle detection algorithm?", "back": "Floyd's slow/fast (tortoise/hare) — fast moves 2x, they meet if a cycle exists."},
+   {"front": "Find middle node trick?", "back": "Same slow/fast pointers; when fast ends, slow is at the middle."},
+   {"front": "Merge two sorted lists key structure?", "back": "Dummy head node to avoid first-node special-casing."},
+   {"front": "Remove Nth from end trick?", "back": "Advance fast pointer n steps first, then move both together; slow lands before the target node."}
+  ],
+  "revision30": "Linked list five classics: reverse with prev/cur/next rotation; detect a cycle and find the middle both with Floyd's slow/fast pointers; merge sorted lists with a dummy head zipping smaller-first; remove Nth-from-end by advancing a lead pointer n steps first. All O(n) time, O(1) space.",
+  "revision2min": "Five linked-list patterns cover most interview questions. Reversal iterates with three pointers — prev, cur, next — saving cur.next before overwriting it to point backward, then advancing; O(n)/O(1). Cycle detection uses Floyd's slow/fast (tortoise/hare) pointers: slow moves one step, fast moves two, and if a cycle exists fast necessarily catches slow since the gap between them shrinks by one each iteration; if fast hits null, there's no cycle. Finding the middle node reuses the exact same slow/fast mechanism — when fast reaches the end, slow (moving at half speed) is sitting at the middle. Merging two sorted lists uses a dummy sentinel head to avoid special-casing the first node, then repeatedly attaches whichever list's current node is smaller, finally appending the leftover tail of whichever list isn't exhausted. Removing the Nth node from the end is a lead-pointer trick: advance a fast pointer n steps ahead of a slow pointer first, then move both together — when fast reaches the end, slow sits exactly before the node to remove, enabling single-pass removal without first computing the list length. All five run in O(n) time and O(1) extra space (except a recursive reversal, which trades O(1) space for O(n) call-stack depth).",
+  "challenge": "Combine two of these classics: given a linked list, determine if it's a palindrome using O(1) extra space (hint: find the middle, reverse the second half, then compare).",
+  "related": ["array-classics", "dictionary-hashset-classics", "complexity-revision-table"],
+  "summary": "Most linked-list interview problems reduce to holding 2-3 pointers and moving them at carefully chosen relative speeds or offsets."
+ },
+ {
+  "id": "coding-12",
+  "title": "Array Classics",
+  "slug": "array-classics",
+  "category": "coding",
+  "difficulty": "Intermediate",
+  "estimatedTime": 9,
+  "emoji": "📊",
+  "icon": "Layers",
+  "tags": ["arrays", "two-pointers", "coding", "kadane", "interview"],
+  "keywords": ["move zeroes", "kadane's algorithm", "rotate array", "second largest", "merge sorted arrays", "max subarray"],
+  "companies": ["Amazon", "Microsoft", "Google", "TCS", "Accenture"],
+  "interviewQuestion": "Solve five classic in-place array problems: move zeroes to the end, find the maximum subarray sum, rotate an array by k, find the second largest element, and merge two sorted arrays in place.",
+  "story": {
+   "setup": "Picture organizing a bookshelf where books (numbers) need reshuffling — some in place, some pushed to the end, some rotated, all without buying a second shelf (O(1) space).",
+   "scenes": [
+    "MOVE ZEROES: a librarian slides every non-empty book to the front of the shelf, then fills the remaining slots at the end with blanks (zeroes) — one 'insert' pointer tracks where the next real book goes.",
+    "KADANE'S MAX SUBARRAY: walking the shelf, at each book you decide 'do I extend my current winning streak, or start fresh from here?' — keep whichever running streak is currently best.",
+    "ROTATE BY K: instead of shifting one book at a time k times, you cleverly reverse the WHOLE shelf, then reverse each of the two resulting sections — three reversals net a rotation.",
+    "SECOND LARGEST: one pass down the shelf, tracking both your current champion and runner-up, updating both as you go — no need to sort first.",
+    "MERGE TWO SORTED SHELVES IN PLACE: when one shelf has extra empty slots at the end, you fill it from the BACK — placing the largest remaining book from either shelf into the last open slot, working backward to avoid overwriting unmerged data."
+   ],
+   "moral": "Most array tricks are either two-pointer in-place rearrangement, one-pass running-state tracking, or filling from the correct direction to avoid overwriting data you still need."
+  },
+  "analogy": "Array classics are like reorganizing a bookshelf in place — sliding real books forward, tracking win-streaks, reversing sections to rotate, and filling merged space from the back to avoid overwriting.",
+  "animation": "array",
+  "explanation": "Move Zeroes: use an 'insert' pointer starting at 0; for each non-zero element, place it at nums[insert] and increment insert; after the pass, fill all remaining positions from insert to the end with 0. This preserves relative order of non-zero elements in O(n) time, O(1) space.\nKadane's Max Subarray: track 'current' (the best sum ending at the current position) and 'best' (the best sum seen overall). At each element, current = Math.Max(nums[i], current + nums[i]) — either extend the existing subarray or start fresh at the current element — then update best = Math.Max(best, current). O(n) time, O(1) space.\nRotate Right by K: use the triple-reversal trick — reverse the entire array, then reverse the first k elements, then reverse the remaining n-k elements. This achieves an in-place rotation in O(n) time, O(1) space, avoiding a naive O(n*k) shift-by-one-k-times approach.\nSecond Largest: single pass tracking two variables, first and second (largest and second largest seen so far), updating both appropriately as each new element is compared — O(n) time, O(1) space, no sorting required.\nMerge Two Sorted Arrays In Place: when one array has trailing empty space to accommodate the merge, fill from the BACK (largest indices first), comparing the largest remaining elements of each array and placing the bigger one at the current back position — this avoids overwriting elements in the first array that haven't been compared yet, which filling from the front would cause.",
+  "interviewAnswerShort": "Move Zeroes uses an insert pointer for non-zero elements then pads zeroes; Kadane's tracks a running current/best sum; rotation uses triple reversal; second largest tracks two running maxes in one pass; merging sorted arrays in place fills from the back to avoid overwrites.",
+  "interviewAnswerDetailed": "These five array patterns cover the most common in-place manipulation questions. Move Zeroes uses a single 'insert' pointer: as I scan the array, every non-zero element gets written to nums[insert] and insert increments; after the scan, everything from insert onward gets set to 0 — this preserves the relative order of non-zero elements in O(n)/O(1). Kadane's algorithm for max subarray sum tracks two running values: 'current', the best sum ending exactly at the current index, computed as Math.Max(nums[i], current + nums[i]) — meaning at each element I decide whether extending the previous subarray is still beneficial or whether starting fresh here is better — and 'best', the maximum current value seen so far; also O(n)/O(1). Rotating an array right by k uses a clever triple-reversal: reverse the whole array, then reverse the first k elements, then reverse the remaining elements — this achieves the rotation in O(n) time and O(1) space without the O(n*k) cost of naive one-step-at-a-time rotation. Finding the second largest element in one pass tracks two variables — first (largest so far) and second (second largest so far) — updating both correctly as each element is compared, avoiding a full sort which would cost O(n log n) versus this O(n) approach. Merging two sorted arrays in place — where the first array has trailing empty capacity to hold both — is a classic 'fill from the back' problem: you compare the largest remaining unmerged elements from each array and place the bigger one into the current back-most open slot, working backward; this specifically avoids the front-to-back approach's flaw of overwriting elements in the first array that haven't been compared and placed yet.",
+  "codeExample": {
+   "language": "csharp",
+   "code": "// Move zeroes (keep relative order) -- O(n)/O(1)\npublic static void MoveZeroes(int[] nums)\n{\n    int insert = 0;\n    for (int i = 0; i < nums.Length; i++)\n        if (nums[i] != 0) nums[insert++] = nums[i];\n    while (insert < nums.Length) nums[insert++] = 0;\n}\n\n// Kadane's max subarray sum\npublic static int MaxSubArray(int[] nums)\n{\n    int current = nums[0], best = nums[0];\n    for (int i = 1; i < nums.Length; i++)\n    {\n        current = Math.Max(nums[i], current + nums[i]);\n        best = Math.Max(best, current);\n    }\n    return best;\n}\n// [-2,1,-3,4,-1,2,1,-5,4] -> 6\n\n// Rotate right by k -- triple reversal, O(n)/O(1)\npublic static void Rotate(int[] nums, int k)\n{\n    int n = nums.Length;\n    k %= n;\n    Reverse(nums, 0, n - 1);\n    Reverse(nums, 0, k - 1);\n    Reverse(nums, k, n - 1);\n}\nstatic void Reverse(int[] a, int l, int r)\n{\n    while (l < r) { (a[l], a[r]) = (a[r], a[l]); l++; r--; }\n}\n\n// Second largest -- one pass\npublic static int SecondLargest(int[] nums)\n{\n    long first = long.MinValue, second = long.MinValue;\n    foreach (int n in nums)\n    {\n        if (n > first) { second = first; first = n; }\n        else if (n > second && n != first) { second = n; }\n    }\n    return (int)second;\n}\n\n// Merge two sorted arrays in place -- fill from the BACK\npublic static void Merge(int[] nums1, int m, int[] nums2, int n)\n{\n    int i = m - 1, j = n - 1, k = m + n - 1;\n    while (j >= 0)\n    {\n        nums1[k--] = (i >= 0 && nums1[i] > nums2[j]) ? nums1[i--] : nums2[j--];\n    }\n}",
+   "explanation": "Five classic in-place array patterns: insert-pointer compaction, Kadane's running max, triple-reversal rotation, one-pass dual-max tracking, and back-to-front merging."
+  },
+  "mistakes": [
+   "Move Zeroes: overwriting elements before reading them by not using a distinct insert pointer separate from the scan index",
+   "Kadane's: forgetting that 'current' can reset to a single element (Math.Max(nums[i], ...)) rather than always extending, which handles all-negative arrays incorrectly if omitted",
+   "Rotate: forgetting to take k %= n first, causing unnecessary or out-of-bounds work when k > n",
+   "Merge in place: filling from the FRONT instead of the back, which overwrites unprocessed elements in nums1 before they're compared"
+  ],
+  "followUps": [
+   {"question": "For Kadane's algorithm, how would you also return the actual subarray (not just the sum)?", "answer": "Track additional variables for the start and end indices: whenever you reset current to nums[i] (start fresh), update a tempStart index; whenever best updates, record start = tempStart and end = i."},
+   {"question": "Why does the triple-reversal trick work for rotation?", "answer": "Reversing the whole array puts elements in reverse order; then reversing each of the two segments (the k rotated-in elements and the rest) un-reverses them locally while keeping their new relative block positions — the net effect is a right rotation by k."},
+   {"question": "What if you need the second largest DISTINCT value, and duplicates of the largest should be ignored?", "answer": "The one-pass approach shown handles this via the `n != first` check when updating second, ensuring a duplicate of the max value doesn't get counted as the second largest."}
+  ],
+  "memoryHack": {
+   "emoji": "📚",
+   "oneLiner": "Insert pointer compacts, Kadane extends-or-restarts, triple-reverse rotates, back-fill merges.",
+   "mnemonic": "\"Insert-forward, extend-or-restart, reverse-reverse-reverse, fill from the back.\"",
+   "memoryPalace": "Picture a bookshelf: a librarian's single pointer slides real books left (zeroes), a runner decides each step whether to keep a winning streak or restart it (Kadane), three flips of two shelf sections rotate the books (reversal), and merging two sorted shelves happens by placing the biggest remaining book into the last open slot, working backward."
+  },
+  "bestPractices": [
+   "Use a distinct 'insert' pointer (not the loop index) for in-place compaction problems like Move Zeroes",
+   "Always seed Kadane's 'current' and 'best' with nums[0], not 0, to correctly handle all-negative arrays",
+   "Normalize k with k %= n before rotating to avoid redundant or invalid work",
+   "Fill from the correct end (back-to-front for merge-with-trailing-space) to avoid overwriting data not yet processed"
+  ],
+  "performanceTips": [
+   "All five patterns run in O(n) time and O(1) extra space — no auxiliary arrays or sorting needed",
+   "Kadane's O(n) beats the brute-force O(n²)/O(n³) subarray-sum approaches",
+   "Triple-reversal rotation O(n) beats naive single-step rotation which is O(n*k)",
+   "Back-to-front merge avoids the O(n) extra space a temp-array merge would require"
+  ],
+  "quiz": [
+   {"question": "In Kadane's algorithm, what does 'current = Math.Max(nums[i], current + nums[i])' represent?", "options": ["Always extending the previous subarray", "Choosing between extending the running subarray or starting fresh at the current element", "Finding the maximum element in the array", "Computing a prefix sum"], "answer": 1, "explanation": "This line decides whether the running subarray sum is still beneficial to extend, or whether it's better to abandon it and start a new subarray at the current element."},
+   {"question": "Why does the array rotation trick use THREE reversals?", "options": ["It's a coincidence, any number works", "Reversing the whole array, then each of the two resulting segments, produces a net rotation without extra space", "Three reversals sort the array", "It only needs one reversal, not three"], "answer": 1, "explanation": "The full reversal followed by two segment reversals is what produces a clean right-rotation by k using only O(1) extra space."},
+   {"question": "When merging two sorted arrays in place (one with trailing capacity), why fill from the back?", "options": ["It's faster", "Filling from the front would overwrite elements in the first array before they've been compared", "Back-to-front is required by C# syntax", "There's no difference, front-to-back also works"], "answer": 1, "explanation": "The first array's real (unmerged) data occupies its front portion; writing merged results front-to-back would clobber values not yet compared, whereas back-to-front writes into already-empty trailing slots first."}
+  ],
+  "flashcards": [
+   {"front": "Move Zeroes technique?", "back": "Insert pointer for non-zero elements, then pad remaining slots with 0."},
+   {"front": "Kadane's algorithm formula?", "back": "current = Math.Max(nums[i], current + nums[i]); best = Math.Max(best, current)"},
+   {"front": "Rotate array by k technique?", "back": "Triple reversal: reverse whole array, then reverse first k, then reverse remaining n-k."},
+   {"front": "Second largest in one pass?", "back": "Track first and second running maxes, updating both per comparison, no sort needed."},
+   {"front": "Merge sorted arrays in place direction?", "back": "Fill from the BACK to avoid overwriting unprocessed elements."}
+  ],
+  "revision30": "Array classics: Move Zeroes uses an insert pointer + zero padding; Kadane's tracks current/best running sums; Rotate by k uses triple reversal; Second Largest tracks two running maxes in one pass; Merge sorted arrays in place fills from the back. All O(n) time, O(1) space.",
+  "revision2min": "Five array patterns recur constantly in interviews. Move Zeroes uses an 'insert' pointer: every non-zero element gets compacted to the front in order, then the tail is padded with zeroes — O(n)/O(1). Kadane's algorithm finds the max subarray sum by tracking 'current' (best sum ending here, computed as Math.Max(nums[i], current + nums[i]) — extend or restart) and 'best' (the max current seen); this is O(n)/O(1) and famously turns an O(n²) or O(n³) brute force into linear time. Rotating an array right by k uses the triple-reversal trick: reverse the whole array, then reverse the first k elements, then reverse the rest — net effect is an O(n)/O(1) rotation, far better than shifting one element at a time k times (O(n*k)). Finding the second largest element needs only one pass tracking two running values, first and second, updated as each element is compared — no sort required, O(n) instead of O(n log n). Merging two sorted arrays in place, where one array has trailing empty capacity, must fill from the BACK: compare the largest remaining unmerged elements and place the bigger one in the last open slot, working backward — filling from the front would overwrite elements in the first array that haven't been compared yet.",
+  "challenge": "Given an array, find the maximum sum of a CIRCULAR subarray (the subarray can wrap around from the end to the beginning), building on Kadane's algorithm.",
+  "related": ["best-time-buy-sell-stock", "two-sum", "dictionary-hashset-classics"],
+  "summary": "Array classics reduce to a handful of patterns: insert-pointer compaction, extend-or-restart running sums, reversal-based rotation, and directionally-correct in-place merging."
+ },
+ {
+  "id": "coding-13",
+  "title": "Dictionary/HashSet Classics",
+  "slug": "dictionary-hashset-classics",
+  "category": "coding",
+  "difficulty": "Intermediate",
+  "estimatedTime": 8,
+  "emoji": "🗂️",
+  "icon": "Database",
+  "tags": ["hashmap", "hashset", "coding", "linq", "interview"],
+  "keywords": ["valid anagram", "group anagrams", "word frequency", "majority element", "boyer-moore voting", "intersection"],
+  "companies": ["Amazon", "Microsoft", "TCS", "Infosys", "Cognizant"],
+  "interviewQuestion": "Solve five classic hashmap/hashset problems: valid anagram, group anagrams, word frequency count, majority element, and array intersection.",
+  "story": {
+   "setup": "You're running a word-sorting office where letters and words are filed, tallied, and voted on using nothing but Dictionaries and HashSets.",
+   "scenes": [
+    "VALID ANAGRAM: count every letter of word 1 UP and every letter of word 2 DOWN in the same tally sheet — if you end at all zeroes, they're anagrams.",
+    "GROUP ANAGRAMS: file each word into a folder labeled by its letters SORTED alphabetically — 'eat', 'tea', 'ate' all land in the folder labeled 'aet'.",
+    "WORD FREQUENCY: split a sentence into words and let GroupBy count how many times each word shows up — one LINQ line does it.",
+    "MAJORITY ELEMENT: run an election where every vote for your current 'candidate' adds a point and every vote against subtracts one; if you ever hit zero, elect a new candidate — Boyer-Moore voting.",
+    "INTERSECTION: two guest lists compared with a HashSet lookup or LINQ's Intersect finds who's on BOTH lists in O(n+m)."
+   ],
+   "moral": "Dictionary and HashSet turn counting, grouping, voting, and comparing problems into single linear passes."
+  },
+  "analogy": "Hashmap classics are like a word-sorting office: tallying letters for anagram checks, filing by sorted-letter folders for grouping, counting votes for the majority element, and comparing guest lists for intersections.",
+  "animation": "generic",
+  "explanation": "Valid Anagram: use one Dictionary<char,int>, incrementing counts for every character in string s and decrementing for every character in string t; if all counts end at zero (and lengths match), they're anagrams. O(n) time, O(k) space.\nGroup Anagrams: for each word, compute a canonical key by sorting its characters alphabetically (e.g., 'eat'->'aet'); use that key in a Dictionary<string,List<string>> to group all words sharing the same sorted-letter signature. O(n*k log k) time (k = avg word length for the sort), O(n*k) space.\nWord Frequency: text.Split(' ').GroupBy(w => w).ToDictionary(g => g.Key, g => g.Count()) is a one-line LINQ solution counting occurrences of each word.\nMajority Element (Boyer-Moore voting): track a candidate and a vote counter; if votes hits 0, the current element becomes the new candidate; increment votes if the current element matches the candidate, decrement otherwise. The element appearing more than n/2 times will always survive as the final candidate. O(n) time, O(1) space — no hashmap needed at all.\nIntersection: use HashSet.Contains lookups, or LINQ's a.Intersect(b), to find common elements between two collections in O(n+m) time.",
+  "interviewAnswerShort": "Valid Anagram counts characters up for one string and down for the other, checking all zeroes; Group Anagrams keys by sorted characters; Word Frequency uses GroupBy; Majority Element uses Boyer-Moore voting (O(1) space, no hashmap); Intersection uses HashSet lookups.",
+  "interviewAnswerDetailed": "Valid Anagram checks if two strings are letter-for-letter rearrangements of each other. I use a single Dictionary<char,int>: increment the count for each character in the first string, decrement for each character in the second string; if every count ends at exactly zero (and the lengths matched initially), they're anagrams — O(n) time, O(k) space where k is alphabet size. Group Anagrams takes a list of words and buckets them by which words are anagrams of each other; the trick is computing a canonical signature for each word by sorting its characters alphabetically — 'eat', 'tea', and 'ate' all produce the signature 'aet' — then using a Dictionary<string,List<string>> keyed by that signature to collect the groups; O(n*k log k) time due to the per-word sort. Word Frequency is a classic LINQ one-liner: text.Split(' ').GroupBy(w => w).ToDictionary(g => g.Key, g => g.Count()) counts occurrences of each word in a sentence. Majority Element — finding the element appearing more than n/2 times — has an elegant O(1)-space solution called Boyer-Moore voting: maintain a 'candidate' and a 'votes' counter starting at 0; for each element, if votes is 0, that element becomes the new candidate; then increment votes if the element matches the candidate, else decrement. Mathematically, the true majority element (appearing more than half the time) always survives this process as the final candidate, since it can 'outvote' every other element combined. Finally, Intersection of two arrays or collections is solved with a HashSet for O(1) average lookups, or the LINQ a.Intersect(b) one-liner, both achieving O(n+m) time.",
+  "codeExample": {
+   "language": "csharp",
+   "code": "// Valid anagram -- count up with s, count down with t\npublic static bool IsAnagram(string s, string t)\n{\n    if (s.Length != t.Length) return false;\n    var counts = new Dictionary<char, int>();\n    foreach (char c in s) counts[c] = counts.GetValueOrDefault(c) + 1;\n    foreach (char c in t)\n    {\n        if (!counts.ContainsKey(c) || counts[c] == 0) return false;\n        counts[c]--;\n    }\n    return true;\n}\n\n// Group anagrams -- key = sorted letters (\"eat\",\"tea\",\"ate\" -> \"aet\")\npublic static List<List<string>> GroupAnagrams(string[] strs)\n{\n    var groups = new Dictionary<string, List<string>>();\n    foreach (var word in strs)\n    {\n        var key = new string(word.OrderBy(c => c).ToArray());\n        if (!groups.ContainsKey(key)) groups[key] = new List<string>();\n        groups[key].Add(word);\n    }\n    return groups.Values.ToList();\n}\n\n// Word frequency\npublic static Dictionary<string, int> WordFrequency(string text) =>\n    text.Split(' ', StringSplitOptions.RemoveEmptyEntries)\n        .GroupBy(w => w)\n        .ToDictionary(g => g.Key, g => g.Count());\n\n// Majority element -- Boyer-Moore voting, O(n)/O(1)\npublic static int MajorityElement(int[] nums)\n{\n    int cand = 0, votes = 0;\n    foreach (int n in nums)\n    {\n        if (votes == 0) cand = n;\n        votes += (n == cand) ? 1 : -1;\n    }\n    return cand;\n}\n\n// Intersection -- HashSet lookup\npublic static int[] Intersection(int[] a, int[] b)\n{\n    var setA = new HashSet<int>(a);\n    return setA.Intersect(b).ToArray();\n}",
+   "explanation": "Five hashmap/hashset patterns: counting-up-and-down for anagrams, sorted-key grouping, LINQ GroupBy counting, Boyer-Moore voting for O(1)-space majority detection, and Intersect/HashSet for set overlap."
+  },
+  "mistakes": [
+   "Valid Anagram: forgetting the initial length check, which can cause false positives/negatives or index errors",
+   "Group Anagrams: sorting the whole array of words instead of sorting each word's CHARACTERS to build the grouping key",
+   "Majority Element: assuming Boyer-Moore voting works without a guaranteed majority element existing — the algorithm requires a true majority (>n/2) to be reliable, otherwise it must be validated with a second pass",
+   "Intersection: using List.Contains in a loop instead of a HashSet, degrading from O(n+m) to O(n*m)"
+  ],
+  "followUps": [
+   {"question": "Why does Boyer-Moore voting work without any extra space?", "answer": "Because a true majority element (appearing more than n/2 times) can 'cancel out' every other element paired against it and still have votes remaining at the end — mathematically it's guaranteed to survive as the final candidate."},
+   {"question": "What if there's no guaranteed majority element — how do you verify the candidate?", "answer": "Do a second pass counting actual occurrences of the candidate and check if that count exceeds n/2; if not, no majority element exists."},
+   {"question": "How would you find all elements appearing MORE than n/3 times (Majority Element II)?", "answer": "Extend Boyer-Moore voting to track two candidates and two vote counters simultaneously, since at most two elements can appear more than n/3 times, then verify both with a second counting pass."}
+  ],
+  "memoryHack": {
+   "emoji": "🗳️",
+   "oneLiner": "Sort the letters to group; vote them out to find the majority.",
+   "mnemonic": "\"Count up/down for anagram twins; sorted key for anagram families; votes cancel to find the majority.\"",
+   "memoryPalace": "Picture a filing office: one tally sheet counts letters up then down for a pairwise anagram check, folders labeled by sorted letters group whole anagram families, and an election booth where each 'wrong' vote cancels a 'right' vote until only the true majority candidate survives."
+  },
+  "bestPractices": [
+   "Check string lengths first before comparing character counts for Valid Anagram — cheap early exit",
+   "Use sorted characters (not sorted words) as the grouping key for Group Anagrams",
+   "Verify a Boyer-Moore candidate with a second counting pass if a majority element isn't guaranteed to exist",
+   "Prefer HashSet-based lookups or LINQ Intersect over nested loops for intersection problems"
+  ],
+  "performanceTips": [
+   "Valid Anagram: O(n) time, O(k) space (k = alphabet size)",
+   "Group Anagrams: O(n*k log k) time due to per-word character sorting; can be reduced to O(n*k) using a character-count signature instead of a sorted string",
+   "Majority Element via Boyer-Moore: O(n) time, O(1) space — no hashmap needed at all, better than a Dictionary-based counting approach's O(n) space",
+   "Intersection via HashSet: O(n+m) time versus O(n*m) with nested-loop Contains checks"
+  ],
+  "quiz": [
+   {"question": "What guarantees that Boyer-Moore voting correctly finds the majority element?", "options": ["The array must be sorted first", "A true majority element (>n/2 occurrences) mathematically outlasts all other elements combined in the vote-cancellation process", "It only works for arrays of even length", "It requires a HashSet internally"], "answer": 1, "explanation": "Since the majority element appears more than half the time, it cannot be fully cancelled out by all other elements combined, guaranteeing it survives as the final candidate."},
+   {"question": "In Group Anagrams, what is used as the dictionary key for grouping words?", "options": ["The word's length", "The word's first character", "The word's characters sorted alphabetically", "The word's hash code"], "answer": 2, "explanation": "Sorting each word's characters produces a canonical signature shared by all its anagrams (e.g., 'eat','tea','ate' all sort to 'aet')."},
+   {"question": "Why is a HashSet preferred over List.Contains for finding array intersections?", "options": ["HashSet uses less memory always", "HashSet.Contains is O(1) average vs List.Contains being O(n), avoiding an O(n*m) nested-loop cost", "Lists can't store integers", "There's no actual performance difference"], "answer": 1, "explanation": "HashSet lookups are O(1) average, so checking each element of one collection against a HashSet built from the other gives O(n+m) instead of O(n*m)."}
+  ],
+  "flashcards": [
+   {"front": "Valid Anagram approach?", "back": "One Dictionary<char,int>: count up for string 1, count down for string 2; all zero = anagram."},
+   {"front": "Group Anagrams key?", "back": "Each word's characters sorted alphabetically (e.g., 'eat'->'aet')."},
+   {"front": "Boyer-Moore voting purpose?", "back": "Find the majority element (>n/2) in O(n) time, O(1) space — no hashmap."},
+   {"front": "Word frequency LINQ one-liner?", "back": "text.Split(' ').GroupBy(w => w).ToDictionary(g => g.Key, g => g.Count())"},
+   {"front": "Fastest array intersection?", "back": "HashSet lookup or LINQ Intersect, O(n+m) time."}
+  ],
+  "revision30": "Hashmap classics: Valid Anagram counts chars up/down in one Dictionary; Group Anagrams keys by sorted characters; Word Frequency uses LINQ GroupBy; Majority Element uses Boyer-Moore voting for O(1)-space; Intersection uses HashSet or LINQ Intersect.",
+  "revision2min": "Five hashmap/hashset patterns recur across interviews. Valid Anagram uses a single Dictionary<char,int>: increment counts for every character in the first string, decrement for every character in the second — if everything nets to zero (with matching lengths), they're anagrams, O(n) time. Group Anagrams buckets words by a canonical signature: sort each word's characters alphabetically ('eat'/'tea'/'ate' all become 'aet') and use that as a Dictionary<string,List<string>> key, O(n*k log k) time. Word Frequency is a one-line LINQ idiom: Split, GroupBy(w => w), ToDictionary with Count(). Majority Element — finding the value appearing more than n/2 times — has an elegant O(1)-SPACE solution via Boyer-Moore voting: track a candidate and a vote counter, resetting the candidate whenever votes hits zero, incrementing on a match and decrementing otherwise; the true majority element mathematically survives this cancellation process, no hashmap required at all. Intersection of two collections is best solved with a HashSet for O(1) average lookups, or LINQ's Intersect, both O(n+m) — far better than nested-loop Contains checks which degrade to O(n*m). The unifying theme: Dictionary/HashSet turn counting, grouping, voting, and comparing problems into single linear passes.",
+  "challenge": "Extend Majority Element to Majority Element II: find all elements appearing more than n/3 times in an array, using an extended Boyer-Moore voting with two candidates, in O(n) time and O(1) space.",
+  "related": ["two-sum", "contains-duplicate-find-duplicates", "find-duplicate-characters-in-a-word"],
+  "summary": "Dictionary and HashSet reduce anagram checks, grouping, frequency counting, majority finding, and intersection problems to a single linear pass each."
+ },
+ {
+  "id": "coding-14",
+  "title": "Infinite Loops and FizzBuzz",
+  "slug": "infinite-loops-and-fizzbuzz",
+  "category": "coding",
+  "difficulty": "Beginner",
+  "estimatedTime": 4,
+  "emoji": "🔁",
+  "icon": "Cpu",
+  "tags": ["loops", "control-flow", "coding", "fundamentals", "interview"],
+  "keywords": ["infinite loop", "while true", "for loop", "fizzbuzz", "modulo", "ternary operator"],
+  "companies": ["TCS", "Infosys", "Wipro", "Capgemini", "HCL"],
+  "interviewQuestion": "Show the different ways to write an infinite loop in C#, identify a common accidental infinite loop bug, and implement FizzBuzz.",
+  "story": {
+   "setup": "You're a warehouse worker on a conveyor belt that never stops — sometimes on purpose (an intentional infinite loop waiting for external events), sometimes by accident (a forgotten increment leaves you stuck forever).",
+   "scenes": [
+    "INTENTIONAL: a server's main loop is written as while(true) on purpose — it should run forever until an external signal (like Ctrl+C or a cancellation token) stops it.",
+    "ACCIDENTAL: a junior dev writes while (i < 5) { Console.WriteLine(i); } and forgets i++ — the belt never advances, the same item printed forever, CPU pegged at 100%.",
+    "FizzBuzz tests whether you can juggle THREE conditions cleanly: divisible by 15 (both 3 and 5) must be checked FIRST, before the individual 3-only or 5-only checks, or you'd never reach the combined case.",
+    "A nested ternary expresses all four branches (FizzBuzz, Fizz, Buzz, number) in one readable line, checking the most SPECIFIC condition (divisible by 15) first."
+   ],
+   "moral": "Infinite loops are a tool when intentional and a bug when accidental — the difference is always whether the exit condition can actually be reached."
+  },
+  "analogy": "An infinite loop is a conveyor belt that runs forever on purpose (waiting for a stop signal) or by accident (a forgotten increment) — FizzBuzz tests ordering your conditions from most to least specific.",
+  "animation": "generic",
+  "explanation": "C# offers three equivalent ways to write an intentional infinite loop: while(true){}, for(;;){}, and do{}while(true);. These are legitimate for scenarios like server listen loops, game loops, or polling loops, typically broken out of with a break statement or an external cancellation signal.\nAn ACCIDENTAL infinite loop, a common interview 'spot the bug' question, happens when a loop's exit condition can never become false — classically, forgetting to increment the loop variable (e.g., while(i<5){...} with no i++ inside), leaving i permanently unchanged and the condition permanently true.\nFizzBuzz (1 to 100): print 'FizzBuzz' if divisible by 15, 'Fizz' if only by 3, 'Buzz' if only by 5, else the number itself. The ORDER of checks matters — checking divisibility by 15 first (or checking 3 and 5 together) is required, because checking 3 or 5 individually first would never let you reach the combined case, since any number divisible by 15 is also divisible by 3 and 5 individually.",
+  "interviewAnswerShort": "Infinite loops (while(true), for(;;), do-while(true)) are intentional when waiting for an external stop signal, but accidental when a loop's exit condition can never change (e.g., a forgotten increment). FizzBuzz requires checking the combined divisible-by-15 case before the individual 3-only/5-only checks.",
+  "interviewAnswerDetailed": "C# has three syntactically different but functionally identical ways to write an infinite loop: while(true){}, for(;;){} (all three for-clauses omitted), and do{}while(true);. These are intentional and legitimate in scenarios like a server's request-handling loop, a game's render loop, or a polling loop — they're meant to run until an external condition (a cancellation token, a break statement, a received signal) stops them. The interview 'gotcha' variant is spotting an ACCIDENTAL infinite loop: a classic example is while (i < 5) { Console.WriteLine(i); } where the developer forgot to include i++ inside the loop body — since i never changes, the condition i < 5 remains true forever, and the loop prints 0 endlessly while consuming 100% of a CPU core. For FizzBuzz, the standard implementation loops from 1 to 100 and for each number checks: is it divisible by 15 (both 3 and 5)? Print 'FizzBuzz'. Else, divisible by 3 only? Print 'Fizz'. Else, divisible by 5 only? Print 'Buzz'. Else, print the number itself. The critical detail interviewers watch for is checking the combined divisible-by-15 condition FIRST (or checking both 3 and 5 as a compound condition before the individual checks) — because any number divisible by 15 is ALSO divisible by 3 and by 5 individually, so if you check %3==0 first, you'd incorrectly print just 'Fizz' for 15 and never reach the 'FizzBuzz' branch.",
+  "codeExample": {
+   "language": "csharp",
+   "code": "// Three equivalent intentional infinite loops\nwhile (true) { /* break or return to exit */ }\nfor (;;) { }\ndo { } while (true);\n\n// ACCIDENTAL infinite loop -- forgot i++\nint i = 0;\nwhile (i < 5)\n{\n    Console.WriteLine(i); // never increments, loops forever printing 0\n}\n\n// FizzBuzz -- check divisible-by-15 FIRST\nfor (int n = 1; n <= 100; n++)\n{\n    Console.WriteLine(\n        n % 15 == 0 ? \"FizzBuzz\" :\n        n % 3 == 0 ? \"Fizz\" :\n        n % 5 == 0 ? \"Buzz\" :\n        n.ToString());\n}",
+   "explanation": "Intentional infinite loops rely on an external break/return; an accidental one is missing a variable update; FizzBuzz's nested ternary checks the most specific (divisible by 15) condition first."
+  },
+  "mistakes": [
+   "Checking n % 3 == 0 before n % 15 == 0 in FizzBuzz, causing multiples of 15 to incorrectly print only 'Fizz'",
+   "Forgetting to increment/update the loop control variable, causing an unintentional infinite loop that pegs the CPU",
+   "Using while(true) without any break or external cancellation mechanism in production code, leaving no way to stop it gracefully",
+   "Using string concatenation instead of a switch expression or ternary chain for FizzBuzz, making the code harder to read"
+  ],
+  "followUps": [
+   {"question": "How would you write FizzBuzz using a switch expression instead of nested ternaries?", "answer": "switch ((n % 3, n % 5)) { case (0, 0) => \"FizzBuzz\", case (0, _) => \"Fizz\", case (_, 0) => \"Buzz\", _ => n.ToString() } — a C# 8+ tuple pattern switch expression, arguably more readable than nested ternaries."},
+   {"question": "How do you gracefully stop an intentional while(true) loop in a real application?", "answer": "Use a CancellationToken checked each iteration (while (!token.IsCancellationRequested)), or a break statement triggered by an internal condition, or in async contexts, await a signal like a SemaphoreSlim or channel."},
+   {"question": "What tools would you use to detect an accidental infinite loop in production?", "answer": "CPU usage monitoring/alerting (a pegged core), application performance monitoring (APM) tools showing a request that never completes, or attaching a debugger to inspect the stuck thread's call stack and variable state."}
+  ],
+  "memoryHack": {
+   "emoji": "🎯",
+   "oneLiner": "Check the most SPECIFIC condition first — 15 before 3 or 5.",
+   "mnemonic": "\"FizzBuzz: 15 first, or Fizz steals Buzz's thunder.\"",
+   "memoryPalace": "Picture a conveyor belt inspector who checks the RAREST label first (both Fizz AND Buzz stickers) before checking for just one sticker — checking the common label first would mean the rare double-labeled item never gets its correct tag."
+  },
+  "bestPractices": [
+   "Always check the most specific (combined) condition before the individual conditions in FizzBuzz-style branching",
+   "Ensure every intentional infinite loop has a reachable break condition or external cancellation mechanism",
+   "Double-check loop variables are actually updated inside the loop body during code review — a classic silent bug",
+   "Prefer a switch expression with tuple patterns over deeply nested ternaries for readability in modern C#"
+  ],
+  "performanceTips": [
+   "An accidental infinite loop pegs a CPU core at 100% and can starve other threads/requests — always verify loop termination conditions",
+   "FizzBuzz itself is O(n) with O(1) per-iteration work — trivial performance-wise, the focus is on correctness and code clarity",
+   "Use CancellationToken-based loops in async code instead of raw while(true) for cooperative, responsive cancellation"
+  ],
+  "quiz": [
+   {"question": "In FizzBuzz, why must the divisible-by-15 check come before the divisible-by-3 and divisible-by-5 checks?", "options": ["It's just a style preference", "Any number divisible by 15 is also divisible by 3 and 5, so checking those individually first would prevent ever reaching the combined 'FizzBuzz' case", "C# requires conditions in numeric order", "It doesn't actually matter"], "answer": 1, "explanation": "Since multiples of 15 satisfy both n%3==0 and n%5==0, checking either individual condition first would incorrectly short-circuit before the combined case is checked."},
+   {"question": "What is the bug in: int i = 0; while (i < 5) { Console.WriteLine(i); }?", "options": ["The condition should be i <= 5", "i is never incremented inside the loop, causing an infinite loop", "WriteLine is the wrong method", "There is no bug"], "answer": 1, "explanation": "Without i++ inside the loop body, i remains 0 forever, so the condition i < 5 never becomes false."},
+   {"question": "Which of these is NOT a valid way to write an intentional infinite loop in C#?", "options": ["while (true) { }", "for (;;) { }", "do { } while (true);", "loop { }"], "answer": 3, "explanation": "C# has no `loop` keyword; while(true), for(;;), and do-while(true) are the three standard forms."}
+  ],
+  "flashcards": [
+   {"front": "Three ways to write an infinite loop in C#?", "back": "while(true){}, for(;;){}, do{}while(true);"},
+   {"front": "Classic accidental infinite loop bug?", "back": "Forgetting to update the loop control variable (e.g., missing i++)."},
+   {"front": "FizzBuzz check order rule?", "back": "Check divisible-by-15 (or combined 3-and-5) FIRST, before individual 3-only or 5-only checks."},
+   {"front": "Graceful way to stop an intentional infinite loop?", "back": "Check a CancellationToken or break condition each iteration."}
+  ],
+  "revision30": "Infinite loops: while(true), for(;;), do-while(true) are intentional (need a break/cancellation); forgetting to update the loop variable creates an accidental one. FizzBuzz: check divisible-by-15 FIRST, since 3-only or 5-only checks would never let you reach the combined case.",
+  "revision2min": "C# supports three equivalent syntaxes for an intentional infinite loop: while(true){}, for(;;){}, and do{}while(true);. These are legitimate in scenarios like server loops or polling loops, always paired with an external break or cancellation mechanism (like a CancellationToken) to stop gracefully. The interview trap is spotting an ACCIDENTAL infinite loop — the classic example being while (i < 5) { Console.WriteLine(i); } with a forgotten i++, leaving the condition permanently true and pegging a CPU core at 100%. FizzBuzz, the ubiquitous warm-up question, prints 'FizzBuzz' for multiples of 15, 'Fizz' for multiples of 3 only, 'Buzz' for multiples of 5 only, and the number otherwise, looping 1 to 100. The critical detail is ORDER: the divisible-by-15 check (or an equivalent combined 3-and-5 check) must come FIRST, because any multiple of 15 also satisfies the individual %3==0 and %5==0 checks — checking those individually first would mean you'd print just 'Fizz' or 'Buzz' for 15 and never reach the correct combined branch. A nested ternary or a modern C# switch expression with tuple patterns both express this cleanly in one line.",
+  "challenge": "Rewrite FizzBuzz using a switch expression with tuple patterns (C# 8+) instead of nested ternary operators, and explain which is more readable and why.",
+  "related": ["complexity-revision-table", "prime-number", "array-classics"],
+  "summary": "Infinite loops are fine when intentional and exitable, dangerous when accidental (missing an increment); FizzBuzz's trick is checking the most specific condition first."
+ },
+ {
+  "id": "coding-15",
+  "title": "Complexity Revision Table",
+  "slug": "complexity-revision-table",
+  "category": "coding",
+  "difficulty": "Intermediate",
+  "estimatedTime": 7,
+  "emoji": "📋",
+  "icon": "Cpu",
+  "tags": ["complexity", "big-o", "coding", "interview", "revision"],
+  "keywords": ["time complexity", "space complexity", "big o notation", "two pointers", "hash lookup", "live coding protocol"],
+  "companies": ["Amazon", "Microsoft", "Google", "TCS", "Infosys"],
+  "interviewQuestion": "Summarize the time and space complexity of the classic coding problems, and describe your live-coding protocol for tackling a new problem in an interview.",
+  "story": {
+   "setup": "You're a coach reviewing game film with the team before the big match — a cheat sheet of every play (algorithm) and how fast/efficient it was, plus the pre-match routine every player follows.",
+   "scenes": [
+    "The coach's whiteboard lists every play: Two Sum uses the 'remember what you've seen' trick, Kadane uses the 'extend or restart' trick, cycle detection uses the 'fast catches slow' trick.",
+    "Almost every play on the board falls into just TWO families: two pointers (converging or racing) or a hash lookup (remembering what's been seen) — the meta-pattern.",
+    "Before every match, players run the same six-step warmup: state the naive play, propose the upgrade, run the play while narrating, walk through one example, state the final speed/memory cost, and call out the risky edge cases.",
+    "That warmup routine — not raw talent — is what separates a player who freezes under pressure from one who methodically works through any new problem thrown at them."
+   ],
+   "moral": "Almost every classic algorithm is a two-pointer trick or a hash lookup — and a structured live-coding routine turns unfamiliar problems into familiar patterns."
+  },
+  "analogy": "The complexity table is a coach's cheat sheet of every play and its speed, and the live-coding protocol is the pre-match warmup every player runs before tackling a new opponent.",
+  "animation": "generic",
+  "explanation": "The recurring meta-pattern across nearly all classic coding interview problems is one of two techniques: TWO POINTERS (converging from both ends like palindrome/reverse-string, or racing at different speeds like Floyd's cycle detection, or a lead-then-follow gap like remove-Nth-from-end) or a HASH LOOKUP (remembering seen values in O(1), like Two Sum, duplicates, and anagram grouping).\nKey complexities to have memorized: Two Sum O(n)/O(n), Duplicates O(n)/O(n), Buy/Sell Stock O(n)/O(1), Plus One O(n)/O(1), Palindrome Number O(d)/O(1), Reverse String O(n)/O(n), Roman to Integer O(n)/O(1), Reverse Linked List O(n)/O(1), Cycle Detection O(n)/O(1), Max Subarray (Kadane) O(n)/O(1), Rotate Array O(n)/O(1), Majority Element O(n)/O(1), Prime Check O(√n)/O(1).\nThe live-coding protocol for a new/unfamiliar problem: (1) state the brute-force approach and its complexity out loud first, (2) propose the optimization and WHY it helps, (3) write the code while narrating your reasoning, (4) dry-run through one concrete example to verify correctness, (5) state the final time/space complexity, (6) proactively name edge cases — empty input, single element, all negatives, integer overflow, and nulls.",
+  "interviewAnswerShort": "Nearly every classic algorithm reduces to two pointers (converging or racing) or a hash lookup (remembering what's been seen) — and a structured six-step protocol (brute force, optimize, code+narrate, dry-run, complexity, edge cases) handles any new problem methodically.",
+  "interviewAnswerDetailed": "Looking across the classic coding problems, almost everything reduces to one of two meta-patterns: two pointers or a hash lookup. Two pointers shows up as converging pointers from both ends (palindrome check, string reversal), racing pointers at different speeds (Floyd's cycle detection, finding the middle of a linked list), or a lead-then-follow gap (removing the Nth node from the end, or the sliding window family). Hash lookups show up whenever you need O(1) 'have I seen this before' checks — Two Sum, duplicate detection, anagram grouping, word frequency. Beyond recognizing the pattern, I have the complexity table memorized as a sanity check: Two Sum and duplicate detection are O(n) time/O(n) space; buy-sell-stock, plus-one, cycle detection, reverse-linked-list, Kadane's max subarray, array rotation, and majority element are all O(n) time but only O(1) space since they avoid extra hash structures; prime checking is the outlier at O(√n) time due to the square-root optimization. For any NEW problem I haven't seen before, I follow a consistent six-step live-coding protocol: first, I state the brute-force solution and its complexity out loud, even if I know it's not optimal — this shows I understand the baseline. Second, I propose the optimization and explain WHY it helps (usually 'trade space for time' via a hash structure, or 'avoid redundant work' via two pointers). Third, I write the code while narrating my reasoning step by step. Fourth, I dry-run the code against one concrete example to catch bugs before claiming it's done. Fifth, I explicitly state the final time and space complexity. Sixth, I proactively call out edge cases: empty input, a single-element input, all-negative values, potential integer overflow, and null references — showing defensive, production-minded thinking rather than just solving the happy path.",
+  "codeExample": {
+   "language": "csharp",
+   "code": "// The meta-pattern in code: TWO POINTERS vs HASH LOOKUP\n\n// Two pointers (converging) -- palindrome check\nint l = 0, r = s.Length - 1;\nwhile (l < r) { if (s[l] != s[r]) return false; l++; r--; }\n\n// Two pointers (racing) -- cycle detection\nListNode slow = head, fast = head;\nwhile (fast?.next != null)\n{\n    slow = slow.next; fast = fast.next.next;\n    if (slow == fast) return true; // fast lapped slow\n}\n\n// Hash lookup -- Two Sum\nvar seen = new Dictionary<int, int>();\nfor (int i = 0; i < nums.Length; i++)\n{\n    int need = target - nums[i];\n    if (seen.ContainsKey(need)) return new[] { seen[need], i };\n    seen[nums[i]] = i;\n}\n\n// Live coding protocol (narrate all six steps out loud):\n// 1. Brute force + its complexity\n// 2. Propose the optimization + why\n// 3. Code while narrating\n// 4. Dry-run one example\n// 5. State final time/space\n// 6. Name edge cases: empty, single element, all negatives, overflow, nulls",
+   "explanation": "Two representative patterns -- converging/racing two pointers and hash-lookup memoization -- cover nearly every classic problem, paired with the six-step live-coding protocol."
+  },
+  "mistakes": [
+   "Jumping straight to code without stating the brute force first, missing a chance to show structured thinking",
+   "Forgetting to state final time/space complexity explicitly at the end, leaving the interviewer to ask for it",
+   "Not dry-running the code against an example before declaring it finished, missing off-by-one or edge-case bugs",
+   "Failing to proactively mention edge cases (empty array, nulls, overflow) — interviewers often withhold this info to see if you ask or catch it yourself"
+  ],
+  "followUps": [
+   {"question": "Besides two pointers and hash lookups, what other meta-patterns are common in coding interviews?", "answer": "Sliding window (a variant of two pointers for subarray/substring problems), dynamic programming (breaking a problem into overlapping subproblems with memoization), sorting-first approaches, and binary search on sorted or monotonic search spaces."},
+   {"question": "Why is stating the brute force first valuable, even if you know the optimal solution immediately?", "answer": "It demonstrates structured problem-solving to the interviewer, establishes a complexity baseline to compare against, and sometimes reveals edge cases or constraints you might have missed by jumping straight to the 'clever' solution."},
+   {"question": "How do you handle a problem where you genuinely don't recognize the pattern?", "answer": "Fall back on the protocol: work a small example by hand, look for repeated sub-computations (suggesting hashing or memoization), check if sorting simplifies things, or check if the input has special structure (sorted, bounded range) that unlocks two pointers or binary search."}
+  ],
+  "memoryHack": {
+   "emoji": "🧭",
+   "oneLiner": "Everything is two pointers or a hash lookup — and always narrate the six steps.",
+   "mnemonic": "\"Brute, Better, Build, Bench(-test), Bound, Bugs\" — the 6 B's of live coding.",
+   "memoryPalace": "Picture a coach's whiteboard split into two columns — 'Two Pointers' and 'Hash Lookup' — with every classic problem's name pinned under one column, next to a laminated six-step warmup checklist taped to the locker room door."
+  },
+  "bestPractices": [
+   "Always verbalize the brute-force approach and its complexity before jumping to the optimized solution",
+   "Recognize whether a new problem fits the two-pointers or hash-lookup meta-pattern before writing any code",
+   "Dry-run your solution against at least one concrete example before declaring it complete",
+   "Proactively state edge cases (empty, single-element, all-negative, overflow, null) rather than waiting to be asked"
+  ],
+  "performanceTips": [
+   "Two-pointer solutions are almost always O(1) extra space; hash-lookup solutions trade O(n) space for O(n) time (vs O(n²) brute force)",
+   "Prime checking's O(√n) is a rare and specifically-tested exception worth memorizing separately",
+   "When in doubt about which pattern applies, check if the input is sorted (favors two pointers/binary search) or unsorted (favors hashing)"
+  ],
+  "quiz": [
+   {"question": "What are the two dominant meta-patterns across the classic coding problems reviewed?", "options": ["Recursion and dynamic programming", "Two pointers and hash lookups", "Sorting and binary search", "Greedy algorithms and backtracking"], "answer": 1, "explanation": "Nearly all the reviewed problems reduce to either a two-pointer technique (converging or racing) or a hash-based O(1) lookup for remembering seen values."},
+   {"question": "In the six-step live-coding protocol, what should you do FIRST when facing a new problem?", "options": ["Write the optimal solution immediately", "State the brute-force approach and its complexity", "Ask the interviewer for the answer", "Start with edge cases"], "answer": 1, "explanation": "Stating the brute force first establishes a complexity baseline and demonstrates structured, methodical problem-solving before optimizing."},
+   {"question": "Which classic problem is the notable exception with O(√n) time complexity rather than O(n)?", "options": ["Two Sum", "Prime number check", "Reverse linked list", "Kadane's max subarray"], "answer": 1, "explanation": "Prime checking only needs to test divisors up to the square root of n, giving O(√n) instead of the O(n) seen in most other classics."}
+  ],
+  "flashcards": [
+   {"front": "Two dominant meta-patterns in coding interviews?", "back": "Two pointers (converging/racing) and hash lookups (O(1) 'have I seen this' checks)."},
+   {"front": "Six-step live-coding protocol?", "back": "1. Brute force + complexity, 2. Propose optimization, 3. Code + narrate, 4. Dry-run example, 5. State final complexity, 6. Name edge cases."},
+   {"front": "Which classic problem is O(√n), not O(n)?", "back": "Prime number check."},
+   {"front": "Standard edge cases to always mention?", "back": "Empty input, single element, all negatives, overflow, nulls."}
+  ],
+  "revision30": "Almost every classic problem is two pointers (converging/racing) or a hash lookup (remembering seen values). Live-coding protocol: state brute force + complexity, propose optimization, code while narrating, dry-run an example, state final complexity, name edge cases (empty, single element, all-negative, overflow, nulls).",
+  "revision2min": "Reviewing the classic coding problems reveals a meta-pattern: nearly everything is either TWO POINTERS or a HASH LOOKUP. Two pointers appears as converging pointers from both ends (palindrome, string reversal), racing pointers at different speeds (Floyd's cycle detection, finding a linked list's middle), or a lead-then-follow gap (remove Nth from end). Hash lookups appear whenever O(1) 'have I seen this value before' checks are needed (Two Sum, duplicate detection, anagram grouping, word frequency). Memorized complexities: most O(n) time problems are O(n) space if they use a hash structure (Two Sum, duplicates) or O(1) space if they use two pointers or running variables (buy/sell stock, plus one, cycle detection, reverse linked list, Kadane's, rotate array, majority element); prime checking is the standout exception at O(√n) time due to the square-root bound. For tackling any new, unfamiliar problem, follow a consistent six-step live-coding protocol: (1) state the brute-force approach and its complexity out loud, (2) propose an optimization and explain why it helps, (3) write the code while narrating your reasoning, (4) dry-run the solution against one concrete example, (5) explicitly state the final time and space complexity, and (6) proactively name edge cases — empty input, a single element, all-negative values, integer overflow, and nulls. This structured routine turns an unfamiliar problem into a methodical, demonstrable process rather than a guessing game.",
+  "challenge": "Take an unfamiliar problem — e.g., 'find the length of the longest substring without repeating characters' — and apply the six-step live-coding protocol out loud, identifying whether it fits the two-pointers or hash-lookup meta-pattern (hint: it's actually both, a sliding window with a hash set).",
+  "related": ["two-sum", "linked-list-five-classics", "array-classics"],
+  "summary": "Nearly every classic coding problem is a two-pointer trick or a hash lookup, and a disciplined six-step live-coding protocol turns any new problem into a structured, demonstrable process."
+ }
+]
