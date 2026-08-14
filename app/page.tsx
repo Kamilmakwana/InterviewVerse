@@ -4,7 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import {
   ArrowRight, BookOpen, Mic, Brain, Zap, Trophy, Network,
-  Sparkles, Play, Star,
+  Sparkles, Play, Star, Github,
 } from "lucide-react";
 import { AnimatedBackground } from "@/components/shared/animated-background";
 import { FloatingCards } from "@/components/shared/floating-cards";
@@ -45,6 +45,15 @@ export default function Landing() {
           <span>Interview&nbsp;<span className="gradient-text">Verse</span></span>
         </span>
         <div className="ml-auto flex items-center gap-3">
+          <a
+            href="https://github.com/Kamilmakwana/InterviewVerse"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Star InterviewVerse on GitHub"
+            className="grid h-9 w-9 place-items-center rounded-xl border border-border text-muted transition-colors hover:text-fg"
+          >
+            <Github className="h-4 w-4" />
+          </a>
           <LanguageSwitcher />
           <ThemeToggle />
           <Link
